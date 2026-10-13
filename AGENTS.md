@@ -1,60 +1,48 @@
-# Koharu VitePress migration: Codex project instructions
+# Koharu Vue template: project instructions
 
-项目说明：本期只迁移公开博客前端，保留 Markdown；不做写作室、CMS、碎碎念或 Python 后端。先盘点和验证，再逐阶段实现。下文是供 Codex 在新项目目录执行的长期约束。
+## Project objective
 
-## Objective and context
+Build a static, interactive blog frontend template with Vue 3, Vite, and TypeScript. Use https://github.com/cosZone/astro-koharu as a visual and interaction reference, not as an application architecture to migrate verbatim. The project will later connect to a separate backend; for now, pages use local mock data. `README.md` describes the current scope and planned pages. The repository directory name is historical and does not prescribe VitePress.
 
-Rebuild the public publishing site of https://github.com/cosZone/astro-koharu/ with VitePress, Vue 3 and TypeScript. Keep Markdown files as the content source. This is a static-site migration, not a Vue + Vite SPA conversion: every public article must have build-generated HTML, working direct links and page metadata. In a later, separate phase, a Python service may provide authoring, persistence and audit history; do not build that service now.
+## Current scope
 
-The reference review used upstream commit `329ce55513a8057708c93c11c5b8c096680ad83c`. On project start, record the actual reference commit in `docs/migration-inventory.md`. Do not silently upgrade the reference during migration.
+- Implement the site shell, responsive navigation, light/dark theme, home, post list/detail, categories, tags, archives, friends, and about pages in manageable stages.
+- Use Vue 3 single-file components with `<script setup lang="ts">`. Prefer Vue Router for page navigation. Use TypeScript types for content and UI states.
+- Make the template useful with representative mock data and working interactions. Support loading, empty, error, and not-found states where data is read.
+- Keep `pages/` dependent on typed functions in `services/`, not directly on `data/`. Start with a local implementation; preserve the boundary for a later HTTP implementation. Do not invent a production API or put credentials in client code.
+- Treat search, series, music, Bangumi, internationalization, and third-party comments as optional follow-up work requiring an explicit decision before implementation.
 
-## Scope
+## Out of scope
 
-Included: published Markdown articles and existing public blog pages; home, article, category, tag, archive, series, friend links and enabled standalone pages; responsive visual style; theme switching; table of contents and reading interactions; configured search, comments, music, Bangumi, internationalization, RSS, sitemap, canonical and social metadata; enabled Markdown extensions (including Shoka syntax); encrypted posts and blocks. Inventory optional features before implementing them, and track parity against the selected reference configuration.
+Do not add VitePress, Astro runtime, React, Markdown/MDX as a content source or parser, a CMS/editor, backend, database, authentication, authoring APIs, RSS, sitemap, or article prerendering to satisfy the current template goal. Do not carry over the former VitePress migration plan. Documentation files such as this one may of course be Markdown.
 
-Excluded: writing room/editor, React CMS, moments, Python backend, authentication, authoring APIs, and the original management/backup CLI. Do not bring editor, CMS or moments code or dependencies into the publishing app. Whether AI summaries, semantic recommendations, analytics and other optional upstream features are included must be decided explicitly in the inventory; do not claim full parity while leaving enabled features unaccounted for.
+A Vite-built client app can be hosted as static assets, but this does not produce standalone article HTML. If direct server-readable post content or SEO prerendering becomes a requirement, discuss and design that separately. For history-mode routes, document and verify the hosting fallback to `index.html`; client-side navigation alone does not prove deep links work after refresh.
 
-## Source and workspace rules
+## Reference and assets
 
-- Treat the Astro repository as read-only reference. Work only in this project's directory. Do not modify a sibling project or a system temp checkout.
-- Clone the upstream repository into a separate reference directory (or use an existing local clone), pin its commit, and keep it out of this application's build, Git commits and public assets. Document upstream license and attribution obligations before copying code or assets.
-- Use `pnpm`, Vue 3 SFCs with `<script setup lang="ts">`, and VitePress custom theme conventions. Check installed VitePress documentation before depending on version-specific APIs.
-- Reuse design tokens and assets where appropriate, but rewrite Astro templates and React islands as Vue components. Avoid a bulk file-extension rename or embedding React merely to preserve the old implementation.
-- Keep content conversion in a testable build-time layer. Separate source Markdown/frontmatter, normalized article metadata, page generation, and rendered Vue UI. This boundary should later allow Python-generated content to replace the initial Markdown feed without rewriting the theme.
-- Keep a compatibility inventory for every existing article URL and image path. Preserve routes where practical; otherwise generate explicit redirects. Do not change slugs as a side effect of file placement.
-- Respect existing user changes in any workspace; do not delete or overwrite unrelated work.
+- Read the upstream repository as a reference. Before detailed visual work, select and record a reference commit and capture representative desktop/mobile screenshots. Do not silently change the chosen reference midway through implementation.
+- Reimplement layouts and behavior in Vue. Do not bulk-copy Astro/React templates or bring their dependencies into this application.
+- Check the upstream license and each image/font/third-party asset's terms before copying. Record the origin and attribution for assets actually used. Do not assume all public repository assets have the same license.
+- Do not modify an upstream checkout or unrelated sibling project. Keep reference material outside the application bundle and public assets unless it is intentionally licensed and used.
 
-## Content and security invariants
+## Development conventions
 
-- Drafts are absent from emitted HTML, assets, feeds, indexes, sitemap and exposed source files.
-- Encrypted post/block plaintext must not appear in generated HTML, JavaScript, JSON, search indexes, RSS, source `.md` downloads or other deployable files. Encrypt before publishing and add a build-output leak test using a distinctive fixture secret. Do not use CSS hiding as encryption.
-- Public Markdown source download/copy actions, if retained, are disabled for posts with a password or any encrypted block, matching the reference behavior.
-- Preserve public frontmatter meaning, date/time zone behavior, translated content fallbacks and links. Report unsupported directives with file and line context rather than silently dropping them.
-- Do not expose credentials or server-only configuration through VitePress theme data or client bundles.
+- Use Bun for dependency management and project scripts. When initializing, verify the installed Bun version, set `packageManager`, and commit its lockfile (`bun.lock` for versions that generate it). Do not mix npm, pnpm, or yarn lockfiles.
+- Follow existing project conventions before adding new dependencies or abstractions. Use CSS variables for shared color and theme tokens; ensure responsive layouts work at desktop and narrow mobile widths.
+- Keep mock entities stable and realistic: IDs, slugs, dates, excerpts, categories, and tags should be coherent across pages. Define service return types so the eventual API adapter can replace the mock implementation without changing presentation components.
+- Keep page components focused on presentation and interaction. Shared layout and reusable UI belong in components; routing/configuration in app; types in types; mock content in data; data access in services.
+- Preserve user changes. Inspect Git status before edits, avoid unrelated rewrites, and do not restore old VitePress files just because they remain in Git history.
 
-## Implementation order and gates
+## Execution and validation
 
-1. Inventory and feasibility: compare upstream routes, configuration, public widgets, Markdown syntax, assets and a representative article corpus. Produce `docs/migration-inventory.md` with feature status (`required`, `optional/enabled`, `excluded`), source location, target approach, risk, acceptance case and URL mapping. Test one ordinary article, one rich-syntax article, one multilingual article and one encrypted fixture. Do not start a full visual port before this gate.
-2. Skeleton and content model: initialize VitePress/TypeScript, a custom Vue theme, normalized content metadata and build-time generated article/index pages. Establish route and metadata tests. Validate that direct navigation to a nested article URL returns rendered HTML without relying on client-side routing.
-3. Public pages and style: migrate site shell, article layout, home/list/detail pages, category/tag/archive/series navigation, mobile layout, light/dark themes and shared assets. Compare reference and new site at desktop/mobile widths.
-4. Markdown parity: implement the syntax actually present or explicitly required, then extend toward the selected upstream feature set. Verify headings/anchors, links, code blocks, diagrams/math, directives, embeds, image behavior and encrypted content against snapshot fixtures.
-5. Public integrations: search, comments, feeds, sitemap/robots/SEO, locale routes, music/Bangumi and other enabled public integrations. Decide per integration whether it runs at build time or in the client; document third-party keys and availability behavior.
-6. Release validation: run production build, static-output security scan, broken-link checks, representative content comparison, viewport tests, accessibility checks and smoke tests for deep links and optional integrations. Publish a parity report listing deliberate differences and remaining gaps.
+1. Initialize a minimal Vue + Vite + TypeScript project using Bun, Vue Router, type checking, and focused tests. Verify the development server and production build.
+2. Establish a documented visual baseline from the chosen upstream revision; implement theme tokens, site shell, and responsive navigation.
+3. Implement home, post list, and post detail against typed mock services. Test routes, major interactions, and data states.
+4. Add category, tag, archive, friends, and about views. Compare desktop/mobile screenshots to the reference and document deliberate differences.
+5. Run type checks, tests, production build, route/deep-link checks, basic accessibility checks, and an asset/license review. Record remaining optional features and future backend integration points.
 
-Each phase should end with a working build and tests for the behavior it introduces. Do not claim a phase complete on visual similarity alone. Keep migration commits small.
+Each stage should leave a working build for behavior it introduces. Do not claim pages or tests have been completed merely because they are listed in documentation. Keep changes scoped and report what was verified versus what still requires deployment-specific configuration.
 
-## Working estimates
+## Immediate next task
 
-Baseline for one full-time developer: 22 effective work weeks / approximately 880 hours, excluding holidays and waiting for approvals. Planning buckets: inventory 80h; foundation 80h; pages and styling 200h; Markdown 160h; public integrations 160h; encryption/advanced features 80h; validation/release 80h; contingency 40h. This is a planning baseline, not a promise of feature parity before the inventory is complete. Re-estimate if the selected reference enables additional integrations or syntax.
-
-## Definition of done
-
-- Published routes have statically generated HTML, correct metadata and functional direct/deep links.
-- The agreed public feature matrix is marked implemented or explicitly accepted as a difference, with evidence.
-- Markdown source remains maintainable and representative articles render correctly.
-- Draft and encrypted plaintext leak tests pass against the actual deployable output.
-- Build, type checks, unit/integration tests and desktop/mobile smoke tests pass; deployment and future Python content-boundary notes are documented.
-
-## First task for Codex in this folder
-
-Inspect the chosen upstream revision and create the migration inventory with a small VitePress feasibility spike. Show the feature matrix, route map, source-content shape, security findings and revised estimate before bulk migration. Ask for a decision only when a product choice cannot be inferred from the selected upstream configuration.
+Initialize the minimal Vue 3 + Vite + TypeScript app with Bun. Set up typed mock-data boundaries and routing, then implement the site shell and home page based on a recorded upstream visual reference. Do not start a Markdown migration or a backend service.
