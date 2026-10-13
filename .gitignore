@@ -3,6 +3,7 @@ node_modules/
 .bun/
 .vite/
 .codegraph/
+.reference/
 
 # Build and test output
 dist/
