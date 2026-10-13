@@ -25,11 +25,7 @@ onMounted(load)
 </script>
 
 <template>
-  <PageHeading
-    title="友人来信"
-    eyebrow="FRIENDS"
-    description="去看看这些有趣的角落，遇见不同的日常。"
-  />
+  <PageHeading title="友人来信" eyebrow="FRIENDS" description="去看看这些有趣的角落，遇见不同的日常。" />
   <p v-if="loading" class="status-message" role="status">正在加载友链...</p>
   <div v-else-if="error" class="status-message" role="alert">
     友链暂时无法加载。<button type="button" @click="load">重试</button>

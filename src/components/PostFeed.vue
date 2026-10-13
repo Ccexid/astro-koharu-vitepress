@@ -5,13 +5,10 @@ import PostCard from './PostCard.vue'
 import { useScrollReveal } from '../composables/useScrollReveal'
 import type { Post } from '../types/post'
 
-const props = withDefaults(
-  defineProps<{ posts: Post[]; searchable?: boolean; pageSize?: number }>(),
-  {
-    searchable: false,
-    pageSize: 4,
-  },
-)
+const props = withDefaults(defineProps<{ posts: Post[]; searchable?: boolean; pageSize?: number }>(), {
+  searchable: false,
+  pageSize: 4,
+})
 
 const query = ref('')
 const page = ref(1)
@@ -25,9 +22,7 @@ const filteredPosts = computed(() => {
       .includes(value),
   )
 })
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(filteredPosts.value.length / props.pageSize)),
-)
+const pageCount = computed(() => Math.max(1, Math.ceil(filteredPosts.value.length / props.pageSize)))
 const visiblePosts = computed(() =>
   filteredPosts.value.slice((page.value - 1) * props.pageSize, page.value * props.pageSize),
 )
@@ -48,12 +43,7 @@ function goToPage(nextPage: number) {
   <div v-if="searchable" class="feed-tools">
     <label class="search-field">
       <Search :size="18" aria-hidden="true" />
-      <input
-        v-model="query"
-        type="search"
-        placeholder="搜索标题、分类或标签"
-        aria-label="筛选文章"
-      />
+      <input v-model="query" type="search" placeholder="搜索标题、分类或标签" aria-label="筛选文章" />
       <button v-if="query" type="button" aria-label="清除筛选" @click="query = ''">
         <X :size="16" aria-hidden="true" />
       </button>
@@ -85,12 +75,7 @@ function goToPage(nextPage: number) {
     >
       {{ number }}
     </button>
-    <button
-      type="button"
-      :disabled="page === pageCount"
-      aria-label="下一页"
-      @click="goToPage(page + 1)"
-    >
+    <button type="button" :disabled="page === pageCount" aria-label="下一页" @click="goToPage(page + 1)">
       <ArrowRight :size="16" aria-hidden="true" />
     </button>
   </nav>

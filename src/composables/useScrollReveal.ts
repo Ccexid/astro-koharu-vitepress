@@ -2,10 +2,7 @@ import { nextTick, onMounted, onUnmounted, watch, type Ref, type WatchSource } f
 
 const reducedMotionPreference = '(prefers-reduced-motion: reduce)'
 
-export function useScrollReveal(
-  container: Readonly<Ref<HTMLElement | null>>,
-  items: WatchSource<unknown>,
-) {
+export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, items: WatchSource<unknown>) {
   const revealed = new WeakSet<HTMLElement>()
   let observer: IntersectionObserver | undefined
   let motionQuery: MediaQueryList | undefined

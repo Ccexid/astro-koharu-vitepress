@@ -1,9 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useTheme } from '../src/composables/useTheme'
 
-function installBrowser(
-  options: { reducedMotion?: boolean; supportsViewTransitions?: boolean } = {},
-) {
+function installBrowser(options: { reducedMotion?: boolean; supportsViewTransitions?: boolean } = {}) {
   const classes = new Set<string>()
   const root = {
     dataset: {} as Record<string, string>,

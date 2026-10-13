@@ -52,12 +52,7 @@ watch(() => route.fullPath, closeMenu)
         <span>Koharu</span>
       </RouterLink>
 
-      <nav
-        id="site-navigation"
-        class="primary-nav"
-        :class="{ 'is-open': menuOpen }"
-        aria-label="主导航"
-      >
+      <nav id="site-navigation" class="primary-nav" :class="{ 'is-open': menuOpen }" aria-label="主导航">
         <RouterLink
           v-for="(link, index) in links"
           :key="link.to"

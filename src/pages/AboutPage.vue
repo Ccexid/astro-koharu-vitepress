@@ -17,8 +17,7 @@ import PageHeading from '../components/PageHeading.vue'
       构建。当前展示的是结构化的本地示例内容，页面读取统一经过服务层；未来可以替换为独立后端提供的数据。
     </p>
     <p>
-      视觉风格参考 astro-koharu
-      的公开博客，但页面布局和组件在这里重新实现。文章、作者与友链均为演示内容。
+      视觉风格参考 astro-koharu 的公开博客，但页面布局和组件在这里重新实现。文章、作者与友链均为演示内容。
     </p>
   </div>
 </template>

@@ -19,9 +19,7 @@ function sortedPosts(source: Post[]): Post[] {
   return [...source].sort((left, right) => right.publishedAt.localeCompare(left.publishedAt))
 }
 
-function taxonomyFromPosts(
-  select: (post: Post) => Array<{ name: string; slug: string }>,
-): TaxonomyItem[] {
+function taxonomyFromPosts(select: (post: Post) => Array<{ name: string; slug: string }>): TaxonomyItem[] {
   const counts = new Map<string, TaxonomyItem>()
 
   for (const post of posts) {
@@ -68,9 +66,7 @@ export async function getTag(slug: string): Promise<TaxonomyItem | null> {
 }
 
 export async function listPostsByTag(slug: string): Promise<Post[]> {
-  return sortedPosts(posts.filter((post) => post.tags.some((tag) => tag.slug === slug))).map(
-    clonePost,
-  )
+  return sortedPosts(posts.filter((post) => post.tags.some((tag) => tag.slug === slug))).map(clonePost)
 }
 
 export async function listArchives(): Promise<ArchiveYear[]> {

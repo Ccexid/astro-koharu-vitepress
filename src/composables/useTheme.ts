@@ -51,10 +51,7 @@ export function useTheme() {
     const rect = origin.getBoundingClientRect()
     const x = rect.left + rect.width / 2
     const y = rect.top + rect.height / 2
-    const radius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y),
-    )
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
 
     root.style.setProperty('--theme-x', `${x}px`)
     root.style.setProperty('--theme-y', `${y}px`)

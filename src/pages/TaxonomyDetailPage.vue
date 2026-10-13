@@ -54,9 +54,7 @@ onMounted(load)
     <PostFeed :posts="posts" :page-size="4" />
     <p class="back-index">
       <RouterLink :to="`/${root}`"
-        ><ArrowLeft :size="15" aria-hidden="true" /> 返回{{
-          isCategory ? '分类' : '标签'
-        }}列表</RouterLink
+        ><ArrowLeft :size="15" aria-hidden="true" /> 返回{{ isCategory ? '分类' : '标签' }}列表</RouterLink
       >
     </p>
   </template>

@@ -32,21 +32,14 @@ onMounted(load)
   <PageHeading
     :title="isCategory ? '文章分类' : '文章标签'"
     :eyebrow="isCategory ? 'CATEGORIES' : 'TAGS'"
-    :description="
-      isCategory ? '循着话题，找到感兴趣的故事。' : '从一个词出发，遇见更多相近的念头。'
-    "
+    :description="isCategory ? '循着话题，找到感兴趣的故事。' : '从一个词出发，遇见更多相近的念头。'"
   />
   <p v-if="loading" class="status-message" role="status">正在加载...</p>
   <div v-else-if="error" class="status-message" role="alert">
     内容暂时无法加载。<button type="button" @click="load">重试</button>
   </div>
   <div v-else-if="items.length" class="taxonomy-grid">
-    <RouterLink
-      v-for="item in items"
-      :key="item.slug"
-      class="taxonomy-item"
-      :to="`/${root}/${item.slug}`"
-    >
+    <RouterLink v-for="item in items" :key="item.slug" class="taxonomy-item" :to="`/${root}/${item.slug}`">
       <span class="taxonomy-icon" aria-hidden="true">{{ isCategory ? '✿' : '#' }}</span>
       <span class="taxonomy-name">{{ item.name }}</span>
       <span class="taxonomy-count">{{ item.count }} 篇文章</span>

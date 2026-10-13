@@ -5,11 +5,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <section
-    class="site-hero"
-    :class="{ 'is-home': route.path === '/' }"
-    aria-labelledby="site-title"
-  >
+  <section class="site-hero" :class="{ 'is-home': route.path === '/' }" aria-labelledby="site-title">
     <img
       class="hero-image"
       src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2200&q=88"

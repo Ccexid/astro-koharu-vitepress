@@ -29,9 +29,7 @@ defineProps<{ post: Post }>()
             #{{ tag.name }}
           </RouterLink>
         </div>
-        <span class="read-time"
-          ><Clock3 :size="14" aria-hidden="true" />{{ post.readingMinutes }} 分钟</span
-        >
+        <span class="read-time"><Clock3 :size="14" aria-hidden="true" />{{ post.readingMinutes }} 分钟</span>
       </div>
     </div>
     <RouterLink class="card-open" :to="`/posts/${post.slug}`" :aria-label="`阅读：${post.title}`">

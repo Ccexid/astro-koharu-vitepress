@@ -45,9 +45,7 @@ describe('mock post service', () => {
       'keep-a-gentle-notebook',
       'photos-without-a-plan',
     ])
-    expect((await listPostsByTag('vue')).map((post) => post.slug)).toEqual([
-      'routes-with-vue-router',
-    ])
+    expect((await listPostsByTag('vue')).map((post) => post.slug)).toEqual(['routes-with-vue-router'])
     expect(await listPostsByCategory('missing')).toEqual([])
     expect(await listPostsByTag('missing')).toEqual([])
   })

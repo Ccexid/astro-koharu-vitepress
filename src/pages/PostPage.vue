@@ -88,9 +88,7 @@ watch(
       </div>
       <nav v-if="post.sections.length" class="article-toc" aria-label="文章目录">
         <p>本文目录</p>
-        <a v-for="section in post.sections" :key="section.id" :href="`#${section.id}`">{{
-          section.title
-        }}</a>
+        <a v-for="section in post.sections" :key="section.id" :href="`#${section.id}`">{{ section.title }}</a>
       </nav>
     </div>
 
@@ -108,10 +106,7 @@ watch(
       </RouterLink>
       <span v-else></span>
       <RouterLink v-if="nextPost" :to="`/posts/${nextPost.slug}`">
-        <span
-          >下一篇
-          <ArrowRight :size="15" aria-hidden="true" /> </span
-        ><strong>{{ nextPost.title }}</strong>
+        <span>下一篇 <ArrowRight :size="15" aria-hidden="true" /> </span><strong>{{ nextPost.title }}</strong>
       </RouterLink>
     </nav>
   </article>
