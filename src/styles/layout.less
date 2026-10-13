@@ -21,7 +21,7 @@
 
 .content-shell {
   display: grid;
-  width: min(100% - 48px, 1160px);
+  width: min(calc(100% - 48px), 1160px);
   grid-template-columns: 220px minmax(0, 1fr);
   align-items: start;
   gap: clamp(36px, 5vw, 72px);
@@ -48,7 +48,7 @@
 
 .footer-inner {
   display: flex;
-  width: min(100% - 48px, 1160px);
+  width: min(calc(100% - 48px), 1160px);
   min-height: 86px;
   align-items: center;
   justify-content: space-between;

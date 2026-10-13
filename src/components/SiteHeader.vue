@@ -44,8 +44,8 @@ watch(() => route.fullPath, closeMenu)
         aria-controls="site-navigation"
         @click="menuOpen = !menuOpen"
       >
-        <X v-if="menuOpen" :size="20" aria-hidden="true" />
-        <Menu v-else :size="20" aria-hidden="true" />
+        <X v-if="menuOpen" :size="15" aria-hidden="true" />
+        <Menu v-else :size="15" aria-hidden="true" />
       </button>
 
       <RouterLink class="wordmark" to="/" aria-label="Koharu 首页" @click="closeMenu">
@@ -149,8 +149,8 @@ watch(() => route.fullPath, closeMenu)
 
 .icon-button {
   display: inline-grid;
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid rgb(255 255 255 / 45%);
