@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ArrowUpRight } from 'lucide-vue-next'
-import PageHeading from '../components/PageHeading.vue'
-import { listFriends } from '../services/posts'
-import type { Friend } from '../types/post'
+import PageHeading from '@/components/PageHeading.vue'
+import { listFriends } from '@/services/posts'
+import type { Friend } from '@/types/post'
 
 const friends = ref<Friend[]>([])
 const loading = ref(true)

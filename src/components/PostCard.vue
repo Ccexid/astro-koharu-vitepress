@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ArrowUpRight, Clock3 } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import type { Post } from '../types/post'
+import type { Post } from '@/types/post'
 
 defineProps<{ post: Post }>()
 </script>

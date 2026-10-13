@@ -2,10 +2,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { ArrowLeft } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import PageHeading from '../components/PageHeading.vue'
-import PostFeed from '../components/PostFeed.vue'
-import { getCategory, getTag, listPostsByCategory, listPostsByTag } from '../services/posts'
-import type { Post, TaxonomyItem } from '../types/post'
+import PageHeading from '@/components/PageHeading.vue'
+import PostFeed from '@/components/PostFeed.vue'
+import { getCategory, getTag, listPostsByCategory, listPostsByTag } from '@/services/posts'
+import type { Post, TaxonomyItem } from '@/types/post'
 
 const props = defineProps<{ kind: 'category' | 'tag'; slug: string }>()
 const item = ref<TaxonomyItem | null>(null)

@@ -1,4 +1,4 @@
-import type { Post } from '../types/post'
+import type { Post } from '@/types/post'
 
 const blossomCover =
   'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1600&q=85'

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import PageHeading from '../components/PageHeading.vue'
-import { listArchives } from '../services/posts'
-import type { ArchiveYear } from '../types/post'
+import PageHeading from '@/components/PageHeading.vue'
+import { listArchives } from '@/services/posts'
+import type { ArchiveYear } from '@/types/post'
 
 const archives = ref<ArchiveYear[]>([])
 const loading = ref(true)

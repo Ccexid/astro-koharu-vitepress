@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { Menu, X } from 'lucide-vue-next'
 import { RouterLink, useRoute } from 'vue-router'
-import type { Theme } from '../composables/useTheme'
+import type { Theme } from '@/composables/useTheme'
 
 defineProps<{ theme: Theme }>()
 const emit = defineEmits<{ toggleTheme: [origin: HTMLElement] }>()

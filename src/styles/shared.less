@@ -1,0 +1,117 @@
+.section-topline {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0 23px;
+}
+
+.section-eyebrow {
+  margin: 0 0 3px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.section-title-row h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.15rem;
+  font-weight: 650;
+}
+
+.section-title-row h2 span {
+  margin-left: 7px;
+  color: var(--petal);
+  font-family: var(--font-body);
+  font-size: 0.56em;
+  vertical-align: middle;
+}
+
+.all-posts-link,
+.home-more a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--petal-deep);
+  font-size: 0.79rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.home-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 31px;
+}
+
+.home-more a {
+  padding: 10px 19px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+.status-message {
+  padding: 22px;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.status-message button {
+  margin-left: 8px;
+  border: 0;
+  background: none;
+  color: var(--petal-deep);
+  text-decoration: underline;
+}
+
+.empty-page {
+  display: grid;
+  min-height: 320px;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.empty-symbol {
+  margin: 0 0 3px;
+  color: var(--petal-deep);
+  font-family: Georgia, serif;
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.empty-page h1 {
+  margin: 11px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+}
+
+.empty-page > p:not(.empty-symbol) {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.empty-page a,
+.back-index a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--petal-deep);
+  font-size: 0.84rem;
+  text-decoration: none;
+}

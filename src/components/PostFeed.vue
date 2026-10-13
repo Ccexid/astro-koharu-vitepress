@@ -2,8 +2,8 @@
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { ArrowLeft, ArrowRight, Search, X } from 'lucide-vue-next'
 import PostCard from './PostCard.vue'
-import { useScrollReveal } from '../composables/useScrollReveal'
-import type { Post } from '../types/post'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+import type { Post } from '@/types/post'
 
 const props = withDefaults(defineProps<{ posts: Post[]; searchable?: boolean; pageSize?: number }>(), {
   searchable: false,

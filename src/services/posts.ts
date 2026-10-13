@@ -1,6 +1,6 @@
-import { friends } from '../data/friends'
-import { posts } from '../data/posts'
-import type { ArchiveYear, Friend, Post, TaxonomyItem } from '../types/post'
+import { friends } from '@/data/friends'
+import { posts } from '@/data/posts'
+import type { ArchiveYear, Friend, Post, TaxonomyItem } from '@/types/post'
 
 function clonePost(post: Post): Post {
   return {

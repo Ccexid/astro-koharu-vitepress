@@ -1,4 +1,4 @@
-import type { Friend } from '../types/post'
+import type { Friend } from '@/types/post'
 
 export const friends: Friend[] = [
   {

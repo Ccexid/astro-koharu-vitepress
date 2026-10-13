@@ -2,8 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { ArrowLeft, ArrowRight, CalendarDays, Clock3 } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import { getPost, listPosts } from '../services/posts'
-import type { Post } from '../types/post'
+import { getPost, listPosts } from '@/services/posts'
+import type { Post } from '@/types/post'
 
 const props = defineProps<{ slug: string }>()
 const post = ref<Post | null>(null)

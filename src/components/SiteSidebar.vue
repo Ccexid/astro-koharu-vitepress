@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { listCategories, listPosts, listTags } from '../services/posts'
-import type { Post, TaxonomyItem } from '../types/post'
+import { listCategories, listPosts, listTags } from '@/services/posts'
+import type { Post, TaxonomyItem } from '@/types/post'
 
 const posts = ref<Post[]>([])
 const categories = ref<TaxonomyItem[]>([])

@@ -1,0 +1,48 @@
+@font-face {
+  font-family: 'ChillRoundF';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/ChillRoundF.ttf') format('truetype');
+}
+
+:root {
+  --page-bg: #fffafa;
+  --surface: #fff;
+  --ink: #342d33;
+  --muted: #786d75;
+  --petal: #d94f73;
+  --petal-deep: #b8335a;
+  --petal-soft: #fae9ee;
+  --leaf-deep: #527860;
+  --line: #efdee4;
+  --motion-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-route: cubic-bezier(0.76, 0, 0.24, 1);
+  --motion-ease-hover: cubic-bezier(0.25, 1, 0.5, 1);
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 260ms;
+  --motion-duration-route: 520ms;
+  --motion-duration-hover: 480ms;
+  --motion-duration-enter: 760ms;
+  --motion-duration-menu: 560ms;
+  --font-body: 'ChillRoundF', 'Noto Sans CJK SC', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+  --font-display: 'ChillRoundF', 'Iowan Old Style', 'Noto Serif SC', 'Songti SC', Georgia, serif;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--page-bg);
+  font-synthesis: none;
+  scroll-behavior: smooth;
+}
+
+:root[data-theme='dark'] {
+  --page-bg: #19171d;
+  --surface: #242129;
+  --ink: #f4edf2;
+  --muted: #b9adb8;
+  --petal: #f18ba4;
+  --petal-deep: #f18ba4;
+  --petal-soft: #3c2c38;
+  --leaf-deep: #a3c7a9;
+  --line: #39333d;
+  color-scheme: dark;
+}

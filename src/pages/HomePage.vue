@@ -2,9 +2,9 @@
 import { onMounted, ref } from 'vue'
 import { ArrowRight } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import PostFeed from '../components/PostFeed.vue'
-import { listPosts } from '../services/posts'
-import type { Post } from '../types/post'
+import PostFeed from '@/components/PostFeed.vue'
+import { listPosts } from '@/services/posts'
+import type { Post } from '@/types/post'
 
 const posts = ref<Post[]>([])
 const loading = ref(true)

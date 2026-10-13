@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import PageHeading from '../components/PageHeading.vue'
-import PostFeed from '../components/PostFeed.vue'
-import { listPosts } from '../services/posts'
-import type { Post } from '../types/post'
+import PageHeading from '@/components/PageHeading.vue'
+import PostFeed from '@/components/PostFeed.vue'
+import { listPosts } from '@/services/posts'
+import type { Post } from '@/types/post'
 
 const posts = ref<Post[]>([])
 const loading = ref(true)

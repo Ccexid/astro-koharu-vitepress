@@ -9,7 +9,7 @@ import TaxonomyDetailPage from '../pages/TaxonomyDetailPage.vue'
 import TaxonomyIndexPage from '../pages/TaxonomyIndexPage.vue'
 import AboutPage from '../pages/AboutPage.vue'
 import BangumiPage from '../pages/BangumiPage.vue'
-import { getCategory, getPost, getTag } from '../services/posts'
+import { getCategory, getPost, getTag } from '@/services/posts'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

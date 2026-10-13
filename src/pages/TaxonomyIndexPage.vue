@@ -2,9 +2,9 @@
 import { computed, onMounted, ref } from 'vue'
 import { ArrowUpRight } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import PageHeading from '../components/PageHeading.vue'
-import { listCategories, listTags } from '../services/posts'
-import type { TaxonomyItem } from '../types/post'
+import PageHeading from '@/components/PageHeading.vue'
+import { listCategories, listTags } from '@/services/posts'
+import type { TaxonomyItem } from '@/types/post'
 
 const props = defineProps<{ kind: 'category' | 'tag' }>()
 const items = ref<TaxonomyItem[]>([])

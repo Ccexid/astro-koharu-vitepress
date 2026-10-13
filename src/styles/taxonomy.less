@@ -1,0 +1,49 @@
+.taxonomy-grid,
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.taxonomy-item {
+  position: relative;
+  display: grid;
+  min-height: 132px;
+  align-content: center;
+  padding: 20px 23px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.taxonomy-icon {
+  color: var(--petal-deep);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.taxonomy-name {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 650;
+}
+
+.taxonomy-count {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.taxonomy-arrow {
+  position: absolute;
+  right: 20px;
+  bottom: 19px;
+  color: var(--petal-deep);
+}
+
+.back-index {
+  margin-top: 26px;
+}
