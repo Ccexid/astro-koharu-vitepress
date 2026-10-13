@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Menu, Moon, Sun, X } from 'lucide-vue-next'
+import { Menu, X } from 'lucide-vue-next'
 import { RouterLink, useRoute } from 'vue-router'
 import type { Theme } from '../composables/useTheme'
 
 defineProps<{ theme: Theme }>()
-const emit = defineEmits<{ toggleTheme: [] }>()
+const emit = defineEmits<{ toggleTheme: [origin: HTMLElement] }>()
 const menuOpen = ref(false)
 const route = useRoute()
 
@@ -21,6 +21,12 @@ const links = [
 
 function closeMenu() {
   menuOpen.value = false
+}
+
+function handleThemeToggle(event: MouseEvent) {
+  if (event.currentTarget instanceof HTMLElement) {
+    emit('toggleTheme', event.currentTarget)
+  }
 }
 
 watch(() => route.fullPath, closeMenu)
@@ -70,10 +76,12 @@ watch(() => route.fullPath, closeMenu)
         type="button"
         :aria-label="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
         :title="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
-        @click="emit('toggleTheme')"
+        :aria-pressed="theme === 'dark'"
+        @click="handleThemeToggle"
       >
-        <Sun v-if="theme === 'dark'" :size="19" aria-hidden="true" />
-        <Moon v-else :size="19" aria-hidden="true" />
+        <span class="theme-toggle-icon" aria-hidden="true">
+          <span class="theme-toggle-indicator" />
+        </span>
       </button>
     </div>
   </header>

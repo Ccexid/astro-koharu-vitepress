@@ -43,11 +43,15 @@ watch(
     <p class="empty-symbol">404</p>
     <h1>这篇文章还不存在</h1>
     <p>检查链接，或回到文章列表继续阅读。</p>
-    <RouterLink to="/posts">浏览文章 <ArrowRight :size="16" aria-hidden="true" /></RouterLink>
+    <RouterLink to="/posts"
+      >浏览文章
+      <ArrowRight :size="16" aria-hidden="true" />
+    </RouterLink>
   </div>
   <article v-else class="article-page">
     <nav class="article-breadcrumb" aria-label="当前位置">
-      <RouterLink to="/">首页</RouterLink><span>/</span><RouterLink to="/posts">文章</RouterLink>
+      <RouterLink to="/">首页</RouterLink><span>/</span>
+      <RouterLink to="/posts">文章</RouterLink>
       <span>/</span><span>{{ post.title }}</span>
     </nav>
     <div class="article-intro">
@@ -57,12 +61,12 @@ watch(
       <h1>{{ post.title }}</h1>
       <p class="article-deck">{{ post.excerpt }}</p>
       <div class="article-meta">
-        <span
-          ><CalendarDays :size="16" aria-hidden="true" /><time :datetime="post.publishedAt">{{
+        <span>
+          <CalendarDays :size="16" aria-hidden="true" /><time :datetime="post.publishedAt">{{
             post.publishedAt
-          }}</time></span
-        >
-        <span><Clock3 :size="16" aria-hidden="true" />{{ post.readingMinutes }} 分钟阅读</span>
+          }}</time>
+        </span>
+        <span> <Clock3 :size="16" aria-hidden="true" />{{ post.readingMinutes }} 分钟阅读 </span>
       </div>
     </div>
 
@@ -99,12 +103,14 @@ watch(
 
     <nav class="article-neighbors" aria-label="前后文章">
       <RouterLink v-if="previousPost" :to="`/posts/${previousPost.slug}`">
-        <span><ArrowLeft :size="15" aria-hidden="true" /> 上一篇</span
+        <span> <ArrowLeft :size="15" aria-hidden="true" /> 上一篇 </span
         ><strong>{{ previousPost.title }}</strong>
       </RouterLink>
       <span v-else></span>
       <RouterLink v-if="nextPost" :to="`/posts/${nextPost.slug}`">
-        <span>下一篇 <ArrowRight :size="15" aria-hidden="true" /></span
+        <span
+          >下一篇
+          <ArrowRight :size="15" aria-hidden="true" /> </span
         ><strong>{{ nextPost.title }}</strong>
       </RouterLink>
     </nav>
