@@ -1,12 +1,64 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import ArchivesPage from '../pages/ArchivesPage.vue'
+import FriendsPage from '../pages/FriendsPage.vue'
+import NotFoundPage from '../pages/NotFoundPage.vue'
+import PostsPage from '../pages/PostsPage.vue'
 import HomePage from '../pages/HomePage.vue'
 import PostPage from '../pages/PostPage.vue'
+import TaxonomyDetailPage from '../pages/TaxonomyDetailPage.vue'
+import TaxonomyIndexPage from '../pages/TaxonomyIndexPage.vue'
+import AboutPage from '../pages/AboutPage.vue'
+import { getCategory, getPost, getTag } from '../services/posts'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: HomePage },
+    { path: '/posts', component: PostsPage },
     { path: '/posts/:slug', component: PostPage, props: true },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
+    { path: '/categories', component: TaxonomyIndexPage, props: { kind: 'category' } },
+    {
+      path: '/categories/:slug',
+      component: TaxonomyDetailPage,
+      props: (route) => ({ kind: 'category', slug: String(route.params.slug) }),
+    },
+    { path: '/tags', component: TaxonomyIndexPage, props: { kind: 'tag' } },
+    {
+      path: '/tags/:slug',
+      component: TaxonomyDetailPage,
+      props: (route) => ({ kind: 'tag', slug: String(route.params.slug) }),
+    },
+    { path: '/archives', component: ArchivesPage },
+    { path: '/friends', component: FriendsPage },
+    { path: '/about', component: AboutPage },
+    { path: '/:pathMatch(.*)*', component: NotFoundPage },
   ],
+})
+
+const pageTitles: Record<string, string> = {
+  '/': '一封春日来信',
+  '/posts': '所有文章',
+  '/categories': '文章分类',
+  '/tags': '文章标签',
+  '/archives': '时光归档',
+  '/friends': '友人来信',
+  '/about': '关于',
+}
+
+router.afterEach(async (to) => {
+  let title = pageTitles[to.path]
+  if (!title && to.path.startsWith('/posts/')) {
+    title = (await getPost(String(to.params.slug)))?.title || ''
+  }
+  if (!title && to.path.startsWith('/categories/')) {
+    title = (await getCategory(String(to.params.slug)))?.name || ''
+  }
+  if (!title && to.path.startsWith('/tags/')) {
+    title = (await getTag(String(to.params.slug)))?.name || ''
+  }
+  document.title = `${title ?? '页面不存在'} · Koharu`
+  window.scrollTo({
+    top: 0,
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'instant',
+  })
 })
