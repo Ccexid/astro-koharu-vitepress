@@ -8,6 +8,7 @@ import PostPage from '../pages/PostPage.vue'
 import TaxonomyDetailPage from '../pages/TaxonomyDetailPage.vue'
 import TaxonomyIndexPage from '../pages/TaxonomyIndexPage.vue'
 import AboutPage from '../pages/AboutPage.vue'
+import BangumiPage from '../pages/BangumiPage.vue'
 import { getCategory, getPost, getTag } from '../services/posts'
 
 export const router = createRouter({
@@ -29,6 +30,7 @@ export const router = createRouter({
       props: (route) => ({ kind: 'tag', slug: String(route.params.slug) }),
     },
     { path: '/archives', component: ArchivesPage },
+    { path: '/bangumi', component: BangumiPage },
     { path: '/friends', component: FriendsPage },
     { path: '/about', component: AboutPage },
     { path: '/:pathMatch(.*)*', component: NotFoundPage },
@@ -41,6 +43,7 @@ const pageTitles: Record<string, string> = {
   '/categories': '文章分类',
   '/tags': '文章标签',
   '/archives': '时光归档',
+  '/bangumi': '追番记录',
   '/friends': '友人来信',
   '/about': '关于',
 }

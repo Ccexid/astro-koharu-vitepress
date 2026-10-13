@@ -15,6 +15,7 @@ const links = [
   { label: '分类', to: '/categories' },
   { label: '标签', to: '/tags' },
   { label: '归档', to: '/archives' },
+  { label: '追番', to: '/bangumi' },
   { label: '友链', to: '/friends' },
   { label: '关于', to: '/about' },
 ]
