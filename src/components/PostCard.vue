@@ -1,39 +1,53 @@
 <script setup lang="ts">
-import { ArrowUpRight, Clock3 } from 'lucide-vue-next'
+import { CalendarDays, Clock3, Flag, Tag } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import type { Post } from '@/types/post'
 
-defineProps<{ post: Post }>()
+withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
+  leftClip: true,
+})
 </script>
 
 <template>
-  <article class="post-card">
-    <RouterLink class="post-cover-link" :to="`/posts/${post.slug}`" :aria-label="post.title">
-      <img class="post-cover" :src="post.cover" :alt="post.coverAlt" loading="lazy" />
+  <article class="post-card" :data-cover-side="leftClip ? 'left' : 'right'">
+    <RouterLink class="post-cover-link" :to="`/posts/${post.slug}`" tabindex="-1" aria-hidden="true">
+      <img class="post-cover" :src="post.cover" alt="" loading="lazy" decoding="async" />
       <span v-if="post.pinned" class="cover-label">置顶文章</span>
     </RouterLink>
+
     <div class="post-card-body">
       <div class="post-meta-line">
         <RouterLink class="category-link" :to="`/categories/${post.category.slug}`">
-          {{ post.category.name }}
+          <Flag :size="13" aria-hidden="true" />
+          <span>{{ post.category.name }}</span>
         </RouterLink>
-        <time :datetime="post.publishedAt">{{ post.publishedAt.replaceAll('-', '.') }}</time>
+        <div class="post-meta-details">
+          <time :datetime="post.publishedAt">
+            <CalendarDays :size="13" aria-hidden="true" />
+            {{ post.publishedAt.replaceAll('-', '.') }}
+          </time>
+          <span class="read-time">
+            <Clock3 :size="13" aria-hidden="true" />{{ post.readingMinutes }} 分钟
+          </span>
+        </div>
       </div>
-      <h3>
+
+      <h3 class="post-title">
         <RouterLink :to="`/posts/${post.slug}`">{{ post.title }}</RouterLink>
       </h3>
       <p class="post-excerpt">{{ post.excerpt }}</p>
-      <div class="post-card-bottom">
+
+      <div v-if="post.tags.length" class="post-card-footer">
         <div class="post-tags" aria-label="文章标签">
           <RouterLink v-for="tag in post.tags" :key="tag.slug" :to="`/tags/${tag.slug}`">
-            #{{ tag.name }}
+            <Tag :size="12" aria-hidden="true" />{{ tag.name }}
           </RouterLink>
         </div>
-        <span class="read-time"><Clock3 :size="14" aria-hidden="true" />{{ post.readingMinutes }} 分钟</span>
       </div>
     </div>
-    <RouterLink class="card-open" :to="`/posts/${post.slug}`" :aria-label="`阅读：${post.title}`">
-      <ArrowUpRight :size="17" aria-hidden="true" />
+
+    <RouterLink class="post-item-more" :to="`/posts/${post.slug}`" tabindex="-1" aria-hidden="true">
+      more...
     </RouterLink>
   </article>
 </template>
@@ -41,79 +55,145 @@ defineProps<{ post: Post }>()
 <style scoped>
 .post-card {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(190px, 0.78fr) minmax(0, 1.35fr);
+  display: flex;
   min-width: 0;
+  min-height: 186px;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 8px;
   background: var(--surface);
+  box-shadow: 0 5px 15px rgb(52 45 51 / 10%);
+  transition:
+    translate var(--motion-duration-hover) var(--motion-ease-hover),
+    box-shadow var(--motion-duration-hover) var(--motion-ease-hover);
 }
 
 .post-cover-link {
   position: relative;
   display: block;
-  min-height: 202px;
+  width: calc(50% - 2rem);
+  min-width: 0;
+  max-height: 186px;
+  flex: 0 0 calc(50% - 2rem);
   overflow: hidden;
   background: var(--petal-soft);
+  transition: clip-path 900ms var(--motion-ease-enter);
+}
+
+.post-card[data-cover-side='left'] .post-cover-link {
+  order: 1;
+  border-radius: 8px 0 0 8px;
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 0 100%);
+}
+
+.post-card[data-cover-side='right'] .post-cover-link {
+  order: 2;
+  border-radius: 0 8px 8px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%);
 }
 
 .post-cover {
   display: block;
   width: 100%;
-  height: 100%;
-  min-height: 202px;
+  height: 186px;
   object-fit: cover;
+  transition:
+    scale 900ms var(--motion-ease-enter),
+    filter 900ms var(--motion-ease-enter);
 }
 
 .cover-label {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 5px 9px;
-  border-radius: 2px;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 3px;
   background: var(--petal-deep);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.69rem;
   font-weight: 650;
 }
 
 .post-card-body {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-width: 0;
+  flex: 1;
   flex-direction: column;
-  justify-content: center;
-  padding: 24px 30px 22px;
+  gap: 8px;
+  padding: 15px 16px 36px;
+}
+
+.post-card[data-cover-side='left'] .post-card-body {
+  order: 2;
+  margin-left: -12px;
+}
+
+.post-card[data-cover-side='right'] .post-card-body {
+  order: 1;
+  margin-right: -12px;
+}
+
+.post-meta-line,
+.post-meta-details,
+.category-link,
+.post-meta-line time,
+.read-time {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
 }
 
 .post-meta-line {
-  display: flex;
-  align-items: center;
-  gap: 11px;
+  justify-content: space-between;
+  gap: 8px;
   color: var(--muted);
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
 }
 
 .category-link {
+  gap: 5px;
+  overflow: hidden;
   color: var(--leaf-deep);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.73rem;
+  font-weight: 650;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.post-card h3 {
-  margin: 12px 30px 8px 0;
+.category-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-meta-details {
+  flex: 0 0 auto;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.post-meta-line time,
+.read-time {
+  gap: 4px;
+  color: var(--muted);
+}
+
+.post-title {
+  min-width: 0;
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1.32rem;
-  font-weight: 650;
+  font-size: 1.16rem;
+  font-weight: 700;
   line-height: 1.45;
 }
 
-.post-card h3 a {
-  color: var(--ink);
+.post-title a {
+  display: block;
+  overflow: hidden;
+  color: var(--petal-deep);
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .post-excerpt {
@@ -121,127 +201,198 @@ defineProps<{ post: Post }>()
   overflow: hidden;
   margin: 0;
   color: var(--muted);
-  font-size: 0.87rem;
-  line-height: 1.75;
+  font-size: 0.82rem;
+  line-height: 1.65;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
 }
 
-.post-card-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 18px;
+.post-card-footer {
+  min-width: 0;
+  margin-top: auto;
 }
 
 .post-tags {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  overflow-x: auto;
+  gap: 7px;
+  scrollbar-width: none;
+}
+
+.post-card[data-cover-side='left'] .post-tags {
+  padding-right: 60px;
+}
+
+.post-card[data-cover-side='right'] .post-tags {
+  padding-left: 60px;
+}
+
+.post-tags::-webkit-scrollbar {
+  display: none;
 }
 
 .post-tags a {
-  color: var(--muted);
-  font-size: 0.73rem;
-  text-decoration: none;
-}
-
-.read-time {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: var(--petal-soft);
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.card-open {
+.post-item-more {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--surface);
-  color: var(--petal-deep);
-  opacity: 0;
+  z-index: 2;
+  bottom: 0;
+  padding: 6px 12px;
+  background: linear-gradient(110deg, var(--petal), var(--petal-deep));
+  color: #fff;
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition:
+    translate 500ms var(--motion-ease-enter),
+    box-shadow 500ms var(--motion-ease-enter);
 }
 
-.post-card:focus-within .card-open {
-  opacity: 1;
+.post-card[data-cover-side='left'] .post-item-more {
+  right: 0;
+  border-radius: 6px 0 0;
+}
+
+.post-card[data-cover-side='right'] .post-item-more {
+  left: 0;
+  border-radius: 0 6px 0 0;
+}
+
+.post-card:focus-within {
+  outline: 2px solid var(--petal);
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .post-card {
+    flex-direction: column;
+  }
+
+  .post-cover-link {
+    width: 100%;
+    max-height: 186px;
+    flex: 0 0 186px;
+    order: 0 !important;
+    border-radius: 8px 8px 0 0 !important;
+    clip-path: none !important;
+  }
+
+  .post-card-body,
+  .post-card[data-cover-side='left'] .post-card-body,
+  .post-card[data-cover-side='right'] .post-card-body {
+    width: 100%;
+    min-height: 176px;
+    margin: 0;
+    padding: 14px 16px 38px;
+    order: 1;
+  }
+
+  .post-tags,
+  .post-card[data-cover-side='left'] .post-tags,
+  .post-card[data-cover-side='right'] .post-tags {
+    padding-right: 60px;
+    padding-left: 0;
+  }
+
+  .post-item-more,
+  .post-card[data-cover-side='right'] .post-item-more {
+    right: 0;
+    left: auto;
+    border-radius: 6px 0 0;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .post-card {
-    transition:
-      border-color var(--motion-duration-hover) var(--motion-ease-hover),
-      transform var(--motion-duration-hover) var(--motion-ease-hover),
-      box-shadow var(--motion-duration-hover) var(--motion-ease-hover);
-  }
-
-  .card-open {
-    transition: opacity var(--motion-duration-fast) ease;
-  }
-
   .post-card:hover {
-    border-color: color-mix(in srgb, var(--petal) 48%, var(--line));
-    box-shadow: 0 14px 28px rgb(52 45 51 / 10%);
-    transform: translateY(-2px);
+    translate: 0 -4px;
+    box-shadow:
+      0 20px 40px -20px rgb(217 79 115 / 40%),
+      0 8px 20px -12px rgb(52 45 51 / 22%);
   }
 
-  .post-card h3 a:hover,
+  .post-card:hover .post-cover {
+    scale: 1.06;
+    filter: saturate(1.08);
+  }
+
+  .post-card:hover .post-item-more {
+    translate: 4px 0;
+    box-shadow: 0 6px 18px -5px rgb(217 79 115 / 60%);
+  }
+
+  .post-card[data-cover-side='right']:hover .post-item-more {
+    translate: -4px 0;
+  }
+
+  .category-link:hover,
+  .post-title a:hover,
   .post-tags a:hover {
     color: var(--petal-deep);
   }
+}
 
-  .post-card:hover .card-open {
-    opacity: 1;
+@media (hover: hover) and (min-width: 769px) {
+  .post-card[data-cover-side='left']:hover .post-cover-link {
+    clip-path: polygon(0 0, 95% 0, 100% 100%, 0 100%);
+  }
+
+  .post-card[data-cover-side='right']:hover .post-cover-link {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
+  }
+
+  .post-card[data-cover-side='right'] .post-item-more {
+    translate: 4px 0;
   }
 }
 
-@media (max-width: 720px) {
-  .post-card {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .post-cover-link,
-  .post-cover {
-    min-height: 0;
-    aspect-ratio: 16 / 8.5;
-  }
-
+@media (max-width: 380px) {
   .post-card-body {
-    padding: 20px 20px 22px;
+    gap: 6px;
+    padding-right: 11px;
+    padding-left: 11px;
   }
 
-  .post-card h3 {
-    font-size: 1.2rem;
+  .post-meta-details {
+    gap: 5px;
   }
 
-  .card-open {
-    opacity: 1;
+  .read-time {
+    display: none;
+  }
+
+  .post-title {
+    font-size: 1.03rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-  }
-
-  .post-card {
-    translate: none !important;
-    animation: none !important;
+  .post-card,
+  .post-cover-link,
+  .post-cover,
+  .post-item-more {
+    transition: none !important;
   }
 
   .post-card:hover {
-    box-shadow: none;
-    transform: none;
+    translate: none;
+    box-shadow: 0 5px 15px rgb(52 45 51 / 10%);
+  }
+
+  .post-card:hover .post-cover {
+    scale: 1;
+    filter: none;
   }
 }
 </style>

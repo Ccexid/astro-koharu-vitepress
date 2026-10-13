@@ -52,7 +52,12 @@ function goToPage(nextPage: number) {
   </div>
 
   <div v-if="visiblePosts.length" ref="postFeed" class="post-feed">
-    <PostCard v-for="post in visiblePosts" :key="post.id" :post="post" />
+    <PostCard
+      v-for="(post, index) in visiblePosts"
+      :key="post.id"
+      :post="post"
+      :left-clip="index % 2 === 0"
+    />
   </div>
   <div v-else class="empty-state">
     <h2>还没有找到文章</h2>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { ArrowLeft, ArrowRight, CalendarDays, Clock3 } from 'lucide-vue-next'
+import { ArrowRight, CalendarDays, Clock3 } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import PostPagination from '@/components/post/PostPagination.vue'
 import { getPost, listPosts } from '@/services/posts'
 import type { Post } from '@/types/post'
 
@@ -99,15 +100,6 @@ watch(
       >
     </div>
 
-    <nav class="article-neighbors" aria-label="前后文章">
-      <RouterLink v-if="previousPost" :to="`/posts/${previousPost.slug}`">
-        <span> <ArrowLeft :size="15" aria-hidden="true" /> 上一篇 </span
-        ><strong>{{ previousPost.title }}</strong>
-      </RouterLink>
-      <span v-else></span>
-      <RouterLink v-if="nextPost" :to="`/posts/${nextPost.slug}`">
-        <span>下一篇 <ArrowRight :size="15" aria-hidden="true" /> </span><strong>{{ nextPost.title }}</strong>
-      </RouterLink>
-    </nav>
+    <PostPagination :previous-post="previousPost" :next-post="nextPost" />
   </article>
 </template>
