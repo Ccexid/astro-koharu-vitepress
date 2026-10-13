@@ -45,4 +45,4 @@ Each stage should leave a working build for behavior it introduces. Do not claim
 
 ## Immediate next task
 
-Initialize the minimal Vue 3 + Vite + TypeScript app with Bun. Set up typed mock-data boundaries and routing, then implement the site shell and home page based on a recorded upstream visual reference. Do not start a Markdown migration or a backend service.
+The minimal Vue 3 + Vite + TypeScript app, Bun lockfile, routing, and typed mock-post service are in place. Next, record an upstream visual reference, refine the site shell and home page against it, and expand the remaining planned routes. Do not start a Markdown migration or a backend service.

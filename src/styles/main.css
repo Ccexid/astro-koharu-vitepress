@@ -1,0 +1,98 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #25282c;
+  background: #fafbfc;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #19688d;
+}
+
+a:hover {
+  color: #a43a5c;
+}
+
+.site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header,
+.site-footer {
+  padding: 1rem max(1rem, calc((100vw - 64rem) / 2));
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dbe0e4;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-main {
+  width: min(100% - 2rem, 64rem);
+  margin: 2rem auto;
+  flex: 1;
+}
+
+.site-footer {
+  border-top: 1px solid #dbe0e4;
+  color: #666;
+}
+
+.intro {
+  margin-bottom: 3rem;
+}
+
+.intro h1 {
+  margin-bottom: 0.25rem;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.post-list li {
+  padding: 1rem;
+  border: 1px solid #dbe0e4;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.post-list h3 {
+  margin: 0.25rem 0;
+}
+
+.meta {
+  color: #59636d;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 40rem) {
+  .site-main {
+    margin: 1.5rem auto;
+  }
+
+  .intro {
+    margin-bottom: 2rem;
+  }
+}
