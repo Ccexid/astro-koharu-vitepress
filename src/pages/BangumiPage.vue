@@ -10,7 +10,7 @@ import {
 } from '@/services/bangumi'
 import type { BangumiFollowStatus } from '@/api/bilibili'
 
-const vmid = '19580033'
+const vmid = import.meta.env.VITE_API_BILIBILI_UID
 const statuses: { value: BangumiFollowStatus; label: string }[] = [
   { value: 2, label: '在看' },
   { value: 1, label: '想看' },
@@ -150,9 +150,7 @@ onBeforeUnmount(() => activeController?.abort())
       </button>
     </div>
 
-    <div v-else-if="!result?.list.length" class="bangumi-state" role="status">
-      当前筛选下还没有条目。
-    </div>
+    <div v-else-if="!result?.list.length" class="bangumi-state" role="status">当前筛选下还没有条目。</div>
 
     <template v-else>
       <ul class="bangumi-list">
@@ -207,7 +205,9 @@ onBeforeUnmount(() => activeController?.abort())
 
             <div class="bangumi-meta">
               <span v-if="item.type"><span class="bangumi-meta-label">类型</span>{{ item.type }}</span>
-              <span v-if="item.total !== undefined"><span class="bangumi-meta-label">话数</span>{{ item.total }}</span>
+              <span v-if="item.total !== undefined"
+                ><span class="bangumi-meta-label">话数</span>{{ item.total }}</span
+              >
               <span v-if="item.score !== undefined" class="bangumi-score">
                 <span class="bangumi-meta-label">评分</span>{{ item.score.toFixed(1) }}
               </span>
