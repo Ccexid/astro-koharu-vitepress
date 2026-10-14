@@ -127,6 +127,8 @@ function loadMore(): void {
 }
 .post-feed {
   display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: 17px;
 }
 .empty-state {

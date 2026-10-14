@@ -18,9 +18,13 @@
 }
 
 @media (max-width: 820px) {
+  :root {
+    --page-gutter: 18px;
+  }
+
   .content-shell {
     display: block;
-    width: min(calc(100% - 36px), 700px);
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), 700px);
     margin-top: 29px;
     margin-bottom: 70px;
   }
@@ -32,7 +36,7 @@
 
 @media (max-width: 580px) {
   .footer-inner {
-    width: min(calc(100% - 36px), 700px);
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), 700px);
     min-height: 115px;
     align-content: center;
     flex-wrap: wrap;

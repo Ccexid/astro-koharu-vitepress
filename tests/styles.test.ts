@@ -9,7 +9,10 @@ describe('global Less styles', () => {
     const source = await readFile(mainStylesheet, 'utf8')
     const { css } = await less.render(source, { filename: mainStylesheet })
 
-    expect(css).toContain('width: min(calc(100% - 48px), 1160px);')
-    expect(css).toContain('width: min(calc(100% - 36px), 700px);')
+    expect(css).toContain(
+      'width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content-max-width));',
+    )
+    expect(css).toContain('width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), 700px);')
+    expect(css).toContain('--page-gutter: 18px;')
   })
 })

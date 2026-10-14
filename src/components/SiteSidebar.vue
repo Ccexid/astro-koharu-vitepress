@@ -4,6 +4,10 @@ import { RouterLink } from 'vue-router'
 import { listCategories, listPosts, listTags } from '@/services/posts'
 import type { Post, TaxonomyItem } from '@/types/post'
 
+withDefaults(defineProps<{ variant?: 'sidebar' | 'drawer' }>(), {
+  variant: 'sidebar',
+})
+
 const posts = ref<Post[]>([])
 const categories = ref<TaxonomyItem[]>([])
 const tags = ref<TaxonomyItem[]>([])
@@ -18,9 +22,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <aside class="site-sidebar" aria-label="作者与内容导航">
+  <aside class="site-sidebar" :class="{ 'is-drawer': variant === 'drawer' }" aria-label="作者与内容导航">
     <section class="profile-panel">
-      <div class="profile-avatar" aria-hidden="true"></div>
+      <div class="profile-avatar" aria-hidden="true">春</div>
       <h2>一封春日来信</h2>
       <p class="profile-handle">Koharu's journal</p>
       <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
@@ -90,10 +94,31 @@ onMounted(async () => {
   min-width: 0;
 }
 
+.site-sidebar.is-drawer {
+  gap: var(--space-4);
+}
+
 .profile-panel {
+  position: relative;
   padding: 10px 8px 25px;
   text-align: center;
-  border-bottom: 1px solid var(--line);
+}
+
+.profile-panel::after {
+  position: absolute;
+  right: 12%;
+  bottom: 0;
+  left: 12%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--line) 20%,
+    var(--petal-soft) 50%,
+    var(--line) 80%,
+    transparent
+  );
+  content: '';
 }
 
 .profile-avatar {
@@ -106,10 +131,8 @@ onMounted(async () => {
   border-radius: 50%;
   background: var(--petal-soft);
   color: var(--petal-deep);
-  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-family: var(--font-display);
   font-size: 2.1rem;
-  background: url('https://khreborn-anime.jp/wp/wp-content/themes/khreborn-anime_teaser/asset/img/slider/btm/p27.jpg')
-    center no-repeat;
 }
 
 .profile-panel h2 {

@@ -1,25 +1,30 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import type { SiteCover } from '@/app/site-cover'
 
-const route = useRoute()
+defineProps<{ cover: SiteCover }>()
+
+const defaultCoverImage =
+  'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1920&q=85'
 </script>
 
 <template>
-  <section class="site-hero" :class="{ 'is-home': route.path === '/' }" aria-labelledby="site-title">
+  <section class="site-hero" :class="{ 'is-home': cover.kind === 'home' }" aria-labelledby="site-title">
     <img
       class="hero-image"
-      src="https://pbs.twimg.com/profile_banners/1480526297382408203/1643008263/1500x500"
-      alt=""
+      :src="cover.image || defaultCoverImage"
+      :alt="cover.imageAlt || ''"
       fetchpriority="high"
     />
     <div class="hero-shade" aria-hidden="true"></div>
     <div class="hero-copy">
-      <p class="hero-kicker">A LITTLE JOURNAL OF EVERYDAY LIFE</p>
-      <h1 v-if="route.path === '/'" id="site-title" class="hero-main-title">Koharu</h1>
-      <p v-else id="site-title" class="hero-title hero-main-title">Koharu</p>
-      <p class="hero-subtitle">把日常，寫成輕輕落下的花瓣</p>
+      <p v-if="cover.eyebrow" class="hero-kicker">{{ cover.eyebrow }}</p>
+      <h1 v-if="cover.kind === 'home'" id="site-title" class="hero-main-title">
+        {{ cover.title }}
+      </h1>
+      <p v-else id="site-title" class="hero-title hero-main-title">{{ cover.title }}</p>
+      <p v-if="cover.description" class="hero-subtitle">{{ cover.description }}</p>
     </div>
-    <span class="hero-caption" aria-hidden="true">記錄微小，收藏日常</span>
+    <span v-if="cover.kind === 'home'" class="hero-caption" aria-hidden="true"> 記錄微小，收藏日常 </span>
     <div class="hero-wave" aria-hidden="true"></div>
   </section>
 </template>
@@ -51,20 +56,26 @@ const route = useRoute()
 }
 
 .hero-shade {
-  background: rgb(48 34 45 / 20%);
+  background: linear-gradient(180deg, rgb(48 34 45 / 34%), rgb(48 34 45 / 8%) 48%, rgb(48 34 45 / 18%));
+}
+
+:root[data-theme='dark'] .hero-shade {
+  background: linear-gradient(180deg, rgb(23 19 30 / 52%), rgb(23 19 30 / 16%) 48%, rgb(23 19 30 / 36%));
 }
 
 .hero-copy {
   max-width: 780px;
   padding: 84px 24px 50px;
   text-align: center;
-  text-shadow: 0 2px 18px rgb(34 23 31 / 24%);
+  text-shadow:
+    0 2px 4px rgb(34 23 31 / 42%),
+    0 8px 24px rgb(34 23 31 / 24%);
 }
 
 .hero-kicker {
   --hero-delay: 120ms;
   margin: 0 0 12px;
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 700;
 }
 
@@ -72,26 +83,27 @@ const route = useRoute()
 .hero-title {
   --hero-delay: 230ms;
   margin: 0;
-  font-family: 'Iowan Old Style', 'Noto Serif SC', 'Songti SC', Georgia, serif;
-  font-size: 5rem;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
   font-weight: 600;
   line-height: 1.08;
+  text-wrap: balance;
 }
 
 .hero-subtitle {
   --hero-delay: 340ms;
   margin: 17px 0 0;
-  font-family: 'Noto Serif SC', 'Songti SC', serif;
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
   font-weight: 600;
 }
 
 .hero-caption {
   position: absolute;
-  right: max(28px, calc((100vw - 1280px) / 2));
+  right: max(28px, calc((100vw - var(--header-max-width)) / 2));
   bottom: 51px;
   writing-mode: vertical-rl;
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 
@@ -112,12 +124,22 @@ const route = useRoute()
     animation: hero-rise var(--motion-duration-enter) var(--motion-ease-enter) both;
     animation-delay: var(--hero-delay);
   }
+
+  .site-hero.is-home .hero-wave {
+    animation: hero-wave-enter 760ms var(--motion-ease-enter) both;
+  }
 }
 
 @keyframes hero-rise {
   from {
     opacity: 0;
     translate: 0 1.5rem;
+  }
+}
+
+@keyframes hero-wave-enter {
+  from {
+    translate: 0 70%;
   }
 }
 
