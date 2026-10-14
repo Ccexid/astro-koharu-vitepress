@@ -362,8 +362,7 @@
   animation: bangumi-spin 800ms linear infinite;
 }
 
-.bangumi-retry,
-.bangumi-page-button {
+.bangumi-retry {
   display: inline-flex;
   min-height: 36px;
   align-items: center;
@@ -378,30 +377,31 @@
 }
 
 .bangumi-retry:hover,
-.bangumi-page-button:hover:not(:disabled) {
+.bangumi-retry:focus-visible {
   border-color: var(--bangumi-accent);
   color: var(--bangumi-accent);
 }
 
-.bangumi-pagination {
+.bangumi-load-more {
   display: flex;
+  justify-content: center;
+  min-height: 64px;
+  padding-top: 10px;
+}
+
+.bangumi-load-more-state,
+.bangumi-load-more-error {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  padding-top: 22px;
-}
-
-.bangumi-page-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.bangumi-page-info {
-  min-width: 54px;
+  gap: 10px;
   color: var(--muted);
-  font-size: 0.76rem;
-  font-variant-numeric: tabular-nums;
+  font-size: 0.74rem;
   text-align: center;
+}
+
+.bangumi-load-more-error {
+  flex-wrap: wrap;
 }
 
 @media (hover: hover) and (pointer: fine) {

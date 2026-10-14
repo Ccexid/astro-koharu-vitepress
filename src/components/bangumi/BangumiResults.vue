@@ -1,23 +1,32 @@
 <script setup lang="ts">
 import { RefreshCw } from 'lucide-vue-next'
-import type { BangumiPage } from '@/services/bangumi'
+import type { BangumiItem as BangumiEntry } from '@/api/bilibili'
+import BangumiLoadMore from './BangumiLoadMore.vue'
 import BangumiItem from './BangumiItem.vue'
 
 defineProps<{
-  result?: BangumiPage
+  items: BangumiEntry[]
+  total: number
   isLoading: boolean
+  isLoadingMore: boolean
   errorMessage: string
-  pageSize: number
+  loadMoreError: string
+  hasMore: boolean
 }>()
 
-defineEmits<{ retry: [] }>()
+defineEmits<{
+  retry: []
+  'load-more': []
+  'retry-load-more': []
+}>()
 </script>
 
 <template>
   <div class="bangumi-results-line" aria-live="polite">
-    <span v-if="result && !errorMessage">共 {{ result.total }} 部</span>
+    <span v-if="!isLoading && !errorMessage">已加载 {{ items.length }} / {{ total }} 部</span>
     <span v-else>&nbsp;</span>
-    <span>每页 {{ pageSize }} 部</span>
+    <span v-if="items.length && hasMore">继续下滑加载</span>
+    <span v-else>&nbsp;</span>
   </div>
   <div v-if="isLoading" class="bangumi-state" role="status">
     <span class="bangumi-spinner" aria-hidden="true"></span>
@@ -30,13 +39,22 @@ defineEmits<{ retry: [] }>()
       <span>重试</span>
     </button>
   </div>
-  <div v-else-if="!result?.list.length" class="bangumi-state" role="status">当前筛选下还没有条目。</div>
+  <div v-else-if="!items.length" class="bangumi-state" role="status">当前筛选下还没有条目。</div>
   <ul v-else class="bangumi-list">
     <BangumiItem
-      v-for="(item, index) in result.list"
+      v-for="(item, index) in items"
       :key="item.id"
       :item="item"
       :cover-side="index % 2 === 0 ? 'left' : 'right'"
     />
   </ul>
+
+  <BangumiLoadMore
+    v-if="items.length"
+    :has-more="hasMore"
+    :is-loading="isLoadingMore"
+    :error-message="loadMoreError"
+    @load-more="$emit('load-more')"
+    @retry="$emit('retry-load-more')"
+  />
 </template>

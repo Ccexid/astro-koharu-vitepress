@@ -343,10 +343,6 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
   .post-card[data-cover-side='right']:hover .post-cover-link {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%);
   }
-
-  .post-card[data-cover-side='right'] .post-item-more {
-    translate: 4px 0;
-  }
 }
 
 @media (max-width: 380px) {
