@@ -73,3 +73,14 @@
   color: var(--muted);
   text-decoration: none;
 }
+
+@media (min-width: 821px) {
+  .sidebar-column {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}

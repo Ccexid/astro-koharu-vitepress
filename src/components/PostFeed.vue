@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from 'vue'
-import { ArrowLeft, ArrowRight, Search, X } from 'lucide-vue-next'
+import { Search, X } from 'lucide-vue-next'
+import InfiniteLoadMore from '@/components/InfiniteLoadMore.vue'
 import PostCard from './PostCard.vue'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import type { Post } from '@/types/post'
@@ -11,7 +12,7 @@ const props = withDefaults(defineProps<{ posts: Post[]; searchable?: boolean; pa
 })
 
 const query = ref('')
-const page = ref(1)
+const visibleCount = ref(props.pageSize)
 const filteredPosts = computed(() => {
   const value = query.value.trim().toLocaleLowerCase()
   if (!value) return props.posts
@@ -22,20 +23,18 @@ const filteredPosts = computed(() => {
       .includes(value),
   )
 })
-const pageCount = computed(() => Math.max(1, Math.ceil(filteredPosts.value.length / props.pageSize)))
-const visiblePosts = computed(() =>
-  filteredPosts.value.slice((page.value - 1) * props.pageSize, page.value * props.pageSize),
-)
+const visiblePosts = computed(() => filteredPosts.value.slice(0, visibleCount.value))
+const hasMore = computed(() => visiblePosts.value.length < filteredPosts.value.length)
 const postFeed = useTemplateRef<HTMLDivElement>('postFeed')
 
 useScrollReveal(postFeed, visiblePosts)
 
-watch([query, () => props.posts], () => {
-  page.value = 1
+watch([query, () => props.posts, () => props.pageSize], () => {
+  visibleCount.value = props.pageSize
 })
 
-function goToPage(nextPage: number) {
-  page.value = Math.min(Math.max(1, nextPage), pageCount.value)
+function loadMore(): void {
+  visibleCount.value = Math.min(visibleCount.value + props.pageSize, filteredPosts.value.length)
 }
 </script>
 
@@ -65,25 +64,13 @@ function goToPage(nextPage: number) {
     <button v-if="query" type="button" class="text-button" @click="query = ''">清除筛选</button>
   </div>
 
-  <nav v-if="pageCount > 1" class="pagination" aria-label="文章分页">
-    <button type="button" :disabled="page === 1" aria-label="上一页" @click="goToPage(page - 1)">
-      <ArrowLeft :size="16" aria-hidden="true" />
-    </button>
-    <button
-      v-for="number in pageCount"
-      :key="number"
-      type="button"
-      :aria-label="`第 ${number} 页`"
-      :aria-current="page === number ? 'page' : undefined"
-      :class="{ 'is-current': page === number }"
-      @click="goToPage(number)"
-    >
-      {{ number }}
-    </button>
-    <button type="button" :disabled="page === pageCount" aria-label="下一页" @click="goToPage(page + 1)">
-      <ArrowRight :size="16" aria-hidden="true" />
-    </button>
-  </nav>
+  <InfiniteLoadMore
+    v-if="visiblePosts.length && hasMore"
+    :has-more="hasMore"
+    :is-loading="false"
+    load-more-text="继续下滑加载"
+    @load-more="loadMore"
+  />
 </template>
 
 <style scoped>
@@ -165,36 +152,6 @@ function goToPage(nextPage: number) {
   color: var(--petal-deep);
   font: inherit;
   cursor: pointer;
-}
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  margin-top: 30px;
-}
-.pagination button {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--ink);
-  font: inherit;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-.pagination button.is-current {
-  border-color: var(--petal-deep);
-  background: var(--petal-deep);
-  color: #fff;
-}
-.pagination button:disabled {
-  color: var(--muted);
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 @media (max-width: 500px) {
   .feed-tools {

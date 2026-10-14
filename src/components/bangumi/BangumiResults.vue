@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RefreshCw } from 'lucide-vue-next'
 import type { BangumiItem as BangumiEntry } from '@/api/bilibili'
-import BangumiLoadMore from './BangumiLoadMore.vue'
+import InfiniteLoadMore from '@/components/InfiniteLoadMore.vue'
 import BangumiItem from './BangumiItem.vue'
 
 defineProps<{
@@ -49,11 +49,14 @@ defineEmits<{
     />
   </ul>
 
-  <BangumiLoadMore
+  <InfiniteLoadMore
     v-if="items.length"
     :has-more="hasMore"
     :is-loading="isLoadingMore"
     :error-message="loadMoreError"
+    loading-text="正在加载更多…"
+    load-more-text="继续下滑加载"
+    complete-text="已加载全部条目"
     @load-more="$emit('load-more')"
     @retry="$emit('retry-load-more')"
   />
