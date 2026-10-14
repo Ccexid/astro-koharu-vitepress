@@ -49,7 +49,9 @@ describe('Bangumi page service', () => {
     expect(fourthPage.list).toHaveLength(7)
     expect(fourthPage.list[0]?.id).toBe('1031')
     expect(
-      fetchMock.mock.calls.some(([input]) => new URL(String(input), 'https://local.test').searchParams.get('pn') === '2'),
+      fetchMock.mock.calls.some(
+        ([input]) => new URL(String(input), 'https://local.test').searchParams.get('pn') === '2',
+      ),
     ).toBe(true)
   })
 

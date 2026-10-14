@@ -6,7 +6,13 @@ import type {
   BangumiFollowStatus,
 } from './bilibili.types'
 
-export type { BangumiFollowParams, BangumiItem, BangumiMediaType, BangumiResponse, BangumiFollowStatus } from './bilibili.types'
+export type {
+  BangumiFollowParams,
+  BangumiItem,
+  BangumiMediaType,
+  BangumiResponse,
+  BangumiFollowStatus,
+} from './bilibili.types'
 
 export class BilibiliApiError extends Error {
   constructor(

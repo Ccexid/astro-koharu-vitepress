@@ -39,7 +39,7 @@ bun run format:check
 | 分类       | `/categories`、`/categories/:slug` | 分类入口及关联文章                       |
 | 标签       | `/tags`、`/tags/:slug`             | 标签入口及关联文章                       |
 | 归档       | `/archives`                        | 时间分组的文章列表                       |
-| 追番记录   | `/bangumi`                         | Bilibili 追番状态、类型筛选及分页         |
+| 追番记录   | `/bangumi`                         | Bilibili 追番状态、类型筛选及分页        |
 | 友链与关于 | `/friends`、`/about`               | 静态资料与链接                           |
 
 搜索、系列、音乐、多语言和第三方评论暂列后续可选功能。具体外观与交互在实施前根据选定的上游版本及截图确定，不以“完整复刻”作为本阶段承诺。
