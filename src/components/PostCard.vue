@@ -219,14 +219,6 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
   scrollbar-width: none;
 }
 
-.post-card[data-cover-side='left'] .post-tags {
-  padding-right: 60px;
-}
-
-.post-card[data-cover-side='right'] .post-tags {
-  padding-left: 60px;
-}
-
 .post-tags::-webkit-scrollbar {
   display: none;
 }
