@@ -20,7 +20,7 @@ onMounted(async () => {
 <template>
   <aside class="site-sidebar" aria-label="作者与内容导航">
     <section class="profile-panel">
-      <div class="profile-avatar" aria-hidden="true">春</div>
+      <div class="profile-avatar" aria-hidden="true"></div>
       <h2>一封春日来信</h2>
       <p class="profile-handle">Koharu's journal</p>
       <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
@@ -108,6 +108,8 @@ onMounted(async () => {
   color: var(--petal-deep);
   font-family: 'Noto Serif SC', 'Songti SC', serif;
   font-size: 2.1rem;
+  background: url('https://khreborn-anime.jp/wp/wp-content/themes/khreborn-anime_teaser/asset/img/slider/btm/p27.jpg')
+    center no-repeat;
 }
 
 .profile-panel h2 {
