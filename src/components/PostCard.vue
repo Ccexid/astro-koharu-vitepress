@@ -243,7 +243,7 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
   position: absolute;
   z-index: 2;
   display: inline-flex;
-  min-height: 34px;
+  min-height: 24px;
   align-items: center;
   gap: 4px;
   bottom: 0;
