@@ -1,49 +1,119 @@
-.taxonomy-grid,
-.friends-grid {
+.taxonomy-index {
+  min-width: 0;
+}
+
+.taxonomy-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.taxonomy-summary strong {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.taxonomy-summary span {
+  margin-left: auto;
+  font-size: var(--text-xs);
+}
+
+.taxonomy-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 13px;
+  column-gap: clamp(20px, 4vw, 48px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taxonomy-index-item {
+  min-width: 0;
+  border-bottom: 1px solid var(--line);
 }
 
 .taxonomy-item {
-  position: relative;
   display: grid;
-  min-height: 132px;
-  align-content: center;
-  padding: 20px 23px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--surface);
+  min-height: 76px;
+  grid-template-columns: 34px minmax(0, 1fr) auto 18px;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 3px;
   color: var(--ink);
   text-decoration: none;
 }
 
 .taxonomy-icon {
+  display: grid;
+  width: 32px;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--petal-soft);
   color: var(--petal-deep);
-  font-size: 0.92rem;
-  font-weight: 700;
 }
 
 .taxonomy-name {
-  margin-top: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-display);
-  font-size: 1.12rem;
-  font-weight: 650;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .taxonomy-count {
-  margin-top: 4px;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.taxonomy-count strong {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .taxonomy-arrow {
-  position: absolute;
-  right: 20px;
-  bottom: 19px;
-  color: var(--petal-deep);
+  color: var(--muted);
+  transition:
+    color var(--motion-duration-fast) var(--motion-ease-hover),
+    translate var(--motion-duration-fast) var(--motion-ease-hover);
 }
 
 .back-index {
   margin-top: 26px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .taxonomy-item:hover .taxonomy-name,
+  .taxonomy-item:hover .taxonomy-count strong,
+  .taxonomy-item:hover .taxonomy-arrow {
+    color: var(--petal-deep);
+  }
+
+  .taxonomy-item:hover .taxonomy-arrow {
+    translate: 2px -2px;
+  }
+}
+
+@media (max-width: 580px) {
+  .taxonomy-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .taxonomy-item {
+    min-height: 68px;
+  }
 }

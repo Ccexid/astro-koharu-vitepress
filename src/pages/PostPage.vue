@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { ArrowRight, CalendarDays, Clock3 } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { ArrowRight, CalendarDays, Clock3, List, MapPin } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import PostPagination from '@/components/post/PostPagination.vue'
 import { getPost, listPosts } from '@/services/posts'
@@ -12,27 +12,42 @@ const allPosts = ref<Post[]>([])
 const loading = ref(true)
 const error = ref(false)
 const postIndex = computed(() => allPosts.value.findIndex((item) => item.slug === props.slug))
-const previousPost = computed(() => allPosts.value[postIndex.value + 1] ?? null)
-const nextPost = computed(() => allPosts.value[postIndex.value - 1] ?? null)
+const previousPost = computed(() =>
+  postIndex.value >= 0 ? (allPosts.value[postIndex.value + 1] ?? null) : null,
+)
+const nextPost = computed(() => (postIndex.value >= 0 ? (allPosts.value[postIndex.value - 1] ?? null) : null))
+const publishedDateFormatter = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+})
+let latestRequest = 0
+
+function formatPublishedDate(value: string): string {
+  return publishedDateFormatter.format(new Date(`${value}T00:00:00Z`))
+}
 
 async function loadPost(slug: string) {
+  const requestId = ++latestRequest
   loading.value = true
   error.value = false
   post.value = null
+  allPosts.value = []
   try {
-    ;[post.value, allPosts.value] = await Promise.all([getPost(slug), listPosts()])
+    const [resultPost, resultPosts] = await Promise.all([getPost(slug), listPosts()])
+    if (requestId !== latestRequest) return
+    post.value = resultPost
+    allPosts.value = resultPosts
   } catch {
+    if (requestId !== latestRequest) return
     error.value = true
   } finally {
-    loading.value = false
+    if (requestId === latestRequest) loading.value = false
   }
 }
 
-onMounted(() => loadPost(props.slug))
-watch(
-  () => props.slug,
-  (slug) => loadPost(slug),
-)
+watch(() => props.slug, loadPost, { immediate: true, flush: 'sync' })
 </script>
 
 <template>
@@ -53,31 +68,35 @@ watch(
     <nav class="article-breadcrumb" aria-label="当前位置">
       <RouterLink to="/">首页</RouterLink><span>/</span>
       <RouterLink to="/posts">文章</RouterLink>
-      <span>/</span><span>{{ post.title }}</span>
+      <span>/</span><span aria-current="page">{{ post.title }}</span>
     </nav>
     <div class="article-intro">
       <RouterLink class="article-category" :to="`/categories/${post.category.slug}`">{{
         post.category.name
       }}</RouterLink>
+      <span v-if="post.pinned" class="article-pinned"><MapPin :size="13" aria-hidden="true" /> 置顶</span>
       <h1>{{ post.title }}</h1>
       <p class="article-deck">{{ post.excerpt }}</p>
       <div class="article-meta">
         <span>
-          <CalendarDays :size="16" aria-hidden="true" /><time :datetime="post.publishedAt">{{
-            post.publishedAt
-          }}</time>
+          <CalendarDays :size="15" aria-hidden="true" />
+          <time :datetime="post.publishedAt">{{ formatPublishedDate(post.publishedAt) }}</time>
         </span>
-        <span> <Clock3 :size="16" aria-hidden="true" />{{ post.readingMinutes }} 分钟阅读 </span>
+        <span><Clock3 :size="15" aria-hidden="true" />{{ post.readingMinutes }} 分钟阅读</span>
       </div>
     </div>
 
     <figure class="article-cover">
-      <img :src="post.cover" :alt="post.coverAlt" />
+      <img :src="post.cover" alt="" />
       <figcaption>{{ post.coverAlt }}</figcaption>
     </figure>
 
     <div class="article-layout">
-      <div class="article-body">
+      <nav v-if="post.sections.length" class="article-toc" aria-label="文章目录">
+        <p><List :size="15" aria-hidden="true" /> 目录</p>
+        <a v-for="section in post.sections" :key="section.id" :href="`#${section.id}`">{{ section.title }}</a>
+      </nav>
+      <div v-if="post.sections.length" class="article-body">
         <section v-for="section in post.sections" :id="section.id" :key="section.id">
           <h2>{{ section.title }}</h2>
           <p v-for="(paragraph, index) in section.paragraphs" :key="index">{{ paragraph }}</p>
@@ -87,13 +106,10 @@ watch(
           </ul>
         </section>
       </div>
-      <nav v-if="post.sections.length" class="article-toc" aria-label="文章目录">
-        <p>本文目录</p>
-        <a v-for="section in post.sections" :key="section.id" :href="`#${section.id}`">{{ section.title }}</a>
-      </nav>
+      <p v-else class="article-empty-body" role="status">正文内容暂未整理。</p>
     </div>
 
-    <div class="article-tags">
+    <div v-if="post.tags.length" class="article-tags">
       <span>标签</span>
       <RouterLink v-for="tag in post.tags" :key="tag.slug" :to="`/tags/${tag.slug}`"
         ># {{ tag.name }}</RouterLink

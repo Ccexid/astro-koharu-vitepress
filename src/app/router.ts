@@ -51,13 +51,13 @@ const pageTitles: Record<string, string> = {
 router.afterEach(async (to) => {
   let title = pageTitles[to.path]
   if (!title && to.path.startsWith('/posts/')) {
-    title = (await getPost(String(to.params.slug)))?.title || ''
+    title = (await getPost(String(to.params.slug)))?.title || '文章不存在'
   }
   if (!title && to.path.startsWith('/categories/')) {
-    title = (await getCategory(String(to.params.slug)))?.name || ''
+    title = (await getCategory(String(to.params.slug)))?.name || '分类不存在'
   }
   if (!title && to.path.startsWith('/tags/')) {
-    title = (await getTag(String(to.params.slug)))?.name || ''
+    title = (await getTag(String(to.params.slug)))?.name || '标签不存在'
   }
   document.title = `${title ?? '页面不存在'} · Koharu`
   window.scrollTo({

@@ -59,8 +59,8 @@ function loadMore(): void {
     />
   </div>
   <div v-else class="empty-state">
-    <h2>还没有找到文章</h2>
-    <p>{{ query ? '换个关键词再试试。' : '这里暂时没有文章，过一会儿再来看看。' }}</p>
+    <h2>{{ query ? '没有找到文章' : '这里暂时没有文章' }}</h2>
+    <p>{{ query ? '换个关键词再试试。' : '可以稍后再来，或浏览其他分类和标签。' }}</p>
     <button v-if="query" type="button" class="text-button" @click="query = ''">清除筛选</button>
   </div>
 

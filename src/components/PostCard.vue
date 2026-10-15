@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarDays, Clock3, Flag, Tag } from 'lucide-vue-next'
+import { ArrowUpRight, CalendarDays, Clock3, Flag, Tag } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import type { Post } from '@/types/post'
 
@@ -46,8 +46,8 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
       </div>
     </div>
 
-    <RouterLink class="post-item-more" :to="`/posts/${post.slug}`" tabindex="-1" aria-hidden="true">
-      more...
+    <RouterLink class="post-item-more" :to="`/posts/${post.slug}`">
+      阅读全文 <ArrowUpRight :size="14" aria-hidden="true" />
     </RouterLink>
   </article>
 </template>
@@ -188,12 +188,13 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
 }
 
 .post-title a {
-  display: block;
+  display: -webkit-box;
   overflow: hidden;
   color: var(--petal-deep);
   text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: pretty;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .post-excerpt {
@@ -241,11 +242,15 @@ withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
 .post-item-more {
   position: absolute;
   z-index: 2;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 4px;
   bottom: 0;
-  padding: 6px 12px;
+  padding: 6px 10px;
   background: linear-gradient(110deg, var(--petal), var(--petal-deep));
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-decoration: none;
   transition:
     translate 500ms var(--motion-ease-enter),

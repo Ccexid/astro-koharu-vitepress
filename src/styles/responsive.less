@@ -6,10 +6,35 @@
 
   .article-layout {
     grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
   }
 
   .article-toc {
+    position: static;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 14px;
+    overflow-x: auto;
+    padding: 0 0 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .article-toc::-webkit-scrollbar {
     display: none;
+  }
+
+  .article-toc p {
+    flex: 0 0 auto;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .article-toc a {
+    flex: 0 0 auto;
   }
 
   .article-intro h1 {
@@ -59,17 +84,51 @@
   }
 
   .archive-month {
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 9px;
+    display: block;
+    margin-top: 15px;
+  }
+
+  .archive-month h3 {
+    align-items: baseline;
+    flex-direction: row;
+    margin: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .article-body,
+  .article-empty-body {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .article-toc {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .archive-month ul {
+    border-top: 0;
   }
 
   .archive-month li {
-    grid-template-columns: 47px minmax(0, 1fr);
-    gap: 8px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 4px 9px;
+    align-items: start;
   }
 
-  .archive-month li > span {
-    display: none;
+  .archive-date {
+    grid-row: span 2;
+    padding-top: 2px;
+  }
+
+  .archive-post-link,
+  .archive-category {
+    grid-column: 2;
+  }
+
+  .archive-category {
+    font-size: 0.68rem;
   }
 
   .article-cover {

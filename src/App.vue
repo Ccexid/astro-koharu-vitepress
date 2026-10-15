@@ -51,7 +51,7 @@ watch(
       <main id="main-content" class="site-main" tabindex="-1">
         <RouterView v-slot="{ Component }">
           <Transition name="page">
-            <div :key="route.fullPath" class="page-transition">
+            <div :key="route.path" class="page-transition">
               <component :is="Component" />
             </div>
           </Transition>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ArrowLeft } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import PageHeading from '@/components/PageHeading.vue'
@@ -16,22 +16,32 @@ const isCategory = computed(() => props.kind === 'category')
 const root = computed(() => (isCategory.value ? 'categories' : 'tags'))
 
 async function load() {
+  const requestId = ++latestRequest
+  const kind = props.kind
+  const slug = props.slug
   loading.value = true
   error.value = false
+  item.value = null
+  posts.value = []
   try {
-    ;[item.value, posts.value] = await Promise.all(
-      isCategory.value
-        ? [getCategory(props.slug), listPostsByCategory(props.slug)]
-        : [getTag(props.slug), listPostsByTag(props.slug)],
+    const [resultItem, resultPosts] = await Promise.all(
+      kind === 'category'
+        ? [getCategory(slug), listPostsByCategory(slug)]
+        : [getTag(slug), listPostsByTag(slug)],
     )
+    if (requestId !== latestRequest) return
+    item.value = resultItem
+    posts.value = resultPosts
   } catch {
+    if (requestId !== latestRequest) return
     error.value = true
   } finally {
-    loading.value = false
+    if (requestId === latestRequest) loading.value = false
   }
 }
 
-onMounted(load)
+let latestRequest = 0
+watch(() => [props.kind, props.slug], load, { immediate: true })
 </script>
 
 <template>
