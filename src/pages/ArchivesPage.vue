@@ -1,14 +1,31 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import PageHeading from '@/components/PageHeading.vue'
+import PostYears from '@/components/post/PostYears.vue'
 import { listArchives } from '@/services/posts'
 import type { ArchiveYear } from '@/types/post'
-
 const archives = ref<ArchiveYear[]>([])
 const loading = ref(true)
 const error = ref(false)
-
+const posts = computed(() => archives.value.flatMap((year) => year.months.flatMap((month) => month.posts)))
+const peak = computed(() =>
+  Math.max(1, ...archives.value.flatMap((year) => year.months.map((month) => month.posts.length))),
+)
+const now = new Date()
+const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0')
+function monthKey(year: number, month: number) {
+  return year + '-' + String(month).padStart(2, '0')
+}
+function count(year: ArchiveYear, month: number) {
+  return year.months.find((group) => group.month === month)?.posts.length || 0
+}
+function tier(year: ArchiveYear, month: number) {
+  const n = count(year, month)
+  return monthKey(year.year, month) > thisMonth
+    ? 'future'
+    : n
+      ? String(Math.max(1, Math.ceil((n / peak.value) * 4)))
+      : '0'
+}
 async function load() {
   loading.value = true
   error.value = false
@@ -20,59 +37,55 @@ async function load() {
     loading.value = false
   }
 }
-
 onMounted(load)
-
-const totalPosts = computed(() => archives.value.reduce((total, year) => total + countYear(year), 0))
-
-function countYear(year: ArchiveYear): number {
-  return year.months.reduce((total, month) => total + month.posts.length, 0)
-}
 </script>
-
 <template>
-  <PageHeading title="沿年月回看" eyebrow="ARCHIVE INDEX" description="沿着时间的线，找回那些写过的日子。" />
-  <p v-if="loading" class="status-message" role="status">正在加载归档...</p>
+  <p v-if="loading" class="status-message" role="status">正在加载归档…</p>
   <div v-else-if="error" class="status-message" role="alert">
     归档暂时无法加载。<button type="button" @click="load">重试</button>
   </div>
-  <div v-else-if="archives.length" class="archive-list">
-    <p class="archive-summary">共 {{ totalPosts }} 篇文章，按时间由近及远排列</p>
-    <section
-      v-for="year in archives"
-      :key="year.year"
-      class="archive-year"
-      :aria-labelledby="`archive-year-${year.year}`"
-    >
-      <header class="archive-year-heading">
-        <h2 :id="`archive-year-${year.year}`">{{ year.year }}<span>年</span></h2>
-        <p>{{ countYear(year) }} 篇</p>
-      </header>
-      <section
-        v-for="group in year.months"
-        :key="group.month"
-        class="archive-month"
-        :aria-labelledby="`archive-month-${year.year}-${group.month}`"
-      >
-        <h3 :id="`archive-month-${year.year}-${group.month}`">
-          <span>{{ String(group.month).padStart(2, '0') }}月</span>
-          <small>{{ group.posts.length }} 篇</small>
-        </h3>
-        <ul>
-          <li v-for="post in group.posts" :key="post.id">
-            <time class="archive-date" :datetime="post.publishedAt">
-              {{ post.publishedAt.slice(8, 10) }}日
-            </time>
-            <RouterLink class="archive-post-link" :to="`/posts/${post.slug}`">
-              {{ post.title }}
-            </RouterLink>
-            <RouterLink class="archive-category" :to="`/categories/${post.category.slug}`">
-              {{ post.category.name }}
-            </RouterLink>
-          </li>
-        </ul>
-      </section>
+  <template v-else-if="archives.length">
+    <div class="index-intro">
+      <p>
+        <strong>{{ posts.length }}</strong> 篇文章 <span class="intro-dot">·</span
+        ><strong>{{ archives.at(-1)?.year }}–{{ archives[0]?.year }}</strong> 年
+      </p>
+    </div>
+    <section class="archive-calendar" aria-labelledby="calendar-title">
+      <div class="calendar-heading">
+        <h2 id="calendar-title">写作日历</h2>
+        <div class="calendar-legend" aria-hidden="true">
+          少 <i v-for="n in 5" :key="n" :data-tier="n - 1"></i> 多
+        </div>
+      </div>
+      <div class="calendar-grid">
+        <div class="calendar-row month-labels" aria-hidden="true">
+          <span></span><span v-for="month in 12" :key="month">{{ month }}</span>
+        </div>
+        <div v-for="year in archives" :key="year.year" class="calendar-row">
+          <a class="calendar-year" :href="'#year-' + year.year" :aria-label="'跳到 ' + year.year + ' 年'">{{
+            year.year
+          }}</a
+          ><template v-for="month in 12" :key="month"
+            ><a
+              v-if="count(year, month)"
+              class="calendar-cell"
+              :data-tier="tier(year, month)"
+              :href="'#month-' + monthKey(year.year, month)"
+              :aria-label="year.year + '年' + month + '月，' + count(year, month) + '篇文章'"
+              :title="year.year + '年' + month + '月：' + count(year, month) + '篇文章'"
+            ></a
+            ><span
+              v-else
+              class="calendar-cell"
+              :data-tier="tier(year, month)"
+              :title="year.year + '年' + month + '月，暂无文章'"
+            ></span
+          ></template>
+        </div>
+      </div>
     </section>
-  </div>
+    <PostYears :posts="posts" anchors />
+  </template>
   <p v-else class="status-message" role="status">这里暂时还没有归档。</p>
 </template>

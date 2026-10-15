@@ -28,6 +28,7 @@ export interface Post {
 
 export interface TaxonomyItem extends TaxonomyRef {
   count: number
+  children?: TaxonomyItem[]
 }
 
 export interface Friend {
@@ -35,6 +36,9 @@ export interface Friend {
   url: string
   description: string
   initial: string
+  owner: string
+  group: string
+  color: string
 }
 
 export interface ArchiveMonth {
@@ -45,4 +49,10 @@ export interface ArchiveMonth {
 export interface ArchiveYear {
   year: number
   months: ArchiveMonth[]
+}
+
+export interface FriendGroup {
+  id: string
+  title: string
+  description: string
 }

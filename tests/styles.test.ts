@@ -9,10 +9,8 @@ describe('global Less styles', () => {
     const source = await readFile(mainStylesheet, 'utf8')
     const { css } = await less.render(source, { filename: mainStylesheet })
 
-    expect(css).toContain(
-      'width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content-max-width));',
-    )
-    expect(css).toContain('width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), 700px);')
+    expect(css).toContain('width: min(100%, var(--content-max-width));')
+    expect(css).toContain('grid-template-columns: 256px minmax(0, 1fr);')
     expect(css).toContain('--page-gutter: 18px;')
   })
 })

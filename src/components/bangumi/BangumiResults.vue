@@ -1,63 +1,44 @@
 <script setup lang="ts">
-import { RefreshCw } from 'lucide-vue-next'
-import type { BangumiItem as BangumiEntry } from '@/api/bilibili'
+import { ref, toRef } from 'vue'
 import InfiniteLoadMore from '@/components/InfiniteLoadMore.vue'
 import BangumiItem from './BangumiItem.vue'
-
-defineProps<{
-  items: BangumiEntry[]
+import { useMasonry } from '@/composables/useMasonry'
+import type { CollectionItem } from '@/types/bangumi'
+const props = defineProps<{
+  items: CollectionItem[]
   total: number
-  isLoading: boolean
-  isLoadingMore: boolean
-  errorMessage: string
-  loadMoreError: string
+  loading: boolean
+  loadingMore: boolean
+  error: string
+  moreError: string
   hasMore: boolean
+  showStatus: boolean
 }>()
-
-defineEmits<{
-  retry: []
-  'load-more': []
-  'retry-load-more': []
-}>()
+defineEmits<{ retry: []; loadMore: [] }>()
+const shelf = ref<HTMLElement | null>(null)
+useMasonry(shelf, toRef(props, 'items'))
 </script>
-
 <template>
-  <div class="bangumi-results-line" aria-live="polite">
-    <span v-if="!isLoading && !errorMessage">已加载 {{ items.length }} / {{ total }} 部</span>
-    <span v-else>&nbsp;</span>
-    <span v-if="items.length && hasMore">继续下滑加载</span>
-    <span v-else>&nbsp;</span>
+  <div v-if="loading" class="bangumi-skeleton" role="status" aria-label="正在读取收藏">
+    <div v-for="index in 8" :key="index" class="skeleton-poster" aria-hidden="true"></div>
   </div>
-  <div v-if="isLoading" class="bangumi-state" role="status">
-    <span class="bangumi-spinner" aria-hidden="true"></span>
-    <span>正在读取追番列表…</span>
+  <div v-else-if="error" class="status-message" role="alert">
+    {{ error }}<button type="button" @click="$emit('retry')">重试</button>
   </div>
-  <div v-else-if="errorMessage" class="bangumi-state bangumi-state-error" role="alert">
-    <p>{{ errorMessage }}</p>
-    <button type="button" class="bangumi-retry" @click="$emit('retry')">
-      <RefreshCw :size="15" aria-hidden="true" />
-      <span>重试</span>
-    </button>
-  </div>
-  <div v-else-if="!items.length" class="bangumi-state" role="status">当前筛选下还没有条目。</div>
-  <ul v-else class="bangumi-list">
-    <BangumiItem
-      v-for="(item, index) in items"
-      :key="item.id"
-      :item="item"
-      :cover-side="index % 2 === 0 ? 'left' : 'right'"
+  <template v-else>
+    <p class="collection-count" aria-live="polite">已加载 {{ items.length }} / {{ total }} 部作品</p>
+    <div v-if="items.length" ref="shelf" class="bangumi-masonry">
+      <BangumiItem v-for="item in items" :key="item.id" :item="item" :show-status="showStatus" />
+    </div>
+    <p v-else class="empty-collection" role="status">这个分类暂时没有公开收藏。试试其他媒介或状态吧。</p>
+    <InfiniteLoadMore
+      v-if="items.length"
+      :has-more="hasMore"
+      :is-loading="loadingMore"
+      :error-message="moreError"
+      complete-text="已经看到最后一部了"
+      @load-more="$emit('loadMore')"
+      @retry="$emit('loadMore')"
     />
-  </ul>
-
-  <InfiniteLoadMore
-    v-if="items.length"
-    :has-more="hasMore"
-    :is-loading="isLoadingMore"
-    :error-message="loadMoreError"
-    loading-text="正在加载更多…"
-    load-more-text="继续下滑加载"
-    complete-text="已加载全部条目"
-    @load-more="$emit('load-more')"
-    @retry="$emit('retry-load-more')"
-  />
+  </template>
 </template>

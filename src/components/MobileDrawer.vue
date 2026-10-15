@@ -1,13 +1,28 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
-import { RouterLink, useRoute } from 'vue-router'
-import { isNavigationActive, siteNavigation } from '@/app/navigation'
+import { useRoute } from 'vue-router'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 const dialog = ref<HTMLDialogElement | null>(null)
 const route = useRoute()
+let touchStart: { x: number; y: number } | null = null
+function startSwipe(event: TouchEvent) {
+  const touch = event.touches[0]
+  touchStart = touch ? { x: touch.clientX, y: touch.clientY } : null
+}
+function endSwipe(event: TouchEvent) {
+  const touch = event.changedTouches[0]
+  if (
+    touch &&
+    touchStart &&
+    touch.clientX - touchStart.x < -70 &&
+    Math.abs(touch.clientY - touchStart.y) < 50
+  )
+    close()
+  touchStart = null
+}
 
 async function syncDialog(open: boolean) {
   await nextTick()
@@ -44,24 +59,13 @@ watch(() => route.fullPath, close)
     @cancel="handleCancel"
     @click="handleDialogClick"
   >
-    <div class="drawer-surface">
+    <div class="drawer-surface" @touchstart.passive="startSwipe" @touchend.passive="endSwipe">
       <header class="drawer-header">
         <h2 id="drawer-title">导航与漫游</h2>
         <button class="drawer-close" type="button" aria-label="关闭导航抽屉" autofocus @click="close">
           <X :size="19" aria-hidden="true" />
         </button>
       </header>
-      <nav class="drawer-nav" aria-label="站点导航">
-        <RouterLink
-          v-for="link in siteNavigation"
-          :key="link.to"
-          :to="link.to"
-          :class="{ 'is-active': isNavigationActive(route.path, link.to) }"
-          @click="close"
-        >
-          {{ link.label }}
-        </RouterLink>
-      </nav>
       <div class="drawer-content">
         <slot />
       </div>
@@ -73,7 +77,7 @@ watch(() => route.fullPath, close)
 .drawer-dialog {
   position: fixed;
   inset-block: 0;
-  inset-inline: auto 0;
+  inset-inline: 0 auto;
   width: min(88vw, 390px);
   height: 100dvh;
   max-height: 100dvh;
@@ -169,7 +173,7 @@ watch(() => route.fullPath, close)
 @keyframes drawer-enter {
   from {
     opacity: 0.8;
-    translate: 16px 0;
+    translate: -24px 0;
   }
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'
 
 const props = withDefaults(
@@ -27,6 +27,7 @@ const emit = defineEmits<{
 const sentinel = ref<HTMLElement | null>(null)
 const isIntersecting = ref(false)
 let observer: IntersectionObserver | undefined
+let frame = 0
 
 function requestLoadMore(): void {
   if (props.hasMore && !props.isLoading && !props.errorMessage) {
@@ -49,12 +50,25 @@ onMounted(() => {
 
 watch(
   () => [props.hasMore, props.isLoading, props.errorMessage],
-  () => {
-    if (isIntersecting.value) requestLoadMore()
+  async () => {
+    await nextTick()
+    cancelAnimationFrame(frame)
+    frame = requestAnimationFrame(() => {
+      if (
+        isIntersecting.value &&
+        sentinel.value &&
+        sentinel.value.getBoundingClientRect().top < window.innerHeight + 320
+      )
+        requestLoadMore()
+    })
   },
+  { flush: 'post' },
 )
 
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  cancelAnimationFrame(frame)
+})
 </script>
 
 <template>
@@ -71,7 +85,7 @@ onBeforeUnmount(() => observer?.disconnect())
       </button>
     </div>
     <div v-else-if="hasMore" class="infinite-load-more-state">
-      <span>{{ loadMoreText }}</span>
+      <button type="button" class="infinite-manual" @click="requestLoadMore">{{ loadMoreText }}</button>
     </div>
     <div v-else class="infinite-load-more-state">
       <span>{{ completeText }}</span>
@@ -102,6 +116,14 @@ onBeforeUnmount(() => observer?.disconnect())
   flex-wrap: wrap;
 }
 
+.infinite-manual {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--petal-soft);
+  color: var(--petal-deep);
+}
 .infinite-spinner {
   width: 23px;
   aspect-ratio: 1;

@@ -1,6 +1,7 @@
-import { friends } from '@/data/friends'
+import { friends, friendGroups } from '@/data/friends'
 import { posts } from '@/data/posts'
-import type { ArchiveYear, Friend, Post, TaxonomyItem } from '@/types/post'
+import { categoryCatalog } from '@/data/categories'
+import type { ArchiveYear, Friend, FriendGroup, Post, TaxonomyItem } from '@/types/post'
 
 function clonePost(post: Post): Post {
   return {
@@ -46,7 +47,14 @@ export async function getPost(slug: string): Promise<Post | null> {
 }
 
 export async function listCategories(): Promise<TaxonomyItem[]> {
-  return taxonomyFromPosts((post) => [post.category])
+  return categoryCatalog
+    .map((category) => ({
+      ...category,
+      count: posts.filter(
+        (post) => post.category.slug === category.slug || post.category.slug.startsWith(category.slug + '/'),
+      ).length,
+    }))
+    .filter((category) => category.count > 0)
 }
 
 export async function getCategory(slug: string): Promise<TaxonomyItem | null> {
@@ -54,7 +62,9 @@ export async function getCategory(slug: string): Promise<TaxonomyItem | null> {
 }
 
 export async function listPostsByCategory(slug: string): Promise<Post[]> {
-  return sortedPosts(posts.filter((post) => post.category.slug === slug)).map(clonePost)
+  return sortedPosts(
+    posts.filter((post) => post.category.slug === slug || post.category.slug.startsWith(slug + '/')),
+  ).map(clonePost)
 }
 
 export async function listTags(): Promise<TaxonomyItem[]> {
@@ -95,4 +105,26 @@ export async function listArchives(): Promise<ArchiveYear[]> {
 
 export async function listFriends(): Promise<Friend[]> {
   return friends.map((friend) => ({ ...friend }))
+}
+
+export async function listCategoryTree(): Promise<TaxonomyItem[]> {
+  const categories = await listCategories()
+  const childrenOf = (parent: string): TaxonomyItem[] =>
+    categories
+      .filter((item) =>
+        item.slug.includes('/') ? item.slug.slice(0, item.slug.lastIndexOf('/')) === parent : !parent,
+      )
+      .map((item) => ({ ...item, children: childrenOf(item.slug) }))
+  return childrenOf('')
+}
+
+export async function getCategoryTrail(slug: string): Promise<TaxonomyItem[]> {
+  const categories = await listCategories()
+  return categories
+    .filter((item) => item.slug === slug || slug.startsWith(item.slug + '/'))
+    .sort((a, b) => a.slug.length - b.slug.length)
+}
+
+export async function listFriendGroups(): Promise<FriendGroup[]> {
+  return friendGroups.map((group) => ({ ...group }))
 }

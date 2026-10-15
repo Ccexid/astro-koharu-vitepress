@@ -5,6 +5,8 @@ import {
   getTag,
   listArchives,
   listCategories,
+  listCategoryTree,
+  getCategoryTrail,
   listFriends,
   listPosts,
   listPostsByCategory,
@@ -57,5 +59,23 @@ describe('mock post service', () => {
     const friends = await listFriends()
     friends[0]!.name = 'changed'
     expect((await listFriends())[0]!.name).not.toBe('changed')
+  })
+})
+
+describe('nested category navigation', () => {
+  it('keeps parent counts inclusive and resolves the category trail', async () => {
+    const tree = await listCategoryTree()
+    const craft = tree.find((item) => item.slug === 'craft')
+    expect(craft?.count).toBe(2)
+    expect(craft?.children?.map((item) => item.slug)).toEqual(['craft/writing', 'craft/photography'])
+    expect((await listPostsByCategory('craft/writing')).map((post) => post.slug)).toEqual([
+      'keep-a-gentle-notebook',
+    ])
+    expect((await getCategoryTrail('frontend/vue')).map((item) => item.slug)).toEqual([
+      'frontend',
+      'frontend/vue',
+    ])
+    tree[0]!.name = 'changed'
+    expect((await listCategoryTree())[0]!.name).not.toBe('changed')
   })
 })

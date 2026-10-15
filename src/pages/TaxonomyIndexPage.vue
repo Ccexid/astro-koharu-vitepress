@@ -1,72 +1,101 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ArrowUpRight, FolderOpen, Hash } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
-import PageHeading from '@/components/PageHeading.vue'
-import { listCategories, listTags } from '@/services/posts'
+import CategoryTree from '@/components/CategoryTree.vue'
+import { listCategories, listCategoryTree, listPosts, listTags } from '@/services/posts'
 import type { TaxonomyItem } from '@/types/post'
-
 const props = defineProps<{ kind: 'category' | 'tag' }>()
 const items = ref<TaxonomyItem[]>([])
+const categories = ref<TaxonomyItem[]>([])
 const loading = ref(true)
 const error = ref(false)
+const postCount = ref(0)
+const categoryCount = ref(0)
+const query = ref('')
+const singlesOpen = ref(false)
+let request = 0
 const isCategory = computed(() => props.kind === 'category')
-const root = computed(() => (isCategory.value ? 'categories' : 'tags'))
-
+const byFrequency = computed(() =>
+  [...items.value].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN')),
+)
+const filteredTags = computed(() =>
+  byFrequency.value.filter((tag) =>
+    tag.name.toLocaleLowerCase().includes(query.value.trim().toLocaleLowerCase()),
+  ),
+)
+const frequent = computed(() => filteredTags.value.filter((tag) => tag.count > 1))
+const singles = computed(() => filteredTags.value.filter((tag) => tag.count === 1))
 async function load() {
-  const requestId = ++latestRequest
-  const kind = props.kind
+  const id = ++request
   loading.value = true
   error.value = false
-  items.value = []
+  query.value = ''
+  singlesOpen.value = false
   try {
-    const result = await (kind === 'category' ? listCategories() : listTags())
-    if (requestId !== latestRequest) return
-    items.value = result
+    const [flat, tree, posts] = await Promise.all([
+      props.kind === 'category' ? listCategories() : listTags(),
+      props.kind === 'category' ? listCategoryTree() : Promise.resolve([]),
+      listPosts(),
+    ])
+    if (id !== request) return
+    items.value = flat
+    categories.value = tree
+    postCount.value = posts.length
+    categoryCount.value = flat.length
   } catch {
-    if (requestId !== latestRequest) return
-    error.value = true
+    if (id === request) error.value = true
   } finally {
-    if (requestId === latestRequest) loading.value = false
+    if (id === request) loading.value = false
   }
 }
-
-let latestRequest = 0
 watch(() => props.kind, load, { immediate: true })
 </script>
-
 <template>
-  <PageHeading
-    :title="isCategory ? '按主题浏览' : '按标签浏览'"
-    :eyebrow="isCategory ? 'CATEGORY INDEX' : 'TAG INDEX'"
-    :description="isCategory ? '循着话题，找到感兴趣的故事。' : '从一个词出发，遇见更多相近的念头。'"
-  />
-  <p v-if="loading" class="status-message" role="status">正在加载...</p>
+  <p v-if="loading" class="status-message" role="status">正在加载…</p>
   <div v-else-if="error" class="status-message" role="alert">
     内容暂时无法加载。<button type="button" @click="load">重试</button>
   </div>
-  <div v-else-if="items.length" class="taxonomy-index">
-    <p class="taxonomy-summary">
-      <strong>{{ items.length }}</strong>
-      {{ isCategory ? '个分类' : '个标签' }}
-      <span>按名称排列</span>
+  <template v-else-if="isCategory">
+    <div class="index-intro">
+      <p>
+        <strong>{{ categoryCount }}</strong> 个分类 <span class="intro-dot">·</span
+        ><strong>{{ postCount }}</strong> 篇文章
+      </p>
+    </div>
+    <CategoryTree v-if="categories.length" :items="categories" />
+    <p v-else class="status-message" role="status">这里暂时没有分类。</p>
+  </template>
+  <template v-else>
+    <div class="index-intro">
+      <p>
+        <strong>{{ items.length }}</strong> 个标签
+        <template v-if="byFrequency[0]"
+          ><span class="intro-dot">·</span>最常用 <strong>{{ byFrequency[0].name }}</strong></template
+        >
+      </p>
+      <label class="tag-filter"
+        ><span class="sr-only">过滤标签</span><input v-model="query" type="search" placeholder="输入标签名称"
+      /></label>
+    </div>
+    <div class="tag-cloud">
+      <RouterLink
+        v-for="tag in frequent"
+        :key="tag.slug"
+        :to="'/tags/' + tag.slug"
+        :class="{ 'tag-prominent': tag.count >= 3 }"
+        >{{ tag.name }}<sup>{{ tag.count }}</sup></RouterLink
+      >
+    </div>
+    <details v-if="singles.length" :open="singlesOpen || !!query" class="single-tags">
+      <summary>还有 {{ singles.length }} 个只出现过一次的标签</summary>
+      <div class="tag-cloud">
+        <RouterLink v-for="tag in singles" :key="tag.slug" :to="'/tags/' + tag.slug"
+          >{{ tag.name }}<sup>1</sup></RouterLink
+        >
+      </div>
+    </details>
+    <p v-if="!filteredTags.length" class="status-message" role="status">
+      {{ query ? '没有匹配的标签，请换个关键词。' : '这里暂时没有标签。' }}
     </p>
-    <ul class="taxonomy-grid">
-      <li v-for="item in items" :key="item.slug" class="taxonomy-index-item">
-        <RouterLink class="taxonomy-item" :to="`/${root}/${item.slug}`">
-          <span class="taxonomy-icon" aria-hidden="true">
-            <FolderOpen v-if="isCategory" :size="17" />
-            <Hash v-else :size="17" />
-          </span>
-          <span class="taxonomy-name">{{ item.name }}</span>
-          <span class="taxonomy-count">
-            <strong>{{ item.count }}</strong>
-            <small>篇文章</small>
-          </span>
-          <ArrowUpRight class="taxonomy-arrow" :size="17" aria-hidden="true" />
-        </RouterLink>
-      </li>
-    </ul>
-  </div>
-  <p v-else class="status-message" role="status">这里暂时还没有内容。</p>
+  </template>
 </template>

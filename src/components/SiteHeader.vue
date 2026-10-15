@@ -1,274 +1,318 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { Menu, X } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { isNavigationActive, siteNavigation } from '@/app/navigation'
+import {
+  Archive,
+  ChevronDown,
+  Flower2,
+  FolderOpen,
+  Hash,
+  Home,
+  Link,
+  Info,
+  Tv,
+  BookOpen,
+} from 'lucide-vue-next'
 import type { Theme } from '@/composables/useTheme'
-
-defineProps<{ theme: Theme }>()
+import type { SiteCover } from '@/app/site-cover'
+import ArticleToc from '@/components/post/ArticleToc.vue'
+const props = defineProps<{
+  theme: Theme
+  cover: SiteCover
+  activeId: string
+  progress: number
+  scrolled: boolean
+  hidden: boolean
+}>()
 const drawerOpen = defineModel<boolean>('drawerOpen', { default: false })
 const emit = defineEmits<{ toggleTheme: [origin: HTMLElement] }>()
 const route = useRoute()
-const isScrolled = ref(false)
-
-function closeDrawer() {
-  drawerOpen.value = false
+const mobileToc = ref<HTMLDetailsElement | null>(null)
+const article = computed(() => props.cover.kind === 'article')
+const activeTitle = computed(
+  () => props.cover.sections?.find((section) => section.id === props.activeId)?.title || props.cover.title,
+)
+function toggle(event: MouseEvent) {
+  if (event.currentTarget instanceof HTMLElement) emit('toggleTheme', event.currentTarget)
 }
-
-function syncScrollState() {
-  isScrolled.value = window.scrollY > 32
+function closeMenu(event: MouseEvent) {
+  ;(event.currentTarget as HTMLElement).closest('details')?.removeAttribute('open')
 }
-
-function handleThemeToggle(event: MouseEvent) {
-  if (event.currentTarget instanceof HTMLElement) {
-    emit('toggleTheme', event.currentTarget)
-  }
-}
-
-watch(() => route.fullPath, closeDrawer)
-
-onMounted(() => {
-  syncScrollState()
-  window.addEventListener('scroll', syncScrollState, { passive: true })
-})
-
-onUnmounted(() => window.removeEventListener('scroll', syncScrollState))
 </script>
-
 <template>
-  <header class="site-header" :class="{ 'is-scrolled': isScrolled }">
+  <header
+    class="site-header"
+    :class="{ 'is-scrolled': scrolled, 'is-hidden': hidden, 'is-reading': article }"
+  >
     <div class="header-inner">
       <button
-        class="icon-button menu-toggle"
+        class="header-menu icon-button"
         type="button"
-        :aria-label="drawerOpen ? '关闭导航抽屉' : '打开导航抽屉'"
+        :aria-label="drawerOpen ? '关闭导航' : '打开导航'"
         :aria-expanded="drawerOpen"
         aria-controls="mobile-drawer"
         @click="drawerOpen = !drawerOpen"
       >
-        <X v-if="drawerOpen" :size="18" aria-hidden="true" />
-        <Menu v-else :size="18" aria-hidden="true" />
+        <span class="menu-lines" :class="{ open: drawerOpen }" aria-hidden="true"></span>
       </button>
-
-      <RouterLink class="wordmark" to="/" aria-label="Koharu 首页" @click="closeDrawer">
-        <span class="wordmark-mark" aria-hidden="true">花</span>
-        <span>Koharu</span>
-      </RouterLink>
-
+      <RouterLink class="wordmark" to="/" aria-label="Koharu 首页"
+        ><Flower2 :size="25" aria-hidden="true" /><span>Koharu</span></RouterLink
+      >
+      <details v-if="article" ref="mobileToc" class="mobile-reading-nav">
+        <summary>
+          <span class="reading-percent">{{ progress }}%</span
+          ><span>{{ scrolled ? activeTitle : '文章目录' }}</span
+          ><ChevronDown :size="15" aria-hidden="true" />
+        </summary>
+        <div class="mobile-toc-panel">
+          <ArticleToc
+            :sections="cover.sections || []"
+            :active-id="activeId"
+            @navigate="mobileToc?.removeAttribute('open')"
+          />
+        </div>
+      </details>
       <nav class="primary-nav" aria-label="主导航">
-        <RouterLink
-          v-for="link in siteNavigation"
-          :key="link.to"
-          :to="link.to"
-          :class="{ 'is-active': isNavigationActive(route.path, link.to) }"
+        <RouterLink to="/" :aria-current="route.path === '/' ? 'page' : undefined"
+          ><Home :size="15" aria-hidden="true" />首页</RouterLink
         >
-          {{ link.label }}
-        </RouterLink>
+        <details class="header-dropdown">
+          <summary>
+            <BookOpen :size="15" aria-hidden="true" />文章<ChevronDown :size="13" aria-hidden="true" />
+          </summary>
+          <div class="header-dropdown-menu" @click="closeMenu">
+            <RouterLink to="/posts"><BookOpen :size="15" />所有文章</RouterLink
+            ><RouterLink to="/categories"><FolderOpen :size="15" />分类</RouterLink
+            ><RouterLink to="/tags"><Hash :size="15" />标签</RouterLink
+            ><RouterLink to="/archives"><Archive :size="15" />归档</RouterLink>
+          </div>
+        </details>
+        <RouterLink to="/friends"><Link :size="15" aria-hidden="true" />友链</RouterLink>
+        <RouterLink to="/about"><Info :size="15" aria-hidden="true" />关于</RouterLink>
+        <RouterLink to="/bangumi"><Tv :size="15" aria-hidden="true" />追番</RouterLink>
       </nav>
-
       <button
         class="icon-button theme-toggle"
         type="button"
         :aria-label="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
-        :title="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
         :aria-pressed="theme === 'dark'"
-        @click="handleThemeToggle"
+        @click="toggle"
       >
-        <span class="theme-toggle-icon" aria-hidden="true">
-          <span class="theme-toggle-indicator" />
-        </span>
+        <span class="theme-toggle-icon" aria-hidden="true"><span class="theme-toggle-indicator" /></span>
       </button>
     </div>
   </header>
 </template>
-
 <style scoped>
 .site-header {
-  position: absolute;
-  z-index: 20;
-  top: 0;
-  right: 0;
-  left: 0;
-  color: #fff;
-  transition: color var(--motion-duration-base) var(--motion-ease-hover);
-}
-
-.site-header.is-scrolled {
   position: fixed;
-  color: var(--ink);
+  inset: 0 0 auto;
+  z-index: 30;
+  color: #fff;
+  transition: translate 300ms var(--motion-ease-enter);
 }
-
+.site-header.is-hidden {
+  translate: 0 -110%;
+}
 .header-inner {
   display: flex;
-  width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--header-max-width));
-  min-height: 74px;
-  padding-inline: 20px;
+  width: min(100%, 1280px);
+  min-height: 66px;
+  padding: 0 30px;
+  margin: auto;
   align-items: center;
-  gap: 32px;
-  margin: 0 auto;
-  border-bottom: 1px solid rgb(255 255 255 / 24%);
+  gap: 28px;
   transition:
-    background-color var(--motion-duration-base) var(--motion-ease-hover),
-    border-color var(--motion-duration-base) var(--motion-ease-hover),
-    border-radius var(--motion-duration-base) var(--motion-ease-hover),
-    box-shadow var(--motion-duration-base) var(--motion-ease-hover),
-    transform var(--motion-duration-base) var(--motion-ease-enter);
+    background-color 260ms,
+    box-shadow 260ms;
 }
-
-.site-header.is-scrolled .header-inner {
-  transform: translateY(8px) scale(0.985);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+.is-scrolled .header-inner {
+  margin-top: 8px;
+  min-height: 54px;
+  border-radius: 28px;
+  background: var(--surface);
+  color: var(--ink);
   box-shadow: var(--shadow-header);
-  backdrop-filter: blur(16px) saturate(1.35);
 }
-
 .wordmark {
   display: inline-flex;
-  flex: 0 0 auto;
   align-items: center;
-  gap: 9px;
-  color: inherit;
-  font-size: var(--text-lg);
-  font-weight: 750;
+  gap: 7px;
   text-decoration: none;
+  color: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
-
-.wordmark-mark {
-  display: grid;
-  width: 32px;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 75%);
-  border-radius: 50%;
-  font-family: 'Noto Serif SC', 'Songti SC', serif;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.site-header.is-scrolled .wordmark-mark {
-  border-color: var(--line);
-  color: var(--petal-deep);
-}
-
 .primary-nav {
   display: flex;
-  flex: 1;
   align-items: center;
-  justify-content: flex-end;
   gap: 4px;
+  flex: 1;
 }
-
-.primary-nav a {
-  padding: 9px 11px;
-  border-radius: var(--radius-pill);
+.primary-nav a,
+.header-dropdown summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
   color: inherit;
-  font-size: var(--text-sm);
-  font-weight: 600;
+  font-size: 0.9rem;
   text-decoration: none;
-  transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-hover),
-    color var(--motion-duration-base) var(--motion-ease-hover);
+  border-radius: 22px;
+  cursor: pointer;
 }
-
-.primary-nav a.is-active {
-  background: rgb(255 255 255 / 19%);
+.primary-nav a:hover,
+.header-dropdown summary:hover {
+  background: rgb(255 255 255 / 18%);
 }
-
-.site-header.is-scrolled .primary-nav a.is-active {
+.is-scrolled .primary-nav a:hover {
   background: var(--petal-soft);
   color: var(--petal-deep);
 }
-
-.icon-button {
-  display: inline-grid;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 50%;
-  background: rgb(42 31 39 / 20%);
-  color: inherit;
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-hover),
-    border-color var(--motion-duration-base) var(--motion-ease-hover),
-    transform var(--motion-duration-fast) var(--motion-ease-hover),
-    scale 200ms var(--motion-ease-hover);
+.header-dropdown {
+  position: relative;
 }
-
-.site-header.is-scrolled .icon-button {
-  border-color: var(--line);
-  background: var(--surface);
-  color: var(--petal-deep);
+.header-dropdown summary {
+  list-style: none;
 }
-
-.menu-toggle {
+.header-dropdown summary::-webkit-details-marker {
   display: none;
 }
-
-@media (hover: hover) and (pointer: fine) {
-  .primary-nav a:hover {
-    background: rgb(255 255 255 / 19%);
-  }
-
-  .site-header.is-scrolled .primary-nav a:hover {
-    background: var(--petal-soft);
-    color: var(--petal-deep);
-  }
-
-  .icon-button:hover {
-    transform: translateY(-1px);
-  }
+.header-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  width: 150px;
+  padding: 7px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-drawer);
 }
-
-@media (max-width: 820px) {
+.header-dropdown-menu a:hover {
+  color: var(--petal-deep);
+  background: var(--petal-soft);
+}
+.icon-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 14%);
+  color: inherit;
+  flex: 0 0 auto;
+}
+.header-menu,
+.mobile-reading-nav {
+  display: none;
+}
+.menu-lines,
+.menu-lines::before,
+.menu-lines::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    rotate 180ms,
+    translate 180ms;
+}
+.menu-lines {
+  position: relative;
+}
+.menu-lines::before,
+.menu-lines::after {
+  content: '';
+  position: absolute;
+}
+.menu-lines::before {
+  top: -6px;
+}
+.menu-lines::after {
+  top: 6px;
+}
+.menu-lines.open {
+  rotate: 45deg;
+}
+.menu-lines.open::before {
+  top: 0;
+  rotate: 90deg;
+}
+.menu-lines.open::after {
+  opacity: 0;
+}
+@media (max-width: 992px) {
   .header-inner {
-    width: 100%;
-    min-height: 66px;
-    justify-content: space-between;
-    gap: 14px;
-    padding-inline: var(--page-gutter);
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    padding: 0 12px;
+    gap: 10px;
+    min-height: 56px;
   }
-
-  .site-header.is-scrolled .header-inner {
-    transform: none;
-    border: 0;
-    border-bottom: 1px solid var(--line);
+  .is-scrolled .header-inner {
+    margin-top: 0;
     border-radius: 0;
-    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    min-height: 56px;
   }
-
-  .menu-toggle {
-    display: inline-grid;
-  }
-
-  .icon-button {
-    width: 44px;
-    height: 44px;
-  }
-
-  .wordmark {
-    margin-right: auto;
-  }
-
   .primary-nav {
     display: none;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .site-header,
-  .header-inner,
-  .primary-nav a,
-  .icon-button {
-    transition-duration: 0.01ms;
+  .header-menu {
+    display: grid;
   }
-
-  .icon-button:hover {
-    transform: none;
+  .wordmark {
+    justify-self: center;
+  }
+  .wordmark svg {
+    display: none;
+  }
+  .mobile-reading-nav {
+    display: block;
+    position: relative;
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .is-reading .wordmark {
+    display: none;
+  }
+  .is-reading.site-header.is-hidden {
+    translate: none;
+  }
+  .mobile-reading-nav summary {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .mobile-reading-nav summary > span:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.85rem;
+  }
+  .reading-percent {
+    font-size: 0.65rem;
+    border: 1px solid currentColor;
+    padding: 5px;
+    border-radius: 50%;
+  }
+  .mobile-toc-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: -54px;
+    right: -54px;
+    max-height: 60svh;
+    overflow: auto;
+    padding: 16px;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-drawer);
   }
 }
 </style>

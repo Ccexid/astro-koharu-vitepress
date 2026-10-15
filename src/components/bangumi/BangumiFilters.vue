@@ -1,56 +1,57 @@
 <script setup lang="ts">
-import type { BangumiFollowStatus } from '@/api/bilibili'
-import type { BangumiCategoryFilter } from '@/services/bangumi'
-
-defineProps<{
-  category: BangumiCategoryFilter
-  followStatus: BangumiFollowStatus
+import { computed } from 'vue'
+import { collectionStatuses, subjectTypes, type CollectionStatus, type SubjectType } from '@/types/bangumi'
+const props = defineProps<{
+  subjectType: SubjectType
+  status: CollectionStatus | 'all'
+  typeCounts: Record<number, number>
+  statusCounts: Record<string, number>
 }>()
-
 const emit = defineEmits<{
-  'update:category': [category: BangumiCategoryFilter]
-  'update:followStatus': [status: BangumiFollowStatus]
+  'update:subjectType': [value: SubjectType]
+  'update:status': [value: CollectionStatus | 'all']
 }>()
-
-const statuses: { value: BangumiFollowStatus; label: string }[] = [
-  { value: 2, label: '在看' },
-  { value: 1, label: '想看' },
-  { value: 3, label: '看过' },
-]
-
-const categories: { value: BangumiCategoryFilter; label: string }[] = [
-  { value: 'all', label: '全部' },
-  { value: 1, label: '番剧' },
-  { value: 2, label: '影视' },
-]
+const types = computed(() =>
+  subjectTypes.filter(
+    (type) =>
+      !Object.keys(props.typeCounts).length ||
+      props.typeCounts[type.value] ||
+      props.subjectType === type.value,
+  ),
+)
+const statuses = computed(() =>
+  collectionStatuses.filter(
+    (state) =>
+      !Object.keys(props.statusCounts).length ||
+      state.value === 'all' ||
+      props.statusCounts[state.value] ||
+      props.status === state.value,
+  ),
+)
 </script>
-
 <template>
   <div class="bangumi-filters">
-    <div class="bangumi-categories" role="group" aria-label="按类型筛选">
+    <div class="index-tabs" role="group" aria-label="收藏媒介">
       <button
-        v-for="item in categories"
-        :key="item.value"
+        v-for="type in types"
+        :key="type.value"
         type="button"
-        class="bangumi-category"
-        :class="{ 'is-active': category === item.value }"
-        :aria-pressed="category === item.value"
-        @click="emit('update:category', item.value)"
+        :aria-pressed="subjectType === type.value"
+        @click="emit('update:subjectType', type.value)"
       >
-        {{ item.label }}
+        {{ type.label }}<sup v-if="typeCounts[type.value] !== undefined">{{ typeCounts[type.value] }}</sup>
       </button>
     </div>
-    <div class="bangumi-statuses" role="group" aria-label="追番状态">
+    <div class="index-tabs quiet-tabs" role="group" aria-label="收藏状态">
       <button
-        v-for="item in statuses"
-        :key="item.value"
+        v-for="state in statuses"
+        :key="state.value"
         type="button"
-        class="bangumi-status"
-        :class="{ 'is-active': followStatus === item.value }"
-        :aria-pressed="followStatus === item.value"
-        @click="emit('update:followStatus', item.value)"
+        :aria-pressed="status === state.value"
+        @click="emit('update:status', state.value)"
       >
-        {{ item.label }}
+        {{ state.label
+        }}<sup v-if="statusCounts[state.value] !== undefined">{{ statusCounts[state.value] }}</sup>
       </button>
     </div>
   </div>

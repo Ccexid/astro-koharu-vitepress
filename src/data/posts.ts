@@ -84,7 +84,7 @@ export const posts: Post[] = [
     title: '把灵感记在手边',
     excerpt: '给随手记录一个简单的位置，让灵感先留下来，再慢慢长成文章。',
     publishedAt: '2026-08-07',
-    category: { name: '创作', slug: 'craft' },
+    category: { name: '写作', slug: 'craft/writing' },
     tags: [
       { name: '写作', slug: 'writing' },
       { name: '灵感', slug: 'ideas' },
@@ -118,7 +118,7 @@ export const posts: Post[] = [
     title: '让页面之间的路更清楚',
     excerpt: '一个小型博客模板里的路由、页面边界与本地服务，应该如何保持简单。',
     publishedAt: '2026-07-16',
-    category: { name: '前端', slug: 'frontend' },
+    category: { name: 'Vue', slug: 'frontend/vue' },
     tags: [
       { name: 'Vue', slug: 'vue' },
       { name: '前端', slug: 'frontend' },
@@ -152,7 +152,7 @@ export const posts: Post[] = [
     title: '清晨的窗边有一点绿',
     excerpt: '把一盆新叶放在窗台上以后，房间里多了一个可以慢慢观察的季节。',
     publishedAt: '2026-06-23',
-    category: { name: '生活', slug: 'life' },
+    category: { name: '植物', slug: 'life/plants' },
     tags: [
       { name: '日常', slug: 'everyday' },
       { name: '植物', slug: 'plants' },
@@ -177,7 +177,7 @@ export const posts: Post[] = [
     title: '没有计划的几张照片',
     excerpt: '相机没有设定主题，镜头里却留下了这个夏天最想记住的颜色。',
     publishedAt: '2026-04-19',
-    category: { name: '创作', slug: 'craft' },
+    category: { name: '摄影', slug: 'craft/photography' },
     tags: [
       { name: '摄影', slug: 'photography' },
       { name: '灵感', slug: 'ideas' },

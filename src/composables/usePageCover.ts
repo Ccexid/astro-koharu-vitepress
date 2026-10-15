@@ -8,7 +8,7 @@ export function usePageCover(source: MaybeRefOrGetter<SiteCover | null>): void {
 
   if (!controller) return
 
-  const owner = route.fullPath
+  const owner = route.path
   const stop = watch(
     () => toValue(source),
     (cover) => {

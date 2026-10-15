@@ -13,13 +13,18 @@ import { getCategory, getPost, getTag } from '@/services/posts'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: decodeURIComponent(to.hash), top: 96, behavior: 'smooth' }
+    return { top: 0 }
+  },
   routes: [
     { path: '/', component: HomePage },
     { path: '/posts', component: PostsPage },
     { path: '/posts/:slug', component: PostPage, props: true },
     { path: '/categories', component: TaxonomyIndexPage, props: { kind: 'category' } },
     {
-      path: '/categories/:slug',
+      path: '/categories/:slug(.*)',
       component: TaxonomyDetailPage,
       props: (route) => ({ kind: 'category', slug: String(route.params.slug) }),
     },
@@ -51,17 +56,19 @@ const pageTitles: Record<string, string> = {
 router.afterEach(async (to) => {
   let title = pageTitles[to.path]
   if (!title && to.path.startsWith('/posts/')) {
-    title = (await getPost(String(to.params.slug)))?.title || '文章不存在'
+    title =
+      (await getPost(Array.isArray(to.params.slug) ? to.params.slug.join('/') : String(to.params.slug)))
+        ?.title || '文章不存在'
   }
   if (!title && to.path.startsWith('/categories/')) {
-    title = (await getCategory(String(to.params.slug)))?.name || '分类不存在'
+    title =
+      (await getCategory(Array.isArray(to.params.slug) ? to.params.slug.join('/') : String(to.params.slug)))
+        ?.name || '分类不存在'
   }
   if (!title && to.path.startsWith('/tags/')) {
-    title = (await getTag(String(to.params.slug)))?.name || '标签不存在'
+    title =
+      (await getTag(Array.isArray(to.params.slug) ? to.params.slug.join('/') : String(to.params.slug)))
+        ?.name || '标签不存在'
   }
   document.title = `${title ?? '页面不存在'} · Koharu`
-  window.scrollTo({
-    top: 0,
-    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'instant',
-  })
 })

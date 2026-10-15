@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import PageHeading from '@/components/PageHeading.vue'
+import { RouterLink } from 'vue-router'
+import { BookOpen, Github, ArrowUpRight } from 'lucide-vue-next'
 </script>
-
 <template>
-  <PageHeading title="关于这片小花园" eyebrow="ABOUT" description="很高兴你来到这里。" />
-  <div class="about-content">
-    <p class="about-lead">Koharu 是一座放慢脚步的小小文字花园。</p>
-    <p>这里收集日常、散步、阅读和创作时的片段。没有宏大的主题，只有想认真记住的几个瞬间。</p>
-    <h2>写些什么</h2>
+  <article class="about-content">
+    <h2>你好，这里是春日来信</h2>
+    <p>Koharu，一本关于生活与创作的小小手记。</p>
+    <p>愿我们一直保有好奇，也愿平凡的日子值得被认真记下。</p>
+    <blockquote>慢慢走，认真看。<br />把微小的光，写成自己的故事。</blockquote>
     <p>
-      写一朵花的颜色，写回家时绕过的路，也写做网页时突然想通的问题。文章按分类、标签和时间整理，你可以从任意一处开始阅读。
+      这里写散步时的发现、阅读留下的念头，也记录构建网页时慢慢想通的问题。文章按分类、标签与时间整理，你可以从感兴趣的主题开始。
     </p>
-    <h2>关于这个模板</h2>
+    <h2 id="contact">找到我</h2>
+    <p>这是博客前端模板的演示作者资料。用于真实站点时，请替换成自己的姓名、头像和联系方式。</p>
+    <div class="about-links">
+      <RouterLink to="/posts"
+        ><BookOpen :size="24" aria-hidden="true" /><span
+          ><strong>读一封来信</strong><small>从最近写下的文章开始</small></span
+        ><ArrowUpRight :size="18" /></RouterLink
+      ><a href="https://github.com/cosZone/astro-koharu" target="_blank" rel="noopener noreferrer"
+        ><Github :size="24" aria-hidden="true" /><span
+          ><strong>参考主题</strong><small>astro-koharu · cosZone</small></span
+        ><ArrowUpRight :size="18"
+      /></a>
+    </div>
+    <h2>关于这个小站</h2>
     <p>
-      这个站点使用 Vue 3、Vite 和 TypeScript
-      构建。当前展示的是结构化的本地示例内容，页面读取统一经过服务层；未来可以替换为独立后端提供的数据。
+      使用 Vue 3、Vite 与 TypeScript 重新实现 Koharu 的阅读体验。文章和友链是本地演示数据，追番展示 Bangumi
+      的公开收藏。
     </p>
-    <p>
-      视觉风格参考 astro-koharu 的公开博客，但页面布局和组件在这里重新实现。文章、作者与友链均为演示内容。
-    </p>
-  </div>
+  </article>
 </template>

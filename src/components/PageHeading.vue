@@ -9,7 +9,7 @@ withDefaults(defineProps<{ eyebrow?: string; title: string; description?: string
 <template>
   <header class="page-heading">
     <p class="breadcrumbs"><RouterLink to="/">首页</RouterLink><span>/</span>{{ eyebrow }}</p>
-    <h1>{{ title }}</h1>
+    <h2>{{ title }}</h2>
     <p v-if="description" class="page-description">{{ description }}</p>
   </header>
 </template>
@@ -38,7 +38,7 @@ withDefaults(defineProps<{ eyebrow?: string; title: string; description?: string
     color: var(--petal-deep);
   }
 }
-.page-heading h1 {
+.page-heading h2 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 2.5rem;
@@ -52,12 +52,12 @@ withDefaults(defineProps<{ eyebrow?: string; title: string; description?: string
   line-height: 1.75;
 }
 @media (max-width: 820px) {
-  .page-heading h1 {
+  .page-heading h2 {
     font-size: 2.15rem;
   }
 }
 @media (max-width: 420px) {
-  .page-heading h1 {
+  .page-heading h2 {
     font-size: 1.9rem;
   }
 }
