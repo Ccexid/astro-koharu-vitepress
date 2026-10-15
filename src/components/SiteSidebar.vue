@@ -87,7 +87,7 @@ onMounted(load)
             <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
             <div class="profile-social">
               <a
-                href="https://github.com/cosZone/astro-koharu"
+                href="https://github.com/Ccexid/astro-koharu-vitepress"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="查看参考主题仓库"
