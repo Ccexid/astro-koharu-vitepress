@@ -17,11 +17,7 @@ const drawerOpen = ref(false)
 const siteCover = shallowRef<SiteCover>(defaultSiteCover(route.path))
 const { activeId, progress, scrolled, headerHidden } = useReadingPosition(siteCover)
 const showRecommendations = computed(
-  () =>
-    route.path === '/' ||
-    route.path === '/about' ||
-    siteCover.value.kind === 'article' ||
-    route.path === '/friends',
+  () => siteCover.value.kind === 'not-found' || !/^\/(categories|tags|archives)(\/|$)/.test(route.path),
 )
 let coverOwner: string | null = null
 provide(siteCoverKey, {
@@ -82,6 +78,7 @@ watch(
           </div>
         </main>
         <SiteFooter
+          :page-key="route.path"
           :show-recommendations="showRecommendations"
           :article-slug="siteCover.kind === 'article' ? String(route.params.slug) : undefined"
         />

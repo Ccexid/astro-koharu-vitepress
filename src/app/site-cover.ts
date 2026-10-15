@@ -4,6 +4,7 @@ export interface SiteCover {
   kind: SiteCoverKind
   title: string
   description?: string
+  compact?: boolean
   image?: string
   imageAlt?: string
   metadata?: string[]
@@ -16,13 +17,13 @@ export interface SiteCoverController {
 export const siteCoverKey: InjectionKey<SiteCoverController> = Symbol('site-cover')
 export function defaultSiteCover(path: string): SiteCover {
   if (path === '/') return { kind: 'home', title: '一封春日来信', description: '把日常，写成轻轻落下的花瓣' }
+  if (path === '/about') return { kind: 'page', title: '关于我', compact: false }
   const titles: Record<string, string> = {
     '/posts': '所有文章',
     '/categories': '所有分类',
     '/tags': '所有标签',
     '/archives': '归档',
     '/friends': '友情链接',
-    '/about': '关于我',
     '/bangumi': '追番',
   }
   if (titles[path]) return { kind: 'page', title: titles[path] }

@@ -1,7 +1,7 @@
 import { friends, friendGroups } from '@/data/friends'
 import { posts } from '@/data/posts'
 import { categoryCatalog } from '@/data/categories'
-import type { ArchiveYear, Friend, FriendGroup, Post, TaxonomyItem } from '@/types/post'
+import type { ArchiveYear, Friend, FriendGroup, Post, PostRecommendations, TaxonomyItem } from '@/types/post'
 
 function clonePost(post: Post): Post {
   return {
@@ -44,6 +44,53 @@ export async function listPosts(): Promise<Post[]> {
 export async function getPost(slug: string): Promise<Post | null> {
   const post = posts.find((item) => item.slug === slug)
   return post ? clonePost(post) : null
+}
+
+function shuffled<T>(items: readonly T[]): T[] {
+  const result = [...items]
+  for (let index = result.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1))
+    ;[result[index], result[other]] = [result[other]!, result[index]!]
+  }
+  return result
+}
+
+export async function getPostRecommendations(articleSlug?: string): Promise<PostRecommendations> {
+  const entries = await listPosts()
+  const current = entries.find((post) => post.slug === articleSlug)
+  const pool = entries.filter((post) => post.slug !== articleSlug)
+  const leftCount = Math.min(5, Math.ceil(pool.length / 2))
+  const rightCount = Math.min(5, Math.floor(pool.length / 2))
+  const currentTags = new Set(current?.tags.map((tag) => tag.slug))
+
+  // Local content has no generated similarity index; category and tag matches provide related reading.
+  const related = current
+    ? pool
+        .map((post) => ({
+          post,
+          score:
+            (post.category.slug === current.category.slug
+              ? 3
+              : post.category.slug.split('/')[0] === current.category.slug.split('/')[0]
+                ? 1
+                : 0) +
+            post.tags.filter((tag) => currentTags.has(tag.slug)).length * 2,
+        }))
+        .filter(({ score }) => score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, rightCount)
+        .map(({ post }) => post)
+    : []
+  const relatedIds = new Set(related.map((post) => post.id))
+  const random = shuffled(pool.filter((post) => !relatedIds.has(post.id))).slice(0, leftCount)
+  const selectedIds = new Set(random.map((post) => post.id))
+  return {
+    random,
+    secondary: related.length
+      ? related
+      : shuffled(pool.filter((post) => !selectedIds.has(post.id))).slice(0, rightCount),
+    hasRelated: related.length > 0,
+  }
 }
 
 export async function listCategories(): Promise<TaxonomyItem[]> {

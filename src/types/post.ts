@@ -31,6 +31,12 @@ export interface TaxonomyItem extends TaxonomyRef {
   children?: TaxonomyItem[]
 }
 
+export interface PostRecommendations {
+  random: Post[]
+  secondary: Post[]
+  hasRelated: boolean
+}
+
 export interface Friend {
   name: string
   url: string

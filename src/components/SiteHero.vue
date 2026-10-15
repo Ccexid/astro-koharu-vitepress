@@ -10,7 +10,7 @@ const image = ref<HTMLImageElement | null>(null)
 const { paused, lowPower } = useHeroMotion(hero, image)
 const copied = ref(false)
 const copyMessage = ref('')
-const compact = computed(() => props.cover.kind === 'page')
+const compact = computed(() => props.cover.kind === 'page' && props.cover.compact !== false)
 let copyTimer: ReturnType<typeof setTimeout> | undefined
 onScopeDispose(() => clearTimeout(copyTimer))
 async function copyLink() {
@@ -35,6 +35,7 @@ async function copyLink() {
     :class="{
       'is-home': cover.kind === 'home',
       'is-compact': compact,
+      'is-full-page': cover.kind === 'page' && !compact,
       'is-paused': paused,
       'is-low-power': lowPower,
     }"
@@ -81,7 +82,11 @@ async function copyLink() {
             aria-label="复制当前页面链接"
             @click="copyLink"
           >
-            <Check v-if="copied" :size="24" aria-hidden="true" /><Link v-else :size="24" aria-hidden="true" />
+            <Check v-if="copied" :size="compact ? 24 : 48" aria-hidden="true" /><Link
+              v-else
+              :size="compact ? 24 : 48"
+              aria-hidden="true"
+            />
           </button>
         </h1>
         <p v-if="cover.description" class="hero-subtitle">
@@ -171,9 +176,6 @@ async function copyLink() {
 .hero-copy h1 > span {
   display: inline-block;
 }
-.is-home .hero-copy h1 {
-  margin-top: 14px;
-}
 .is-compact .hero-copy h1 {
   font-size: 2.4rem;
 }
@@ -186,6 +188,59 @@ async function copyLink() {
   margin: 22px 0 0;
   font-size: 0.9rem;
   letter-spacing: 0;
+}
+.is-home .hero-copy-motion,
+.is-full-page .hero-copy-motion {
+  position: absolute;
+  inset: 0 0 8svh;
+}
+.is-home .hero-copy,
+.is-full-page .hero-copy {
+  display: flex;
+  height: 100%;
+  max-width: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  text-shadow: 0 0.2rem 0.3rem rgb(0 0 0 / 50%);
+}
+.is-home .hero-alternate,
+.is-home .hero-copy h1,
+.is-full-page .hero-copy h1 {
+  font-size: 3rem;
+  line-height: 1.2;
+  text-shadow:
+    0 0.15rem 0.35rem rgb(28 8 20 / 45%),
+    0 0.4rem 1.6rem rgb(233 84 107 / 35%);
+}
+.is-home .hero-alternate {
+  letter-spacing: 0.02em;
+}
+.is-home .hero-copy h1 {
+  max-width: 100%;
+  margin-top: 12px;
+  letter-spacing: 0.1em;
+}
+.is-home .hero-subtitle {
+  margin-top: 20px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.2em;
+}
+.is-full-page .hero-copy h1 {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.1em;
+}
+.is-full-page .cover-copy-link {
+  width: auto;
+  height: auto;
+  margin-left: 0;
+  padding: 4px;
 }
 .hero-meta {
   display: flex;
