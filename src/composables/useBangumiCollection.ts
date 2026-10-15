@@ -5,10 +5,10 @@ import {
   getSubjectCounts,
   listBangumiCollection,
 } from '@/services/bangumi'
-import type { CollectionItem, CollectionStatus, SubjectType } from '@/types/bangumi'
-export function useBangumiCollection(userId: string) {
-  const subjectType = ref<SubjectType>(2)
-  const status = ref<CollectionStatus | 'all'>('all')
+import type { CollectionItem, CollectionStatus, SubjectType, CollectionSource } from '@/types/bangumi'
+export function useBangumiCollection(userId: string, source: CollectionSource = 'bilibili') {
+  const subjectType = ref<SubjectType>(source === 'bangumi' ? 2 : 1)
+  const status = ref<CollectionStatus | 'all'>(source === 'bangumi' ? 'all' : 1)
   const items = ref<CollectionItem[]>([])
   const total = ref(0)
   const offset = ref(0)
@@ -26,7 +26,8 @@ export function useBangumiCollection(userId: string) {
   const typesController = new AbortController()
   function message(cause: unknown): string {
     if (cause instanceof Error && cause.name === 'TimeoutError') return '读取超时，请重试。'
-    if (cause instanceof TypeError) return '无法连接 Bangumi，请检查网络后重试。'
+    if (cause instanceof TypeError)
+      return `无法连接${source === 'bangumi' ? ' Bangumi' : '哔哩哔哩'}，请检查网络后重试。`
     return cause instanceof Error ? cause.message : '收藏暂时无法读取，请重试。'
   }
   async function load(more = false) {
@@ -50,6 +51,7 @@ export function useBangumiCollection(userId: string) {
     try {
       const page = await listBangumiCollection(
         {
+          source,
           userId,
           subjectType: subjectType.value,
           status: status.value,
@@ -79,7 +81,7 @@ export function useBangumiCollection(userId: string) {
   async function loadCounts() {
     countsError.value = ''
     try {
-      typeCounts.value = await getSubjectCounts(userId, typesController.signal)
+      typeCounts.value = await getSubjectCounts(userId, typesController.signal, source)
     } catch (cause) {
       if (!typesController.signal.aborted) countsError.value = message(cause)
     }
@@ -90,7 +92,7 @@ export function useBangumiCollection(userId: string) {
     const signal = statusController.signal
     statusCounts.value = {}
     try {
-      const counts = await getStatusCounts(userId, subjectType.value, signal)
+      const counts = await getStatusCounts(userId, subjectType.value, signal, source)
       if (!signal.aborted) statusCounts.value = counts
     } catch (cause) {
       if (!signal.aborted) countsError.value = message(cause)
@@ -99,7 +101,7 @@ export function useBangumiCollection(userId: string) {
   watch(
     subjectType,
     () => {
-      status.value = 'all'
+      status.value = source === 'bangumi' ? 'all' : 2
       void loadStatusCounts()
     },
     { immediate: true, flush: 'sync' },

@@ -1,5 +1,7 @@
 # v7.7.4 页面对齐记录
 
+> 下文是上一轮实施记录。最新需求已明确为双来源：最上方标签切换哔哩哔哩与 Bangumi.tv，分别读取 `VITE_API_BILIBILI_UID`、`VITE_BANGUMI_USER_ID`；各自筛选、计数与请求隔离，共用瀑布流和滚动追加。当前边界见 `src/api/README.md`。已在用户的 `localhost:5173/bangumi` 验证两个来源，并验证 Bangumi 24→51 条无重复；类型检查、21 个测试及构建通过。首页动效计划仍见 `../plans/README.md`。
+
 日期：2026-10-15。固定参考 `.reference/v7.7.4`，提交 `edc0cd6466dfa3c7dd1d0052302e0e4565818b28`。上游 checkout 未修改。
 
 ## 用户确定的例外

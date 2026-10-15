@@ -1,54 +1,73 @@
 <script setup lang="ts">
-import BangumiFilters from '@/components/bangumi/BangumiFilters.vue'
-import BangumiResults from '@/components/bangumi/BangumiResults.vue'
-import { useBangumiCollection } from '@/composables/useBangumiCollection'
-const userId = String(import.meta.env.VITE_BANGUMI_USER_ID || 'cosine')
-const collection = useBangumiCollection(userId)
-const {
-  subjectType,
-  status,
-  items,
-  total,
-  loading,
-  loadingMore,
-  error,
-  moreError,
-  typeCounts,
-  statusCounts,
-  countsError,
-  hasMore,
-} = collection
+import { computed, ref } from 'vue'
+import CollectionPanel from '@/components/bangumi/CollectionPanel.vue'
+import type { CollectionSource } from '@/types/bangumi'
+
+const sources: Array<{ id: CollectionSource; label: string }> = [
+  { id: 'bilibili', label: '哔哩哔哩' },
+  { id: 'bangumi', label: 'Bangumi.tv' },
+]
+const source = ref<CollectionSource>('bilibili')
+const userId = computed(() =>
+  String(
+    source.value === 'bangumi'
+      ? import.meta.env.VITE_BANGUMI_USER_ID || ''
+      : import.meta.env.VITE_API_BILIBILI_UID || '',
+  ).trim(),
+)
+function switchWithKeyboard(event: KeyboardEvent, index: number) {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+  event.preventDefault()
+  const next =
+    event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? sources.length - 1
+        : (index + (event.key === 'ArrowRight' ? 1 : -1) + sources.length) % sources.length
+  source.value = sources[next]!.id
+  document.getElementById('collection-tab-' + source.value)?.focus()
+}
 </script>
 <template>
-  <section class="bangumi-page" aria-label="公开收藏" :aria-busy="loading">
-    <BangumiFilters
-      v-model:subject-type="subjectType"
-      v-model:status="status"
-      :type-counts="typeCounts"
-      :status-counts="statusCounts"
-    />
-    <p v-if="countsError && !error" class="counts-notice" role="status">
-      收藏数量暂时无法更新，仍可浏览列表。<button type="button" @click="collection.retryCounts">
-        重试统计
-      </button>
-    </p>
-    <BangumiResults
-      :items="items"
-      :total="total"
-      :loading="loading"
-      :loading-more="loadingMore"
-      :error="error"
-      :more-error="moreError"
-      :has-more="hasMore"
-      :show-status="status === 'all'"
-      @retry="collection.load()"
-      @load-more="collection.load(true)"
-    />
-    <p class="collection-source">
-      公开收藏来自
-      <a :href="'https://bgm.tv/user/' + encodeURIComponent(userId)" target="_blank" rel="noopener noreferrer"
-        >Bangumi · {{ userId }}</a
-      >
-    </p>
-  </section>
+  <div class="collection-source-tabs" role="tablist" aria-label="追番数据来源">
+    <button
+      v-for="(item, index) in sources"
+      :id="'collection-tab-' + item.id"
+      :key="item.id"
+      type="button"
+      role="tab"
+      :aria-selected="source === item.id"
+      aria-controls="collection-panel"
+      :tabindex="source === item.id ? 0 : -1"
+      @click="source = item.id"
+      @keydown="switchWithKeyboard($event, index)"
+    >
+      {{ item.label }}
+    </button>
+  </div>
+  <div id="collection-panel" role="tabpanel" :aria-labelledby="'collection-tab-' + source">
+    <CollectionPanel :key="source" :source="source" :user-id="userId" />
+  </div>
 </template>
+<style scoped>
+.collection-source-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 26px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.collection-source-tabs button {
+  min-height: 44px;
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+}
+.collection-source-tabs button[aria-selected='true'] {
+  background: var(--petal-soft);
+  color: var(--petal-deep);
+}
+</style>

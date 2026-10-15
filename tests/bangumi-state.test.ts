@@ -11,6 +11,7 @@ import { useBangumiCollection } from '../src/composables/useBangumiCollection'
 function item(id: number) {
   return {
     id,
+    url: 'https://www.bilibili.com/bangumi/play/ss' + id,
     title: '作品 ' + id,
     originalTitle: '',
     image: '',
@@ -29,6 +30,44 @@ async function settle() {
 }
 afterEach(() => vi.resetAllMocks())
 describe('collection filters and incremental loading', () => {
+  it('cancels a removed provider panel and uses the other account without mixing responses', async () => {
+    services.types.mockResolvedValue({ 2: 1 })
+    services.statuses.mockResolvedValue({ all: 1 })
+    let resolveOld!: (value: unknown) => void
+    let oldSignal!: AbortSignal
+    services.list
+      .mockImplementationOnce((_query: unknown, options: { signal: AbortSignal }) => {
+        oldSignal = options.signal
+        return new Promise((resolve) => {
+          resolveOld = resolve
+        })
+      })
+      .mockResolvedValueOnce({
+        items: [{ ...item(77), source: 'bangumi', url: 'https://bgm.tv/subject/77' }],
+        total: 1,
+        offset: 0,
+        limit: 24,
+      })
+    const firstScope = effectScope()
+    const first = firstScope.run(() => useBangumiCollection('19580033', 'bilibili'))!
+    firstScope.stop()
+    expect(oldSignal.aborted).toBe(true)
+    const secondScope = effectScope()
+    const second = secondScope.run(() => useBangumiCollection('ccexid', 'bangumi'))!
+    await settle()
+    resolveOld({ items: [item(99)], total: 1, offset: 0, limit: 24 })
+    await settle()
+    expect(first.items.value).toEqual([])
+    expect(second.items.value.map((entry) => entry.id)).toEqual([77])
+    expect(services.list.mock.calls[1]![0]).toMatchObject({
+      source: 'bangumi',
+      userId: 'ccexid',
+      subjectType: 2,
+      status: 'all',
+    })
+    expect(services.types).toHaveBeenLastCalledWith('ccexid', expect.any(AbortSignal), 'bangumi')
+    secondScope.stop()
+  })
   it('ignores stale filter results, cancels them and appends without duplicate subjects', async () => {
     services.types.mockResolvedValue({ 2: 25 })
     services.statuses.mockResolvedValue({ all: 25, 3: 25 })

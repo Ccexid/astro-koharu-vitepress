@@ -1,5 +1,7 @@
 # Koharu 视觉基线与阶段验收
 
+> 最新追番决策：顶部标签切换哔哩哔哩与 Bangumi.tv 两个来源，分别使用既有 UID/用户名；共用响应式瀑布流、滚动追加。当前说明见 `src/api/README.md`。下方单来源数据及验收数字是历史记录。首页动效计划见 `plans/README.md`。
+
 ## 参考版本
 
 - 上游仓库：`cosZone/astro-koharu`

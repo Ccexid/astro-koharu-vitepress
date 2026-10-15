@@ -1,25 +1,23 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { ImageOff, Star } from 'lucide-vue-next'
-import { collectionStatuses, type CollectionItem } from '@/types/bangumi'
+import { bangumiStatuses, type CollectionItem } from '@/types/bangumi'
 const props = defineProps<{ item: CollectionItem; showStatus: boolean }>()
 const imageFailed = ref(false)
 watch(
   () => props.item.image,
   () => (imageFailed.value = false),
 )
-const statusLabel = computed(
-  () => collectionStatuses.find((state) => state.value === props.item.status)?.label,
-)
+const statusLabel = computed(() => bangumiStatuses.find((state) => state.value === props.item.status)?.label)
 </script>
 <template>
   <div class="masonry-item">
     <a
       class="bangumi-card masonry-content"
-      :href="'https://bgm.tv/subject/' + item.id"
+      :href="item.url"
       target="_blank"
       rel="noopener noreferrer"
-      :aria-label="item.title + '，在 Bangumi 打开'"
+      :aria-label="item.title + (item.source === 'bangumi' ? '，在 Bangumi 打开' : '，在哔哩哔哩打开')"
     >
       <div class="bangumi-poster">
         <img
@@ -32,12 +30,12 @@ const statusLabel = computed(
           @error="imageFailed = true"
         />
         <span v-else class="poster-placeholder"><ImageOff :size="26" aria-hidden="true" />暂无封面</span>
-        <span v-if="showStatus && item.status === 3" class="bangumi-ribbon">在看</span>
+        <span v-if="showStatus && item.status === 2" class="bangumi-ribbon">在看</span>
       </div>
       <h2 class="bangumi-title">{{ item.title }}</h2>
       <p v-if="item.originalTitle !== item.title" class="bangumi-original">{{ item.originalTitle }}</p>
       <p class="bangumi-meta">
-        <span v-if="showStatus && item.status !== 3">{{ statusLabel }}</span>
+        <span v-if="showStatus && item.status !== 2">{{ statusLabel }}</span>
         <span v-if="item.date">{{ item.date.slice(0, 4) }}</span>
         <span v-if="item.score !== null" :class="{ 'own-score': item.ownScore }"
           ><Star :size="12" aria-hidden="true" />{{ item.score

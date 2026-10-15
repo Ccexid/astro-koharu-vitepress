@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { collectionStatuses, subjectTypes, type CollectionStatus, type SubjectType } from '@/types/bangumi'
+import {
+  collectionStatuses,
+  subjectTypes,
+  bangumiStatuses,
+  bangumiSubjectTypes,
+  type CollectionStatus,
+  type SubjectType,
+  type CollectionSource,
+} from '@/types/bangumi'
 const props = defineProps<{
+  source: CollectionSource
   subjectType: SubjectType
   status: CollectionStatus | 'all'
   typeCounts: Record<number, number>
@@ -12,7 +21,7 @@ const emit = defineEmits<{
   'update:status': [value: CollectionStatus | 'all']
 }>()
 const types = computed(() =>
-  subjectTypes.filter(
+  (props.source === 'bangumi' ? bangumiSubjectTypes : subjectTypes).filter(
     (type) =>
       !Object.keys(props.typeCounts).length ||
       props.typeCounts[type.value] ||
@@ -20,7 +29,7 @@ const types = computed(() =>
   ),
 )
 const statuses = computed(() =>
-  collectionStatuses.filter(
+  (props.source === 'bangumi' ? bangumiStatuses : collectionStatuses).filter(
     (state) =>
       !Object.keys(props.statusCounts).length ||
       state.value === 'all' ||
