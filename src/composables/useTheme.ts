@@ -1,17 +1,10 @@
 import { nextTick, ref, watch } from 'vue'
+import { cancelViewTransition, canTransition, startViewTransition } from '@/app/view-transitions'
 
 export type Theme = 'light' | 'dark'
 
 const storageKey = 'koharu-theme'
 const reducedMotionPreference = '(prefers-reduced-motion: reduce)'
-
-type ThemeViewTransition = {
-  finished: Promise<void>
-}
-
-type DocumentWithViewTransition = Document & {
-  startViewTransition?: (callback: () => void | Promise<void>) => ThemeViewTransition
-}
 
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'light'
@@ -37,13 +30,9 @@ export function useTheme() {
   function toggleTheme(origin?: HTMLElement) {
     const nextTheme = theme.value === 'light' ? 'dark' : 'light'
     const root = document.documentElement
-    const viewTransitionDocument = document as DocumentWithViewTransition
+    cancelViewTransition()
 
-    if (
-      !origin ||
-      window.matchMedia(reducedMotionPreference).matches ||
-      !viewTransitionDocument.startViewTransition
-    ) {
+    if (!origin || window.matchMedia(reducedMotionPreference).matches || !canTransition()) {
       theme.value = nextTheme
       return
     }
@@ -56,19 +45,10 @@ export function useTheme() {
     root.style.setProperty('--theme-x', `${x}px`)
     root.style.setProperty('--theme-y', `${y}px`)
     root.style.setProperty('--theme-r', `${radius}px`)
-    root.classList.add('theme-transition')
-
-    try {
-      const transition = viewTransitionDocument.startViewTransition(async () => {
-        theme.value = nextTheme
-        await nextTick()
-      })
-      const cleanup = () => root.classList.remove('theme-transition')
-      void transition.finished.then(cleanup, cleanup)
-    } catch {
-      root.classList.remove('theme-transition')
+    startViewTransition('theme', async () => {
       theme.value = nextTheme
-    }
+      await nextTick()
+    })
   }
 
   return { theme, toggleTheme }

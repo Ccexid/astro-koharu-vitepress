@@ -3,17 +3,21 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ArrowRight, Flower2 } from 'lucide-vue-next'
 import PostFeed from '@/components/PostFeed.vue'
+import FeaturedCategoryCard from '@/components/FeaturedCategoryCard.vue'
+import { useScrollReveal } from '@/composables/useScrollReveal'
 import { listCategories, listPosts } from '@/services/posts'
 import type { Post, TaxonomyItem } from '@/types/post'
 const posts = ref<Post[]>([])
 const categories = ref<TaxonomyItem[]>([])
 const loading = ref(true)
 const error = ref(false)
+const featuredContainer = ref<HTMLElement | null>(null)
 const pinned = computed(() => posts.value.filter((post) => post.pinned))
 const regular = computed(() => posts.value.filter((post) => !post.pinned))
 const featured = computed(() =>
   categories.value.filter((category) => !category.slug.includes('/')).slice(0, 4),
 )
+useScrollReveal(featuredContainer, featured, '.featured-card')
 async function load() {
   loading.value = true
   error.value = false
@@ -55,21 +59,14 @@ onMounted(load)
       </div>
       <PostFeed :posts="regular" :page-size="4" />
       <h2 class="section-divider featured-heading"><Flower2 :size="18" aria-hidden="true" />精选分类</h2>
-      <div class="featured-categories">
-        <section v-for="category in featured" :key="category.slug" class="featured-category">
-          <RouterLink class="featured-image" :to="'/categories/' + category.slug"
-            ><img :src="cover(category.slug)" alt="" loading="lazy" />
-            <h3>{{ category.name }}</h3></RouterLink
-          >
-          <div class="featured-copy">
-            <RouterLink v-for="post in related(category.slug)" :key="post.id" :to="'/posts/' + post.slug">{{
-              post.title
-            }}</RouterLink
-            ><RouterLink class="featured-more" :to="'/categories/' + category.slug"
-              >{{ category.count }} 篇文章<ArrowRight :size="15"
-            /></RouterLink>
-          </div>
-        </section>
+      <div ref="featuredContainer" class="featured-categories">
+        <FeaturedCategoryCard
+          v-for="category in featured"
+          :key="category.slug"
+          :category="category"
+          :image="cover(category.slug)"
+          :posts="related(category.slug)"
+        />
       </div>
     </template>
   </div>

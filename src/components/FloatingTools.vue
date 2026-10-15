@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ArrowUp, ArrowDown, ChevronRight, ChevronLeft } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, Pointer, PartyPopper } from 'lucide-vue-next'
 defineProps<{ reading: boolean; progress: number }>()
 const collapsed = ref(false)
 function scroll(bottom: boolean) {
@@ -23,7 +23,7 @@ function scroll(bottom: boolean) {
       :aria-expanded="!collapsed"
       @click="collapsed = !collapsed"
     >
-      <ChevronLeft v-if="collapsed" :size="18" /><ChevronRight v-else :size="18" />
+      <PartyPopper v-if="collapsed" :size="18" /><Pointer v-else :size="18" />
     </button>
   </aside>
 </template>

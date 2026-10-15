@@ -1,7 +1,63 @@
+.route-stage {
+  position: relative;
+}
+html.route-transition {
+  view-transition-name: none;
+}
+html.route-transition::view-transition,
+html.route-transition::view-transition-group(*),
+html.route-transition::view-transition-image-pair(*),
+html.route-transition::view-transition-old(*),
+html.route-transition::view-transition-new(*) {
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: no-preference) {
-  .page-enter-active,
+  .is-home .hero-alternate,
+  .is-home .hero-copy h1,
+  .is-home .hero-subtitle {
+    animation: hero-rise var(--motion-duration-enter) var(--motion-ease-enter) backwards;
+  }
+  .is-home .hero-alternate {
+    animation-delay: 120ms;
+  }
+  .is-home .hero-copy h1 {
+    animation-delay: 230ms;
+  }
+  .is-home .hero-subtitle {
+    animation-delay: 340ms;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .is-home .hero-background {
+      animation: hero-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 100svh;
+    }
+    .is-home .hero-copy-motion {
+      animation: hero-copy-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 50svh;
+    }
+  }
+  .page-enter-active {
+    transition: opacity var(--motion-duration-base) var(--motion-ease-enter);
+  }
   .page-leave-active {
-    transition: opacity var(--motion-duration-route) var(--motion-ease-route);
+    position: absolute;
+    inset: 0 0 auto;
+    pointer-events: none;
+    transition: opacity var(--motion-duration-fast) var(--motion-ease-enter);
+  }
+
+  html.route-transition::view-transition-group(article-title) {
+    animation-duration: var(--motion-duration-route);
+    animation-timing-function: var(--motion-ease-route);
+  }
+  html.route-transition::view-transition-old(article-title),
+  html.route-transition::view-transition-new(article-title) {
+    height: 100%;
+    width: 100%;
+    animation-duration: var(--motion-duration-route);
   }
 
   .page-enter-from {
@@ -12,13 +68,37 @@
     opacity: 0;
   }
 
-  .post-feed .post-card[data-reveal='pending'] {
+  .post-feed .post-card[data-reveal='pending'],
+  .featured-card[data-reveal='pending'] {
     opacity: 0;
   }
 
-  .post-feed .post-card[data-reveal='in'] {
+  .post-feed .post-card[data-reveal='in'],
+  .featured-card[data-reveal='in'] {
     animation: post-card-reveal var(--motion-duration-enter) var(--motion-ease-enter) both;
     animation-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hero-parallax {
+  to {
+    transform: translateY(26svh);
+  }
+}
+@keyframes hero-copy-parallax {
+  to {
+    opacity: 0;
+    transform: translateY(-9svh);
   }
 }
 
@@ -38,7 +118,8 @@
     transition-duration: 0.01ms !important;
   }
 
-  .post-feed .post-card[data-reveal] {
+  .post-feed .post-card[data-reveal],
+  .featured-card[data-reveal] {
     opacity: 1;
     translate: none;
     animation: none !important;

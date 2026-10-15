@@ -91,8 +91,20 @@ onMounted(load)
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="查看参考主题仓库"
-                ><Github :size="19" /></a
-              ><RouterLink to="/about#contact" aria-label="联系方式"><Mail :size="19" /></RouterLink>
+              >
+                <Github :size="19" />
+              </a>
+              <RouterLink to="/about#contact" aria-label="联系方式">
+                <Mail :size="19" />
+              </RouterLink>
+              <a
+                href="https://space.bilibili.com/19580033"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="哔哩哔哩"
+              >
+                <Tv :size="19" />
+              </a>
             </div>
           </div>
         </div>
@@ -119,8 +131,9 @@ onMounted(load)
           :to="item.to"
           :class="{ 'is-active': item.to === '/' ? route.path === '/' : route.path.startsWith(item.to) }"
           @click="$emit('navigate')"
-          ><component :is="item.icon" :size="18" aria-hidden="true" />{{ item.label }}</RouterLink
         >
+          <component :is="item.icon" :size="18" aria-hidden="true" />{{ item.label }}
+        </RouterLink>
       </nav>
     </template>
   </aside>

@@ -10,6 +10,7 @@ import MobileDrawer from '@/components/MobileDrawer.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useReadingPosition } from '@/composables/useReadingPosition'
 import { defaultSiteCover, siteCoverKey, type SiteCover } from '@/app/site-cover'
+import { transitionKind } from '@/app/view-transitions'
 const route = useRoute()
 const { theme, toggleTheme } = useTheme()
 const drawerOpen = ref(false)
@@ -66,7 +67,19 @@ watch(
       <SiteSidebar class="sidebar-column" :cover="siteCover" :active-id="activeId" />
       <div class="main-column">
         <main id="main-content" class="site-main page-content" tabindex="-1">
-          <RouterView v-slot="{ Component }"><component :is="Component" :key="route.path" /></RouterView>
+          <div class="route-stage">
+            <RouterView v-slot="{ Component }">
+              <Transition
+                name="page"
+                :css="transitionKind !== 'route'"
+                @before-enter="(element) => element.removeAttribute('inert')"
+                @before-leave="(element) => element.setAttribute('inert', '')"
+                @leave-cancelled="(element) => element.removeAttribute('inert')"
+              >
+                <div :key="route.path"><component :is="Component" /></div>
+              </Transition>
+            </RouterView>
+          </div>
         </main>
         <SiteFooter
           :show-recommendations="showRecommendations"

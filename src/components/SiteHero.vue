@@ -2,7 +2,12 @@
 import { computed, onScopeDispose, ref } from 'vue'
 import { CalendarDays, Clock3, FileText, Link, Check } from 'lucide-vue-next'
 import type { SiteCover } from '@/app/site-cover'
+import { useHeroMotion } from '@/composables/useHeroMotion'
+import { transitioningPost } from '@/composables/usePostTransition'
 const props = defineProps<{ cover: SiteCover }>()
+const hero = ref<HTMLElement | null>(null)
+const image = ref<HTMLImageElement | null>(null)
+const { paused, lowPower } = useHeroMotion(hero, image)
 const copied = ref(false)
 const copyMessage = ref('')
 const compact = computed(() => props.cover.kind === 'page')
@@ -25,55 +30,79 @@ async function copyLink() {
 </script>
 <template>
   <section
+    ref="hero"
     class="site-hero"
-    :class="{ 'is-home': cover.kind === 'home', 'is-compact': compact }"
+    :class="{
+      'is-home': cover.kind === 'home',
+      'is-compact': compact,
+      'is-paused': paused,
+      'is-low-power': lowPower,
+    }"
     aria-labelledby="site-title"
   >
-    <img
-      class="hero-image"
-      :src="
-        cover.image ||
-        'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1920&q=85'
-      "
-      :alt="cover.imageAlt || ''"
-      fetchpriority="high"
-    />
+    <div class="hero-background">
+      <img
+        :key="cover.image || 'default'"
+        ref="image"
+        class="hero-image"
+        :src="
+          cover.image ||
+          'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1920&q=85'
+        "
+        :alt="cover.imageAlt || ''"
+        fetchpriority="high"
+      />
+    </div>
     <div class="hero-shade" aria-hidden="true"></div>
     <div class="hero-petals" aria-hidden="true">
-      <i v-for="n in 8" :key="n" :style="{ '--petal-index': n }"></i>
+      <i
+        v-for="n in 8"
+        :key="n"
+        :style="{
+          '--petal-index': n,
+          '--petal-drift': `${n % 2 ? -75 - n * 13 : 55 + n * 11}px`,
+          '--petal-turn': `${n % 2 ? 180 + n * 30 : -150 - n * 25}deg`,
+        }"
+      ></i>
     </div>
-    <div class="hero-copy">
-      <p v-if="cover.kind === 'home'" class="hero-alternate">Koharu</p>
-      <h1 id="site-title">
-        {{ cover.title
-        }}<button
-          v-if="cover.kind === 'page'"
-          class="cover-copy-link"
-          type="button"
-          aria-label="复制当前页面链接"
-          @click="copyLink"
-        >
-          <Check v-if="copied" :size="24" aria-hidden="true" /><Link v-else :size="24" aria-hidden="true" />
-        </button>
-      </h1>
-      <p v-if="cover.description" class="hero-subtitle">
-        {{ cover.kind === 'home' ? '= ' + cover.description + ' =' : cover.description }}
-      </p>
-      <div v-if="cover.metadata?.length" class="hero-meta">
-        <span v-for="(item, index) in cover.metadata" :key="item"
-          ><CalendarDays v-if="index === 0" :size="14" aria-hidden="true" /><FileText
-            v-else-if="index === 1"
-            :size="14"
-            aria-hidden="true"
-          /><Clock3 v-else :size="14" aria-hidden="true" />{{ item }}</span
-        >
+    <div class="hero-copy-motion">
+      <div class="hero-copy">
+        <p v-if="cover.kind === 'home'" class="hero-alternate">Koharu</p>
+        <h1 id="site-title">
+          <span
+            :style="{
+              viewTransitionName: cover.kind === 'article' && transitioningPost ? 'article-title' : undefined,
+            }"
+            >{{ cover.title }}</span
+          ><button
+            v-if="cover.kind === 'page'"
+            class="cover-copy-link"
+            type="button"
+            aria-label="复制当前页面链接"
+            @click="copyLink"
+          >
+            <Check v-if="copied" :size="24" aria-hidden="true" /><Link v-else :size="24" aria-hidden="true" />
+          </button>
+        </h1>
+        <p v-if="cover.description" class="hero-subtitle">
+          {{ cover.kind === 'home' ? '= ' + cover.description + ' =' : cover.description }}
+        </p>
+        <div v-if="cover.metadata?.length" class="hero-meta">
+          <span v-for="(item, index) in cover.metadata" :key="item"
+            ><CalendarDays v-if="index === 0" :size="14" aria-hidden="true" /><FileText
+              v-else-if="index === 1"
+              :size="14"
+              aria-hidden="true"
+            /><Clock3 v-else :size="14" aria-hidden="true" />{{ item }}</span
+          >
+        </div>
+        <span class="sr-only" role="status">{{ copyMessage }}</span>
       </div>
-      <span class="sr-only" role="status">{{ copyMessage }}</span>
     </div>
     <svg class="hero-waves" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
-      <path class="wave-back" d="M0 35 Q270 95 600 45 T1120 45 T1600 35 V100 H0Z" />
-      <path class="wave-mid" d="M0 62 Q340 0 720 62 T1440 40 V100 H0Z" />
-      <path class="wave-front" d="M0 80 Q360 15 720 66 T1440 65 V100 H0Z" />
+      <path class="wave-back" d="M-1440 45 q360 -40 720 0 t720 0 t720 0 t720 0 t720 0 t720 0 V100 H-1440Z" />
+      <path class="wave-mid" d="M-1440 62 q360 35 720 0 t720 0 t720 0 t720 0 t720 0 t720 0 V100 H-1440Z" />
+      <path class="wave-front" d="M-1440 80 q360 -25 720 0 t720 0 t720 0 t720 0 t720 0 t720 0 V100 H-1440Z" />
     </svg>
   </section>
 </template>
@@ -95,7 +124,7 @@ async function copyLink() {
   min-height: 288px;
   max-height: 480px;
 }
-.hero-image,
+.hero-background,
 .hero-shade {
   position: absolute;
   inset: 0;
@@ -103,9 +132,19 @@ async function copyLink() {
   height: 100%;
   z-index: -1;
 }
+.hero-background {
+  overflow: hidden;
+}
 .hero-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center 43%;
+}
+.hero-copy-motion {
+  width: 100%;
+  display: grid;
+  place-items: center;
 }
 .hero-shade {
   background: linear-gradient(180deg, rgb(36 25 36 / 38%), rgb(36 25 36 / 20%));
@@ -128,6 +167,9 @@ async function copyLink() {
   letter-spacing: 0;
   text-wrap: balance;
   overflow-wrap: anywhere;
+}
+.hero-copy h1 > span {
+  display: inline-block;
 }
 .is-home .hero-copy h1 {
   margin-top: 14px;
@@ -174,6 +216,7 @@ async function copyLink() {
   bottom: -1px;
   width: 100%;
   height: 90px;
+  pointer-events: none;
 }
 .hero-waves path {
   fill: var(--page-bg);
@@ -200,24 +243,61 @@ async function copyLink() {
   background: rgb(255 210 224 / 65%);
   transform: rotate(35deg);
 }
+.hero-petals i:nth-child(3n) {
+  width: 8px;
+  height: 12px;
+  opacity: 0.65;
+}
+.hero-petals i:nth-child(3n + 1) {
+  width: 13px;
+  height: 18px;
+  opacity: 0.85;
+}
+.is-low-power .hero-petals i:nth-child(n + 4) {
+  display: none;
+}
+.is-paused .hero-petals i,
+.is-paused .hero-waves path {
+  animation-play-state: paused;
+}
+.is-low-power .hero-waves path {
+  animation: none;
+}
 @media (prefers-reduced-motion: no-preference) {
   .hero-petals i {
     animation: petal-fall calc(8s + var(--petal-index) * 1s) linear infinite;
     animation-delay: calc(var(--petal-index) * -2s);
   }
-  .wave-mid {
-    animation: wave-drift 8s ease-in-out infinite alternate;
+  .hero-waves path {
+    animation: wave-drift 12s linear infinite;
+    animation-delay: -2s;
+  }
+  .hero-waves .wave-mid {
+    animation-duration: 7s;
+    animation-delay: -3s;
+  }
+  .hero-waves .wave-front {
+    animation-duration: 4s;
+    animation-delay: -4s;
   }
 }
 @keyframes petal-fall {
-  to {
-    translate: -90px 75vh;
-    rotate: 200deg;
+  0% {
+    transform: translate3d(0, 0, 0) rotate(35deg);
+  }
+  45% {
+    transform: translate3d(calc(var(--petal-drift) * 0.35), 35svh, 0) rotate(calc(var(--petal-turn) * 0.4));
+  }
+  100% {
+    transform: translate3d(var(--petal-drift), 80svh, 0) rotate(var(--petal-turn));
   }
 }
 @keyframes wave-drift {
+  from {
+    transform: translateX(-1440px);
+  }
   to {
-    translate: -2% 8%;
+    transform: translateX(0);
   }
 }
 @media (max-width: 992px) {

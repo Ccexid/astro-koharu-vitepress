@@ -10,6 +10,8 @@ import TaxonomyIndexPage from '../pages/TaxonomyIndexPage.vue'
 import AboutPage from '../pages/AboutPage.vue'
 import BangumiPage from '../pages/BangumiPage.vue'
 import { getCategory, getPost, getTag } from '@/services/posts'
+import { cancelPostTransition } from '@/composables/usePostTransition'
+import { cancelViewTransition, transitionKind } from '@/app/view-transitions'
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +42,11 @@ export const router = createRouter({
     { path: '/about', component: AboutPage },
     { path: '/:pathMatch(.*)*', component: NotFoundPage },
   ],
+})
+
+router.beforeEach((to) => {
+  if (transitionKind.value === 'theme') cancelViewTransition()
+  cancelPostTransition(to.path)
 })
 
 const pageTitles: Record<string, string> = {

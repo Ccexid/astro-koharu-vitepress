@@ -124,60 +124,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
-.featured-category {
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--page-bg);
-}
-.featured-image {
-  display: grid;
-  position: relative;
-  height: 160px;
-  align-items: end;
-  overflow: hidden;
-  text-decoration: none;
-  background: var(--petal-soft);
-}
-.featured-image img {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.featured-image::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(transparent, rgb(24 16 23 / 55%));
-}
-.featured-image h3 {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  padding: 18px;
-  color: #fff;
-  font-size: 1.25rem;
-  text-shadow: 0 2px 6px #0008;
-}
-.featured-copy {
-  display: grid;
-  gap: 12px;
-  padding: 20px;
-}
-.featured-copy a {
-  color: var(--ink);
-  font-size: 0.85rem;
-  line-height: 1.6;
-  text-decoration: none;
-}
-.featured-copy .featured-more {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 5px;
-  color: var(--petal-deep);
-  font-size: 0.75rem;
-}
 .empty-page {
   display: grid;
   min-height: 280px;

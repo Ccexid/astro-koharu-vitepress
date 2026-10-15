@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { articleTransitionReady } from '@/composables/usePostTransition'
 import { RouterLink } from 'vue-router'
 import { ChevronRight, FileText, Tag } from 'lucide-vue-next'
 import PostPagination from '@/components/post/PostPagination.vue'
@@ -64,7 +65,11 @@ async function load(slug: string) {
   } catch {
     if (id === request) error.value = true
   } finally {
-    if (id === request) loading.value = false
+    if (id === request) {
+      loading.value = false
+      await nextTick()
+      articleTransitionReady(slug)
+    }
   }
 }
 watch(() => props.slug, load, { immediate: true })

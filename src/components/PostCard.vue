@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { ArrowUpRight, CalendarDays, Clock3, Flag, Tag } from 'lucide-vue-next'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import type { Post } from '@/types/post'
+import { usePostTransition } from '@/composables/usePostTransition'
+const router = useRouter()
+const navigate = usePostTransition(router)
 
-withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
+const props = withDefaults(defineProps<{ post: Post; leftClip?: boolean }>(), {
   leftClip: true,
 })
+function openPost(event: MouseEvent) {
+  const link = (event.target as Element).closest('a')
+  if (link?.getAttribute('href') === router.resolve(`/posts/${props.post.slug}`).href) {
+    navigate(event, props.post.slug)
+  }
+}
 </script>
 
 <template>
-  <article class="post-card" :data-cover-side="leftClip ? 'left' : 'right'">
+  <article class="post-card" :data-cover-side="leftClip ? 'left' : 'right'" @click.capture="openPost">
     <RouterLink class="post-cover-link" :to="`/posts/${post.slug}`" tabindex="-1" aria-hidden="true">
       <img class="post-cover" :src="post.cover" alt="" loading="lazy" decoding="async" />
       <span v-if="post.pinned" class="cover-label">置顶文章</span>

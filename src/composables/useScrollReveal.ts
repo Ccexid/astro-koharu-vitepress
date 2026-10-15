@@ -2,13 +2,17 @@ import { nextTick, onMounted, onUnmounted, watch, type Ref, type WatchSource } f
 
 const reducedMotionPreference = '(prefers-reduced-motion: reduce)'
 
-export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, items: WatchSource<unknown>) {
+export function useScrollReveal(
+  container: Readonly<Ref<HTMLElement | null>>,
+  items: WatchSource<unknown>,
+  selector = '.post-card',
+) {
   const revealed = new WeakSet<HTMLElement>()
   let observer: IntersectionObserver | undefined
   let motionQuery: MediaQueryList | undefined
 
   function clearRevealState(markAsRevealed: boolean) {
-    container.value?.querySelectorAll<HTMLElement>('.post-card').forEach((card) => {
+    container.value?.querySelectorAll<HTMLElement>(selector).forEach((card) => {
       card.removeAttribute('data-reveal')
       card.style.removeProperty('--reveal-delay')
       if (markAsRevealed) revealed.add(card)
@@ -43,12 +47,21 @@ export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, it
     }
   }
 
+  function handleFocusIn(event: FocusEvent) {
+    const card = (event.target as Element).closest<HTMLElement>(selector)
+    if (!card) return
+    revealed.add(card)
+    observer?.unobserve(card)
+    card.removeAttribute('data-reveal')
+    card.style.removeProperty('--reveal-delay')
+  }
+
   async function refresh() {
     await nextTick()
     observer?.disconnect()
     observer = undefined
 
-    const cards = container.value?.querySelectorAll<HTMLElement>('.post-card')
+    const cards = container.value?.querySelectorAll<HTMLElement>(selector)
     if (!cards) return
 
     if (motionQuery?.matches || !('IntersectionObserver' in window)) {
@@ -83,6 +96,7 @@ export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, it
     motionQuery = window.matchMedia(reducedMotionPreference)
     motionQuery.addEventListener('change', handleMotionPreferenceChange)
     container.value?.addEventListener('animationend', handleAnimationEnd)
+    container.value?.addEventListener('focusin', handleFocusIn)
     void refresh()
   })
 
@@ -91,7 +105,9 @@ export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, it
     container,
     (current, previous) => {
       previous?.removeEventListener('animationend', handleAnimationEnd)
+      previous?.removeEventListener('focusin', handleFocusIn)
       current?.addEventListener('animationend', handleAnimationEnd)
+      current?.addEventListener('focusin', handleFocusIn)
       void refresh()
     },
     { flush: 'post' },
@@ -101,5 +117,6 @@ export function useScrollReveal(container: Readonly<Ref<HTMLElement | null>>, it
     observer?.disconnect()
     motionQuery?.removeEventListener('change', handleMotionPreferenceChange)
     container.value?.removeEventListener('animationend', handleAnimationEnd)
+    container.value?.removeEventListener('focusin', handleFocusIn)
   })
 }
