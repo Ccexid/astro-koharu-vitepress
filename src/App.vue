@@ -24,7 +24,8 @@ function openSettings() {
 const siteCover = shallowRef<SiteCover>(defaultSiteCover(route.path))
 const { activeId, progress, scrolled, headerHidden } = useReadingPosition(siteCover)
 const showRecommendations = computed(
-  () => siteCover.value.kind === 'not-found' || !/^\/(categories|tags|archives)(\/|$)/.test(route.path),
+  () =>
+    siteCover.value.kind === 'not-found' || !/^\/(categories|tags|archives|editor)(\/|$)/.test(route.path),
 )
 let coverOwner: string | null = null
 provide(siteCoverKey, {
@@ -93,6 +94,7 @@ watch(
       </div>
     </div>
     <FloatingTools
+      v-if="route.path !== '/editor'"
       :reading="siteCover.kind === 'article'"
       :progress="progress"
       @open-settings="openSettings"

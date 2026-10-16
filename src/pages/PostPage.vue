@@ -4,6 +4,8 @@ import { articleTransitionReady } from '@/composables/usePostTransition'
 import { RouterLink } from 'vue-router'
 import { ChevronRight, FileText, Tag } from 'lucide-vue-next'
 import PostPagination from '@/components/post/PostPagination.vue'
+import ArticleRenderer from '@/components/article/ArticleRenderer.vue'
+import { articleHeadings, articleStats, postDocument } from '@/services/article-content'
 import { usePageCover } from '@/composables/usePageCover'
 import { getCategoryTrail, getPost, listPosts } from '@/services/posts'
 import type { Post, TaxonomyItem } from '@/types/post'
@@ -18,18 +20,11 @@ const previousPost = computed(() =>
   postIndex.value >= 0 ? allPosts.value[postIndex.value + 1] || null : null,
 )
 const nextPost = computed(() => (postIndex.value >= 0 ? allPosts.value[postIndex.value - 1] || null : null))
-const wordCount = computed(
-  () =>
-    post.value?.sections.reduce(
-      (total, section) =>
-        total +
-        section.title.length +
-        section.paragraphs.join('').length +
-        (section.quote?.length || 0) +
-        (section.list?.join('').length || 0),
-      0,
-    ) || 0,
+const content = computed(() => (post.value ? postDocument(post.value) : null))
+const stats = computed(() =>
+  content.value ? articleStats(content.value) : { wordCount: 0, readingMinutes: 1 },
 )
+const headings = computed(() => (content.value ? articleHeadings(content.value) : []))
 let request = 0
 usePageCover(() =>
   post.value
@@ -38,10 +33,10 @@ usePageCover(() =>
         title: post.value.title,
         metadata: [
           '发布于 ' + post.value.publishedAt,
-          wordCount.value + ' 字',
-          post.value.readingMinutes + ' 分钟阅读',
+          stats.value.wordCount + ' 字',
+          stats.value.readingMinutes + ' 分钟阅读',
         ],
-        sections: post.value.sections.map((section) => ({ id: section.id, title: section.title })),
+        sections: headings.value,
       }
     : {
         kind: loading.value ? 'article' : 'not-found',
@@ -96,19 +91,10 @@ watch(() => props.slug, load, { immediate: true })
       <summary><FileText :size="15" aria-hidden="true" />文章摘要</summary>
       <p>{{ post.excerpt }}</p>
     </details>
-    <div v-if="post.sections.length" class="article-body">
-      <section v-for="section in post.sections" :id="section.id" :key="section.id">
-        <h2>
-          {{ section.title
-          }}<a :href="'#' + section.id" class="heading-anchor" :aria-label="'链接到 ' + section.title">#</a>
-        </h2>
-        <p v-for="(paragraph, index) in section.paragraphs" :key="index">{{ paragraph }}</p>
-        <blockquote v-if="section.quote">{{ section.quote }}</blockquote>
-        <ul v-if="section.list">
-          <li v-for="item in section.list" :key="item">{{ item }}</li>
-        </ul>
-      </section>
+    <div class="article-edit-link">
+      <RouterLink :to="{ path: '/editor', query: { post: slug } }">在本地编辑这篇文章</RouterLink>
     </div>
+    <ArticleRenderer v-if="content" :content="content" />
     <p v-else class="status-message" role="status">正文内容暂未整理。</p>
     <div v-if="post.tags.length" class="article-tags">
       <Tag :size="15" aria-hidden="true" /><RouterLink

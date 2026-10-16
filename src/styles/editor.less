@@ -1,0 +1,308 @@
+.editor-workspace {
+  --editor-control-height: 38px;
+  min-width: 0;
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  button,
+  select {
+    min-height: var(--editor-control-height);
+  }
+  button {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  button:hover:not(:disabled),
+  button[aria-pressed='true'] {
+    color: var(--petal-deep);
+    background: var(--petal-soft);
+    border-color: var(--petal);
+  }
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  :is(button, input, textarea, select, summary, a):focus-visible {
+    outline: 2px solid var(--petal-deep);
+    outline-offset: 3px;
+  }
+  :is(input:not([type='checkbox']), textarea, select) {
+    min-width: 0;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    background: var(--surface);
+    padding: 9px 11px;
+    accent-color: var(--petal-deep);
+  }
+  :is(input, textarea)::placeholder {
+    color: var(--muted);
+  }
+  input,
+  textarea {
+    caret-color: var(--petal-deep);
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::selection {
+    background: var(--petal-soft);
+    color: var(--ink);
+  }
+  .editor-primary {
+    background: var(--petal-deep);
+    color: var(--surface);
+    border-color: var(--petal-deep);
+  }
+  summary {
+    cursor: pointer;
+    padding: 10px 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .visually-hidden {
+    display: none;
+  }
+}
+.editor-intro {
+  margin-bottom: 26px;
+}
+.editor-intro h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
+  line-height: 1.5;
+}
+.editor-intro p {
+  margin: 6px 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.editor-local-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 0 16px;
+  font-size: 0.85rem;
+}
+.editor-save-state {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-block: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.editor-recovery,
+.editor-notice {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--petal-soft);
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.editor-error {
+  color: var(--petal-deep);
+  padding: 12px;
+  border: 1px solid var(--petal);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.article-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 26px 0;
+}
+.article-fields label,
+.editor-insert-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.article-fields small {
+  font-size: 0.75rem;
+}
+.article-fields .field-wide {
+  grid-column: 1 / -1;
+}
+.editor-metadata {
+  border-block: 1px solid var(--line);
+}
+.article-fields .editor-title-input {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.article-fields .editor-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.editor-body-label {
+  margin: 32px 0 16px;
+  font-size: 1.1rem;
+}
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--page-bg);
+  font-size: 0.78rem;
+}
+.editor-toolbar select {
+  padding: 5px 8px;
+}
+.editor-table-tools {
+  padding-inline: 12px;
+  background: var(--page-bg);
+  border-bottom: 1px solid var(--line);
+}
+.editor-table-tools .editor-toolbar {
+  padding: 0 0 12px;
+}
+.rich-editor {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.editor-prose {
+  min-height: 400px;
+  padding: 24px;
+  outline: none;
+}
+.editor-prose:focus-visible {
+  outline: 2px solid var(--petal);
+  outline-offset: -2px;
+}
+.editor-prose pre {
+  background: var(--page-bg);
+  border-radius: var(--radius-sm);
+  margin: 24px 0;
+}
+.editor-prose > img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+.editor-prose .ProseMirror-selectednode {
+  outline: 2px solid var(--petal);
+  outline-offset: 2px;
+}
+.editor-prose .selectedCell {
+  background: var(--petal-soft);
+}
+.editor-prose [data-type='taskList'] > li > label > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.editor-hint {
+  padding: 14px 20px;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--muted);
+  background: var(--page-bg);
+  border-top: 1px solid var(--line);
+}
+.editor-insert-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.editor-insert-form label {
+  flex: 1 1 180px;
+}
+.editor-preview {
+  padding-top: 32px;
+}
+.editor-preview h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  margin: 12px 0;
+}
+.editor-preview header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+.editor-preview header p {
+  line-height: 1.9;
+}
+.editor-preview-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.preview-toc {
+  margin: 24px 0;
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.preview-toc nav {
+  display: grid;
+  gap: 10px;
+  padding: 10px 0 16px;
+  font-size: 0.85rem;
+}
+.preview-toc a,
+.editor-help-links a {
+  color: var(--petal-deep);
+  text-underline-offset: 4px;
+}
+.editor-help-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding-top: 28px;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+@media (max-width: 600px) {
+  .article-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor-prose {
+    padding: 16px;
+    min-height: 360px;
+  }
+  .editor-workspace :is(input, textarea, select) {
+    font-size: 16px;
+  }
+  .editor-workspace button {
+    min-height: 44px;
+  }
+  .editor-actions > button {
+    flex: 1 1 120px;
+  }
+}

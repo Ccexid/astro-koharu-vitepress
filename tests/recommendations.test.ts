@@ -9,8 +9,8 @@ describe('post recommendations', () => {
     const result = await getPostRecommendations(slug)
     const ids = [...result.random, ...result.secondary].map((post) => post.id)
     expect(result.hasRelated).toBe(false)
-    expect(result.random).toHaveLength(4)
-    expect(result.secondary).toHaveLength(3)
+    expect(result.random).toHaveLength(Math.min(5, Math.ceil(posts.length / 2)))
+    expect(result.secondary).toHaveLength(Math.min(5, Math.floor(posts.length / 2)))
     expect(new Set(ids).size).toBe(posts.length)
     expect(new Set(ids)).toEqual(new Set(posts.map((post) => post.id)))
   })
@@ -24,11 +24,11 @@ describe('post recommendations', () => {
     expect(new Set(posts.map((post) => post.id)).size).toBe(posts.length)
   })
 
-  it('falls back to random reading when an article has no matching topics', async () => {
+  it('relates the style guide to the existing Vue article', async () => {
     const result = await getPostRecommendations('routes-with-vue-router')
-    expect(result.hasRelated).toBe(false)
-    expect(result.random).toHaveLength(3)
-    expect(result.secondary).toHaveLength(3)
+    expect(result.hasRelated).toBe(true)
+    expect(result.random).toHaveLength(4)
+    expect(result.secondary.map((post) => post.slug)).toEqual(['article-style-guide'])
     expect(
       [...result.random, ...result.secondary].some((post) => post.slug === 'routes-with-vue-router'),
     ).toBe(false)

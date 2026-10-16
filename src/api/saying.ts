@@ -6,8 +6,7 @@ export interface SayingResponse {
 
 /** Read a random saying directly from UAPI. */
 export async function fetchSaying(signal?: AbortSignal): Promise<SayingResponse> {
-  const baseUrl = (import.meta.env.VITE_API_UAPI_URL?.trim() || 'https://uapis.cn').replace(/\/+$/, '')
-  const payload = await fetchJson<unknown>(`${baseUrl}/api/v1/saying`, {
+  const payload = await fetchJson<unknown>(`/uapi/api/v1/saying`, {
     method: 'GET',
     signal,
     serviceName: '一言',

@@ -8,7 +8,7 @@ export interface SiteCover {
   image?: string
   imageAlt?: string
   metadata?: string[]
-  sections?: Array<{ id: string; title: string }>
+  sections?: Array<{ id: string; title: string; level?: number }>
 }
 export interface SiteCoverController {
   set(owner: string, cover: SiteCover): void

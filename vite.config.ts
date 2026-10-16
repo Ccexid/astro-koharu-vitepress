@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
         '/uapi': {
           target: env.VITE_API_UAPI_URL || 'https://uapis.cn',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/uapis/, ''),
+          rewrite: (path) => path.replace(/^\/uapi/, ''),
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyRequest) => {
               proxyRequest.removeHeader('origin')

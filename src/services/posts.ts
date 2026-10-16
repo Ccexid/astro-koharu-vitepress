@@ -1,11 +1,16 @@
 import { friends, friendGroups } from '@/data/friends'
 import { posts } from '@/data/posts'
 import { categoryCatalog } from '@/data/categories'
+import { articleStats, postDocument } from '@/services/article-content'
 import type { ArchiveYear, Friend, FriendGroup, Post, PostRecommendations, TaxonomyItem } from '@/types/post'
 
 function clonePost(post: Post): Post {
+  const content = postDocument(post)
   return {
     ...post,
+    contentVersion: 1,
+    content,
+    readingMinutes: articleStats(content).readingMinutes,
     category: { ...post.category },
     tags: post.tags.map((tag) => ({ ...tag })),
     sections: post.sections.map((section) => ({

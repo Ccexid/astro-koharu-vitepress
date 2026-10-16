@@ -24,6 +24,7 @@ export const router = createRouter({
   routes: [
     { path: '/', component: HomePage },
     { path: '/posts', component: PostsPage },
+    { path: '/editor', component: () => import('@/pages/EditorPage.vue') },
     { path: '/posts/:slug', component: PostPage, props: true },
     { path: '/categories', component: TaxonomyIndexPage, props: { kind: 'category' } },
     {
@@ -53,6 +54,7 @@ router.beforeEach((to) => {
 const pageTitles: Record<string, string> = {
   '/': '一封春日来信',
   '/posts': '所有文章',
+  '/editor': '本地文章编辑',
   '/categories': '文章分类',
   '/tags': '文章标签',
   '/archives': '时光归档',

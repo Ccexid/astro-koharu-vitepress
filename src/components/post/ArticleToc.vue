@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ sections: Array<{ id: string; title: string }>; activeId: string }>()
+defineProps<{ sections: Array<{ id: string; title: string; level?: number }>; activeId: string }>()
 defineEmits<{ navigate: [] }>()
 </script>
 <template>
@@ -9,6 +9,7 @@ defineEmits<{ navigate: [] }>()
       :key="section.id"
       :href="'#' + section.id"
       :class="{ 'is-current': activeId === section.id }"
+      :style="{ paddingInlineStart: `${Math.max(0, (section.level || 2) - 2) * 12}px` }"
       :aria-current="activeId === section.id ? 'location' : undefined"
       @click="$emit('navigate')"
     >

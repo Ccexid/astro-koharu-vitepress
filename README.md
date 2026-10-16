@@ -21,6 +21,8 @@ bun run format:check
 
 开发服务器的实际地址以终端输出为准。当前首页在 `/`，示例文章在 `/posts/a-note-for-spring`；文章内容由 `src/services/posts.ts` 从本地模拟数据读取。`/bangumi` 顶部选择数据源：哔哩哔哩通过 `/bili` 代理并读取 `VITE_API_BILIBILI_UID`，Bangumi.tv 通过 `api.bgm.tv/v0` 并读取 `VITE_BANGUMI_USER_ID`。两个来源均每批追加 24 条，不增加分页 URL。
 
+本地写作入口为 `/editor`，基础正文样式演示为 `/posts/article-style-guide`，可通过 `/editor?post=article-style-guide` 编辑演示文章。支持 Tiptap 可视化编辑、IndexedDB 自动保存与恢复、真实预览和 JSON 导入导出。保存只影响当前浏览器；使用说明、内容协议及验收记录见 [文章编辑说明](docs/article-editor.md)。
+
 构建使用页面懒加载、Vue 依赖分包和 FA6 图标按批加载，并生成 manifest、许可证清单及 gzip/Brotli 资源。`build:report` 会重新构建并统计首页所需 JS（包含共享依赖）。预压缩资源需要托管服务器启用对应的内容协商才能生效；部署与缓存配置见 [构建优化说明](docs/build-optimization.md)。
 
 Cloudflare Workers 已提供生产 API 转发入口 `cloudflare/worker.ts` 与 `wrangler.jsonc`。运行 `bun run cf:dev` 本地验证，`bun run cf:check` 只检查、不发布；配置与发布步骤见 [Cloudflare Workers 部署说明](docs/cloudflare-workers.md)。
@@ -32,7 +34,7 @@ Cloudflare Workers 已提供生产 API 转发入口 `cloudflare/worker.ts` 与 `
 - 页面通过数据读取接口获取本地模拟数据，为以后替换成 HTTP API 留出明确边界。
 - 文章内容使用结构化模拟数据或 Vue 模板展示，**不以 Markdown/MDX 为内容源**。追番页同时保留 `src/api/bilibili.ts` 与 `src/api/bangumi.ts`，通过顶部标签选择数据来源。
 
-当前不做 VitePress、Astro 构建、Markdown 解析、CMS/编辑器、后端、数据库、认证、评论服务、搜索服务、RSS、站点地图或文章预渲染。Vite 的普通客户端构建可以静态部署，但并不为每篇文章生成独立 HTML。未来若需服务端可读正文和 SEO，再单独选择预渲染或 SSR 方案。
+本轮按已确认的阶段 1＋2 增加浏览器内文章编辑；当前不做 VitePress、Astro 构建、Markdown 解析、线上 CMS/发布服务、后端、数据库、认证、评论服务、搜索服务、RSS、站点地图或文章预渲染。Vite 的普通客户端构建可以静态部署，但并不为每篇文章生成独立 HTML。未来若需服务端可读正文和 SEO，再单独选择预渲染或 SSR 方案。
 
 ## 页面清单
 
@@ -41,6 +43,7 @@ Cloudflare Workers 已提供生产 API 转发入口 `cloudflare/worker.ts` 与 `
 | 首页       | `/`                                | 站点导航、视觉区域、文章列表与响应式布局 |
 | 文章列表   | `/posts`                           | 摘要卡片及筛选与滚动追加演示             |
 | 文章详情   | `/posts/:slug`                     | 标题、元信息、示例正文、目录与阅读布局   |
+| 本地编辑   | `/editor`、`/editor?post=:slug`    | 文章信息、富文本正文、本地草稿与导入导出 |
 | 分类       | `/categories`、`/categories/:slug` | 分类入口及关联文章                       |
 | 标签       | `/tags`、`/tags/:slug`             | 标签入口及关联文章                       |
 | 归档       | `/archives`                        | 时间分组的文章列表                       |
@@ -85,7 +88,7 @@ tests/              # 组件和页面测试
 
 若使用 Vue Router history 模式，部署服务器必须将未知路径回退到 `index.html`，否则直接刷新 `/posts/:slug` 会得到 404。回退只能解决客户端路由，不会让文章生成独立 HTML。
 
-当前阶段已通过类型检查、21 个测试和生产构建。追番顶部可切换两个来源，实测哔哩哔哩列表与 Bangumi.tv 用户 `ccexid` 的收藏均能读取，Bangumi 24→51 条追加无重复，URL 不变。首页动效计划见 `plans/README.md`。部署需要配置 history fallback、同源 `/bili` API 代理并确认 `api.bgm.tv` 可访问。
+本轮文章功能通过类型检查、32 项正文/草稿测试、格式检查和生产构建；全量 137 项测试中有 3 项现有 UAPI 地址断言失败，详情见 [文章编辑验收记录](docs/article-editor.md)。追番此前已验证哔哩哔哩列表与 Bangumi.tv 用户 `ccexid` 的收藏读取，Bangumi 24→51 条追加无重复，URL 不变。首页动效计划见 `plans/README.md`。部署需要配置 history fallback、同源 `/bili` API 代理并确认 `api.bgm.tv` 可访问。
 
 ## 下一步
 

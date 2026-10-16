@@ -1,4 +1,5 @@
 import type { Post } from '@/types/post'
+import { articleDemo } from './article-demo'
 
 const blossomCover =
   'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1600&q=85'
@@ -8,6 +9,7 @@ const morningCover =
   'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1200&q=82'
 
 export const posts: Post[] = [
+  articleDemo,
   {
     id: 'a-note-for-spring',
     slug: 'a-note-for-spring',

@@ -17,9 +17,12 @@ import {
 describe('mock post service', () => {
   it('lists posts without exposing mutable fixture data', async () => {
     const first = await listPosts()
-    first[0]!.sections[0]!.paragraphs.push('changed')
+    const legacy = first.find((post) => post.slug === 'a-note-for-spring')!
+    legacy.sections[0]!.paragraphs.push('changed')
+    first[0]!.content!.content[0]!.attrs!.id = 'changed'
     first[0]!.tags[0]!.name = 'changed'
-    expect((await listPosts())[0]!.sections[0]!.paragraphs).not.toContain('changed')
+    expect((await getPost('a-note-for-spring'))!.sections[0]!.paragraphs).not.toContain('changed')
+    expect((await listPosts())[0]!.content!.content[0]!.attrs!.id).not.toBe('changed')
     expect((await listPosts())[0]!.tags[0]!.name).not.toBe('changed')
     expect(first.map((post) => post.publishedAt)).toEqual(
       [...first.map((post) => post.publishedAt)].sort().reverse(),

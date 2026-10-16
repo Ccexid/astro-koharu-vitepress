@@ -1,3 +1,5 @@
+import type { ArticleDocument } from '@/types/article'
+
 export interface TaxonomyRef {
   name: string
   slug: string
@@ -24,6 +26,8 @@ export interface Post {
   coverAlt: string
   pinned?: boolean
   sections: PostSection[]
+  contentVersion?: 1
+  content?: ArticleDocument
 }
 
 export interface TaxonomyItem extends TaxonomyRef {

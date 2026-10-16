@@ -41,8 +41,7 @@ export async function fetchRandomImage(
   const timeout = AbortSignal.timeout(timeoutMs)
   const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
   try {
-    const baseUrl = (import.meta.env.VITE_API_UAPI_URL?.trim() || 'https://uapis.cn').replace(/\/+$/, '')
-    const response = await fetch(`${baseUrl}/${target.pathname}${target.search}`, {
+    const response = await fetch(`/uapi/${target.pathname}${target.search}`, {
       method: 'GET',
       headers: { Accept: 'image/*' },
       credentials: 'omit',

@@ -23,6 +23,7 @@ const minutes = computed(() => posts.value.reduce((sum, post) => sum + post.read
       <span><FileText :size="14" />{{ posts.length }} 篇</span
       ><span><Clock3 :size="14" />{{ minutes }} 分钟</span
       ><RouterLink to="/posts"><BookOpen :size="14" />所有文章</RouterLink>
+      <RouterLink to="/editor">本地写作</RouterLink>
     </div>
     <p>© 2025–2026 <Flower2 :size="16" aria-hidden="true" /> 春日来信 @Koharu</p>
     <p class="footer-credit">
