@@ -12,12 +12,13 @@ import {
   List,
   UserRound,
   Flower2,
-  Github,
-  Mail,
   Tv,
 } from 'lucide-vue-next'
+import { ensureSocialIcon, resolveSocialIcon } from '@/app/social-icons'
+import { isInternalProfileSocialHref, normalizeProfileSocialHref } from '@/app/profile-social'
 import ArticleToc from '@/components/post/ArticleToc.vue'
 import { listCategories, listPosts, listTags } from '@/services/posts'
+import { useSettingsStore } from '@/stores/settings'
 import type { SiteCover } from '@/app/site-cover'
 const props = withDefaults(
   defineProps<{ variant?: 'sidebar' | 'drawer'; cover?: SiteCover; activeId?: string }>(),
@@ -25,10 +26,19 @@ const props = withDefaults(
 )
 defineEmits<{ navigate: [] }>()
 const route = useRoute()
+const settings = useSettingsStore()
 const panel = ref<'profile' | 'toc'>('profile')
 const stats = ref({ posts: 0, categories: 0, tags: 0 })
 const error = ref(false)
 const article = computed(() => props.cover?.kind === 'article')
+const profileSocials = computed(() =>
+  settings.socials
+    .filter((item) => item.href && normalizeProfileSocialHref(item.href) === item.href)
+    .map((item) => ({
+      ...item,
+      component: resolveSocialIcon(item.icon),
+    })),
+)
 const nav = [
   { label: '首页', to: '/', icon: Home },
   { label: '所有文章', to: '/posts', icon: BookOpen },
@@ -58,6 +68,17 @@ watch(
 watch(article, (value) => {
   panel.value = value ? 'toc' : 'profile'
 })
+watch(
+  () => settings.socials.map((item) => item.icon),
+  async (icons) => {
+    try {
+      await Promise.all(icons.map(ensureSocialIcon))
+    } catch {
+      // Keep the fallback link icon when the optional icon chunk cannot be loaded.
+    }
+  },
+  { immediate: true },
+)
 onMounted(load)
 </script>
 <template>
@@ -85,26 +106,30 @@ onMounted(load)
           <div>
             <h2>春日来信</h2>
             <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
-            <div class="profile-social">
-              <a
-                href="https://github.com/Ccexid/astro-koharu-vitepress"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="查看参考主题仓库"
-              >
-                <Github :size="19" />
-              </a>
-              <RouterLink to="/about#contact" aria-label="联系方式">
-                <Mail :size="19" />
-              </RouterLink>
-              <a
-                href="https://space.bilibili.com/19580033"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="哔哩哔哩"
-              >
-                <Tv :size="19" />
-              </a>
+            <div v-if="profileSocials.length" class="profile-social">
+              <template v-for="item in profileSocials" :key="item.id">
+                <RouterLink
+                  v-if="isInternalProfileSocialHref(item.href)"
+                  class="profile-social-link"
+                  :to="item.href"
+                  :aria-label="item.label || item.href"
+                  :title="item.label || item.href"
+                  @click="$emit('navigate')"
+                >
+                  <component :is="item.component" :size="19" aria-hidden="true" />
+                </RouterLink>
+                <a
+                  v-else
+                  class="profile-social-link"
+                  :href="item.href"
+                  :target="/^https?:\/\//i.test(item.href) ? '_blank' : undefined"
+                  :rel="/^https?:\/\//i.test(item.href) ? 'noopener noreferrer' : undefined"
+                  :aria-label="item.label || item.href"
+                  :title="item.label || item.href"
+                >
+                  <component :is="item.component" :size="19" aria-hidden="true" />
+                </a>
+              </template>
             </div>
           </div>
         </div>

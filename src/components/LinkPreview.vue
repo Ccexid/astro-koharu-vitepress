@@ -31,7 +31,6 @@ const attributes = computed(() =>
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
-  letter-spacing: normal;
   transition:
     border-color var(--motion-duration-base),
     box-shadow var(--motion-duration-base);

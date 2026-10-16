@@ -2,18 +2,16 @@
 import { computed, ref } from 'vue'
 import CollectionPanel from '@/components/bangumi/CollectionPanel.vue'
 import type { CollectionSource } from '@/types/bangumi'
+import { useSettingsStore } from '@/stores/settings'
 
 const sources: Array<{ id: CollectionSource; label: string }> = [
   { id: 'bilibili', label: '哔哩哔哩' },
   { id: 'bangumi', label: 'Bangumi.tv' },
 ]
 const source = ref<CollectionSource>('bilibili')
+const settings = useSettingsStore()
 const userId = computed(() =>
-  String(
-    source.value === 'bangumi'
-      ? import.meta.env.VITE_BANGUMI_USER_ID || ''
-      : import.meta.env.VITE_API_BILIBILI_UID || '',
-  ).trim(),
+  String(source.value === 'bangumi' ? settings.bangumiUserId : settings.bilibiliUid).trim(),
 )
 function switchWithKeyboard(event: KeyboardEvent, index: number) {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
@@ -46,7 +44,7 @@ function switchWithKeyboard(event: KeyboardEvent, index: number) {
     </button>
   </div>
   <div id="collection-panel" role="tabpanel" :aria-labelledby="'collection-tab-' + source">
-    <CollectionPanel :key="source" :source="source" :user-id="userId" />
+    <CollectionPanel :key="source + ':' + userId" :source="source" :user-id="userId" />
   </div>
 </template>
 <style scoped>

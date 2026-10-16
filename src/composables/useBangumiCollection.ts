@@ -8,7 +8,7 @@ import {
 import type { CollectionItem, CollectionStatus, SubjectType, CollectionSource } from '@/types/bangumi'
 export function useBangumiCollection(userId: string, source: CollectionSource = 'bilibili') {
   const subjectType = ref<SubjectType>(source === 'bangumi' ? 2 : 1)
-  const status = ref<CollectionStatus | 'all'>(source === 'bangumi' ? 'all' : 1)
+  const status = ref<CollectionStatus | 'all'>('all')
   const items = ref<CollectionItem[]>([])
   const total = ref(0)
   const offset = ref(0)
@@ -101,7 +101,7 @@ export function useBangumiCollection(userId: string, source: CollectionSource = 
   watch(
     subjectType,
     () => {
-      status.value = source === 'bangumi' ? 'all' : 2
+      status.value = 'all'
       void loadStatusCounts()
     },
     { immediate: true, flush: 'sync' },

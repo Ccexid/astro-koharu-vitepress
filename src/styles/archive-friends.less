@@ -120,24 +120,163 @@
   outline: 2px solid var(--petal-deep);
   outline-offset: 2px;
 }
-[data-tier='0'] {
+.calendar-cell[data-tier='0'] {
   background: color-mix(in srgb, var(--line) 35%, var(--surface));
 }
-[data-tier='1'] {
+.calendar-cell[data-tier='1'] {
   background: color-mix(in srgb, var(--petal) 25%, var(--surface));
 }
-[data-tier='2'] {
+.calendar-cell[data-tier='2'] {
   background: color-mix(in srgb, var(--petal) 45%, var(--surface));
 }
-[data-tier='3'] {
+.calendar-cell[data-tier='3'] {
   background: color-mix(in srgb, var(--petal) 70%, var(--surface));
 }
-[data-tier='4'] {
+.calendar-cell[data-tier='4'] {
   background: var(--petal);
 }
-[data-tier='future'] {
+.calendar-cell[data-tier='future'] {
   border: 1px solid var(--line);
   background: transparent;
+}
+
+/* Reference archive vocabulary: dense 12-month grid with short mobile years. */
+.archive-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.archive-calendar-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.archive-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+.archive-calendar-legend .archive-month-cell {
+  width: 12px;
+  height: 12px;
+}
+.archive-calendar-grid {
+  display: grid;
+  gap: 5px;
+}
+.archive-calendar-row {
+  display: grid;
+  grid-template-columns: 48px repeat(12, minmax(0, 1fr));
+  gap: 5px;
+  align-items: center;
+}
+.archive-month-labels {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.archive-calendar-year {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+.archive-calendar-year:hover,
+.archive-calendar-year:focus-visible {
+  color: var(--petal-deep);
+}
+.calendar-short-year {
+  display: none;
+}
+.archive-month-cell {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 18px;
+  place-items: center;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--line) 35%, var(--surface));
+  color: var(--surface);
+}
+.archive-month-cell[data-tier='future'] {
+  border: 1px solid var(--line);
+  background: transparent;
+  opacity: 0.6;
+}
+.archive-month-cell[data-tier='1'] {
+  background: color-mix(in srgb, var(--petal) 22%, var(--surface));
+}
+.archive-month-cell[data-tier='2'] {
+  background: color-mix(in srgb, var(--petal) 42%, var(--surface));
+}
+.archive-month-cell[data-tier='3'] {
+  background: color-mix(in srgb, var(--petal) 68%, var(--surface));
+}
+.archive-month-cell[data-tier='4'] {
+  background: var(--petal);
+}
+.archive-month-cell[data-tier='4'] .calendar-bloom {
+  color: var(--surface);
+}
+.archive-month-cell[href] {
+  transition:
+    transform 160ms var(--motion-ease-hover),
+    box-shadow 160ms var(--motion-ease-hover);
+}
+.archive-month-cell[href]:hover {
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--petal) 50%, transparent);
+}
+.post-years-archive .year-rule {
+  margin-top: 36px;
+  font-size: 1.5rem;
+}
+.post-years-archive .post-row-title {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.post-years-archive .post-row::before {
+  content: '✿';
+  position: absolute;
+  left: 50px;
+  color: var(--petal);
+  font-size: 0.65rem;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 160ms var(--motion-ease-hover),
+    transform 260ms var(--motion-ease-hover);
+}
+.post-years-archive .post-row:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (max-width: 767px) {
+  .archive-calendar-grid,
+  .archive-calendar-row {
+    gap: 4px;
+  }
+  .archive-calendar-row {
+    grid-template-columns: 28px repeat(12, minmax(0, 1fr));
+  }
+  .archive-month-cell {
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .calendar-full-year {
+    display: none;
+  }
+  .calendar-short-year {
+    display: inline;
+  }
+  .post-years-archive .year-rule {
+    font-size: 1.25rem;
+  }
 }
 .friends-group-tabs {
   margin-bottom: 26px;

@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Flower2 } from 'lucide-vue-next'
 import type { Post } from '@/types/post'
+import { useScrollReveal } from '@/composables/useScrollReveal'
 const props = withDefaults(defineProps<{ posts: Post[]; anchors?: boolean; showCategory?: boolean }>(), {
   anchors: false,
   showCategory: true,
 })
+const yearsRoot = ref<HTMLElement | null>(null)
+useScrollReveal(yearsRoot, () => props.posts, '.post-year')
 const years = computed(() => {
   const groups = new Map<string, Post[]>()
   for (const post of [...props.posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))) {
@@ -23,12 +26,13 @@ function monthAnchor(posts: Post[], index: number): string | undefined {
 }
 </script>
 <template>
-  <div v-if="years.length" class="post-years">
+  <div v-if="years.length" ref="yearsRoot" class="post-years" :class="{ 'post-years-archive': anchors }">
     <section
       v-for="group in years"
       :id="anchors ? 'year-' + group.year : undefined"
       :key="group.year"
       class="post-year"
+      data-post-year
       :tabindex="anchors ? -1 : undefined"
     >
       <h2 class="year-rule">

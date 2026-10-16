@@ -1,5 +1,7 @@
 # 双数据源追番 API 边界
 
+两个 provider adapter 共用 `fetch-json.ts`：统一处理 15 秒请求超时、外部 `AbortSignal`、HTTP 非成功状态及无效 JSON 响应。接口适配器继续负责 provider envelope 校验和领域字段映射。
+
 页面顶部提供哔哩哔哩 / Bangumi.tv 标签，同时保留两套适配器。仅加载当前选中的来源；切换时销毁旧列表面板、取消列表和统计请求，重置筛选及追加位置，不混合条目 ID 或平台计数。两个来源共用海报瀑布流，每批 24 条，URL 始终为 `/bangumi`。
 
 Bangumi.tv 读取 `VITE_BANGUMI_USER_ID`，请求 `https://api.bgm.tv/v0/users/:username/collections`，支持五类媒介和五类收藏状态。展示层统一 `1=想看/2=在看/3=看过/4=搁置/5=抛弃`，API 层将“在看/看过”映射为 Bangumi 的 `type=3/2`。条目保留个人评分优先、社区评分回退及 bgm.tv 链接。

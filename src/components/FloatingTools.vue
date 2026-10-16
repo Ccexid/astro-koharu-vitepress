@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ArrowUp, ArrowDown, Pointer, PartyPopper } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, Pointer, PartyPopper, Settings } from 'lucide-vue-next'
 defineProps<{ reading: boolean; progress: number }>()
+defineEmits<{ 'open-settings': [] }>()
 const collapsed = ref(false)
 function scroll(bottom: boolean) {
   window.scrollTo({
@@ -14,6 +15,8 @@ function scroll(bottom: boolean) {
   <aside class="floating-tools" aria-label="页面工具">
     <template v-if="!collapsed"
       ><span v-if="reading" class="floating-progress" aria-label="阅读进度">{{ progress }}%</span
+      ><button type="button" aria-label="打开设置" @click="$emit('open-settings')">
+        <Settings :size="18" /></button
       ><button type="button" aria-label="回到顶部" @click="scroll(false)"><ArrowUp :size="18" /></button
       ><button type="button" aria-label="滚到底部" @click="scroll(true)"><ArrowDown :size="18" /></button
     ></template>

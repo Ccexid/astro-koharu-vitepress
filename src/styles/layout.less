@@ -78,11 +78,15 @@
 }
 .profile-social {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 18px;
   margin: 15px 0 22px;
 }
 .profile-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--ink);
 }
 .profile-social a:last-child {
@@ -197,6 +201,9 @@
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.8;
+}
+.footer-recommendations + .site-footer {
+  padding-top: 0;
 }
 .site-footer p {
   display: flex;

@@ -76,6 +76,7 @@ html.route-transition::view-transition-new(*) {
 
   .post-feed .post-card[data-reveal='pending'],
   .featured-card[data-reveal='pending'],
+  .post-years .post-year[data-reveal='pending'],
   .recommendation-link[data-reveal='pending'],
   .about-content > [data-reveal='pending'] {
     opacity: 0;
@@ -83,6 +84,7 @@ html.route-transition::view-transition-new(*) {
 
   .post-feed .post-card[data-reveal='in'],
   .featured-card[data-reveal='in'],
+  .post-years .post-year[data-reveal='in'],
   .recommendation-link[data-reveal='in'],
   .about-content > [data-reveal='in'] {
     animation: post-card-reveal var(--motion-duration-enter) var(--motion-ease-enter) both;
@@ -132,6 +134,7 @@ html.route-transition::view-transition-new(*) {
 
   .post-feed .post-card[data-reveal],
   .featured-card[data-reveal],
+  .post-years .post-year[data-reveal],
   .recommendation-link[data-reveal],
   .about-content > [data-reveal] {
     opacity: 1;

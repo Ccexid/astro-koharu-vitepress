@@ -1,4 +1,5 @@
 import type { CollectionItem, CollectionStatus, SubjectType } from '@/types/bangumi'
+import { fetchJson } from '@/api/fetch-json'
 
 export interface BilibiliQuery {
   userId: string
@@ -73,11 +74,12 @@ export async function fetchBilibiliPage(
     pn: String(page),
     ps: String(BILIBILI_PAGE_SIZE),
   })
-  const response = await fetch('/bili/x/space/bangumi/follow/list?' + params, {
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
-  })
-  if (!response.ok) throw new Error(`哔哩哔哩暂时无法读取（HTTP ${response.status}），请稍后重试。`)
-  const payload = record(await response.json())
+  const payload = record(
+    await fetchJson<unknown>('/bili/x/space/bangumi/follow/list?' + params, {
+      signal,
+      serviceName: '哔哩哔哩',
+    }),
+  )
   if (payload.code !== 0)
     throw new Error(`哔哩哔哩返回错误（${String(payload.code ?? '未知')}），请稍后重试。`)
   const data = record(payload.data)

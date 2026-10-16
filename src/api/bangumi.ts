@@ -1,4 +1,5 @@
 import type { CollectionItem, CollectionPage, CollectionStatus, SubjectType } from '@/types/bangumi'
+import { fetchJson } from '@/api/fetch-json'
 
 export interface BangumiQuery {
   userId: string
@@ -62,11 +63,12 @@ export async function fetchBangumiPage(query: BangumiQuery, signal?: AbortSignal
   url.searchParams.set('offset', String(offset))
   url.searchParams.set('limit', String(limit))
   if (status !== 'all') url.searchParams.set('type', String(apiStatus[status]))
-  const response = await fetch(url, {
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
-  })
-  if (!response.ok) throw new Error(`Bangumi 暂时无法读取（HTTP ${response.status}），请稍后重试。`)
-  const payload = record(await response.json())
+  const payload = record(
+    await fetchJson<unknown>(url, {
+      signal,
+      serviceName: 'Bangumi',
+    }),
+  )
   if (!Array.isArray(payload.data) || !Number.isSafeInteger(payload.total) || Number(payload.total) < 0)
     throw new Error('Bangumi 返回了无法识别的数据。')
   return {

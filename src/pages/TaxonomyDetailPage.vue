@@ -20,6 +20,7 @@ const children = ref<TaxonomyItem[]>([])
 const loading = ref(true)
 const error = ref(false)
 const childFilter = ref('')
+const filtering = ref(false)
 const isCategory = computed(() => props.kind === 'category')
 const root = computed(() => (isCategory.value ? 'categories' : 'tags'))
 const visiblePosts = computed(() =>
@@ -30,6 +31,7 @@ const visiblePosts = computed(() =>
       post.category.slug.startsWith(childFilter.value + '/'),
   ),
 )
+const hasChildren = computed(() => children.value.length > 0)
 let request = 0
 usePageCover(() => ({
   kind: loading.value || item.value ? 'page' : 'not-found',
@@ -75,6 +77,13 @@ async function load() {
     if (id === request) loading.value = false
   }
 }
+function selectChildFilter(value: string) {
+  childFilter.value = value
+  filtering.value = true
+  window.setTimeout(() => {
+    filtering.value = false
+  }, 180)
+}
 watch(() => [props.kind, props.slug], load, { immediate: true })
 </script>
 <template>
@@ -103,22 +112,24 @@ watch(() => [props.kind, props.slug], load, { immediate: true })
     </nav>
     <div class="index-intro">
       <p>
-        <strong>{{ visiblePosts.length }}</strong> 篇文章
+        <strong>{{ posts.length }}</strong> 篇文章
       </p>
       <div v-if="children.length" class="index-tabs quiet-tabs" role="group" aria-label="子分类筛选">
-        <button type="button" :aria-pressed="!childFilter" @click="childFilter = ''">
+        <button type="button" :aria-pressed="!childFilter" @click="selectChildFilter('')">
           全部<sup>{{ posts.length }}</sup></button
         ><button
           v-for="child in children"
           :key="child.slug"
           type="button"
           :aria-pressed="childFilter === child.slug"
-          @click="childFilter = child.slug"
+          @click="selectChildFilter(child.slug)"
         >
           {{ child.name }}<sup>{{ child.count }}</sup>
         </button>
       </div>
     </div>
-    <PostYears :posts="visiblePosts" />
+    <div class="taxonomy-results" :class="{ 'is-filtering': filtering }">
+      <PostYears :posts="visiblePosts" :show-category="hasChildren" />
+    </div>
   </template>
 </template>

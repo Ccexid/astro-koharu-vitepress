@@ -54,6 +54,12 @@
 .category-branch:hover {
   color: var(--petal-deep);
 }
+.taxonomy-results {
+  transition: opacity 180ms var(--motion-ease-enter);
+}
+.taxonomy-results.is-filtering {
+  opacity: 0.45;
+}
 .tag-filter input {
   width: 220px;
   max-width: 100%;
@@ -65,42 +71,57 @@
   color: var(--ink);
   font-size: 0.82rem;
 }
-.tag-cloud {
+.tag-cloud-list {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 16px 20px;
-  margin: 28px 0 20px;
+  gap: 2px 16px;
 }
-.tag-cloud a {
-  color: var(--ink);
-  font-size: 0.95rem;
-  line-height: 1.8;
+.index-tag {
+  padding-block: 4px;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
   text-decoration: none;
+  transition: color 160ms var(--motion-ease-hover);
 }
-.tag-cloud a:hover {
-  color: var(--petal-deep);
+.index-tag sup {
+  margin-left: 2px;
+  color: var(--muted);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
 }
-.tag-cloud .tag-prominent {
-  font-size: 1.3rem;
-  color: var(--petal-deep);
+.index-tag[data-tier='1'] {
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+  font-size: 0.875rem;
+}
+.index-tag[data-tier='2'] {
+  color: color-mix(in srgb, var(--ink) 80%, transparent);
+  font-size: 0.9375rem;
+}
+.index-tag[data-tier='3'] {
+  color: color-mix(in srgb, var(--ink) 88%, transparent);
+  font-size: 1.0625rem;
   font-weight: 700;
 }
-.tag-cloud sup {
-  margin-left: 3px;
-  font-size: 0.7rem;
+.index-tag[data-tier='4'] {
+  color: var(--petal-deep);
+  font-size: 1.3125rem;
+  font-weight: 700;
+}
+.index-tag:is(:hover, :focus-visible) {
+  color: var(--petal-deep);
+}
+.tag-singletons {
+  margin-top: 20px;
+}
+.tag-singletons summary {
+  padding-block: 8px;
   color: var(--muted);
-}
-.single-tags {
-  margin: 25px 0 5px;
-}
-.single-tags summary {
-  min-height: 36px;
   cursor: pointer;
-  color: var(--muted);
-  font-size: 0.83rem;
-  padding: 8px 0;
+  font-size: 0.875rem;
 }
-.single-tags .tag-cloud {
-  margin: 10px 0 0;
+.tag-singletons[open] summary {
+  margin-bottom: 8px;
 }

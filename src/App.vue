@@ -7,6 +7,7 @@ import SiteSidebar from '@/components/SiteSidebar.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import FloatingTools from '@/components/FloatingTools.vue'
 import MobileDrawer from '@/components/MobileDrawer.vue'
+import SettingsPanel from '@/components/SettingsPanel.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useReadingPosition } from '@/composables/useReadingPosition'
 import { defaultSiteCover, siteCoverKey, type SiteCover } from '@/app/site-cover'
@@ -14,6 +15,7 @@ import { transitionKind } from '@/app/view-transitions'
 const route = useRoute()
 const { theme, toggleTheme } = useTheme()
 const drawerOpen = ref(false)
+const settingsOpen = ref(false)
 const siteCover = shallowRef<SiteCover>(defaultSiteCover(route.path))
 const { activeId, progress, scrolled, headerHidden } = useReadingPosition(siteCover)
 const showRecommendations = computed(
@@ -43,7 +45,7 @@ watch(
 )
 </script>
 <template>
-  <div class="site" :class="{ 'is-post-list': route.path === '/posts' }">
+  <div class="site" :class="{ 'is-post-list': route.path === '/posts', 'is-about': route.path === '/about' }">
     <a class="skip-link" href="#main-content">跳转到正文</a>
     <SiteHeader
       v-model:drawer-open="drawerOpen"
@@ -59,6 +61,7 @@ watch(
     <MobileDrawer :open="drawerOpen" @close="drawerOpen = false">
       <SiteSidebar variant="drawer" :cover="siteCover" :active-id="activeId" @navigate="drawerOpen = false" />
     </MobileDrawer>
+    <SettingsPanel :open="settingsOpen" @close="settingsOpen = false" />
     <div class="content-shell">
       <SiteSidebar class="sidebar-column" :cover="siteCover" :active-id="activeId" />
       <div class="main-column">
@@ -84,6 +87,10 @@ watch(
         />
       </div>
     </div>
-    <FloatingTools :reading="siteCover.kind === 'article'" :progress="progress" />
+    <FloatingTools
+      :reading="siteCover.kind === 'article'"
+      :progress="progress"
+      @open-settings="settingsOpen = true"
+    />
   </div>
 </template>

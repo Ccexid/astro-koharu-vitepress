@@ -40,6 +40,8 @@
 - 头图及文章封面由 Unsplash 图片 CDN 提供：`photo-1522383225653-ed111181a951`（头图及两篇文章封面）、`photo-1490750967868-88aa4486c946`（花园封面）、`photo-1470252649378-9c29740c9fa8`（晨光封面）。用途与参数记录在 `src/components/SiteHero.vue`、`src/data/posts.ts`。项目只引用远程 URL，不复制上游图像或字体文件；头像使用本地字形，不另请求第三方图片。
 - Unsplash 图片在本地开发与部署时需要网络连接。替换图片时应继续记录来源，并确认来源许可与可用性。
 - 友链域名使用 `example.com` 示例地址，不代表真实合作或授权关系。
+- 社交链接图标通过 `lucide-vue-next`（ISC）和 `@meteor-icons/vue`（MIT，Copyright © 2022 zkreations）依赖渲染。Meteor 来源为 `https://github.com/zkreations/meteor`，保留依赖内的 LICENSE，不复制上游站点的图标资源。
+- Font Awesome 6 免费版的 Solid、Regular、Brands 图标使用 `@fortawesome/free-*-svg-icons@6`，通过官方 `@fortawesome/vue-fontawesome` 组件渲染。来源为 `https://github.com/FortAwesome/Font-Awesome`（Fonticons, Inc.）；SVG 图标许可为 CC BY 4.0，渲染代码为 MIT，保留依赖内的 LICENSE.txt。本项目未引入字体文件或 Pro 图标。
 
 ## 追番页面参考
 

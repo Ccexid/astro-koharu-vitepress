@@ -60,6 +60,7 @@ onScopeDispose(() => {
         v-for="group in groups"
         :key="group.id"
         class="recommendation-group"
+        role="group"
         :class="{ 'is-continuation': group.fallback }"
         :aria-label="group.title || '随机文章（续）'"
       >
@@ -86,6 +87,7 @@ onScopeDispose(() => {
   gap: 16px;
   padding: 0 40px;
   margin: 32px 0;
+  letter-spacing: 0.02em;
 }
 .recommendation-group {
   min-width: 0;
@@ -95,6 +97,7 @@ onScopeDispose(() => {
   font-size: 1.5rem;
   line-height: 2rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
   color: color-mix(in srgb, var(--ink) 80%, transparent);
 }
 .recommendation-list {

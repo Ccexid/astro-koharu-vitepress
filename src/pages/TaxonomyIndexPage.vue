@@ -25,6 +25,14 @@ const filteredTags = computed(() =>
 )
 const frequent = computed(() => filteredTags.value.filter((tag) => tag.count > 1))
 const singles = computed(() => filteredTags.value.filter((tag) => tag.count === 1))
+const maxTagCount = computed(() => Math.max(0, ...items.value.map((tag) => tag.count)))
+function tagTier(count: number) {
+  const max = maxTagCount.value
+  if (count <= 1 || max <= 1) return 0
+  if (count >= max) return 4
+  const weight = Math.log(count) / Math.log(max)
+  return weight >= 0.8 ? 4 : weight >= 0.6 ? 3 : weight >= 0.35 ? 2 : 1
+}
 async function load() {
   const id = ++request
   loading.value = true
@@ -74,22 +82,31 @@ watch(() => props.kind, load, { immediate: true })
         >
       </p>
       <label class="tag-filter"
-        ><span class="sr-only">过滤标签</span><input v-model="query" type="search" placeholder="输入标签名称"
+        ><span class="sr-only">过滤标签</span
+        ><input v-model="query" type="search" placeholder="过滤标签" autocomplete="off"
       /></label>
     </div>
-    <div class="tag-cloud">
+    <div class="tag-cloud-list">
       <RouterLink
         v-for="tag in frequent"
         :key="tag.slug"
         :to="'/tags/' + tag.slug"
-        :class="{ 'tag-prominent': tag.count >= 3 }"
+        class="index-tag"
+        :data-tier="tagTier(tag.count)"
+        :aria-label="'查看标签「' + tag.name + '」的 ' + tag.count + ' 篇文章'"
         >{{ tag.name }}<sup>{{ tag.count }}</sup></RouterLink
       >
     </div>
-    <details v-if="singles.length" :open="singlesOpen || !!query" class="single-tags">
+    <details v-if="singles.length" :open="singlesOpen || !!query" class="tag-singletons">
       <summary>还有 {{ singles.length }} 个只出现过一次的标签</summary>
-      <div class="tag-cloud">
-        <RouterLink v-for="tag in singles" :key="tag.slug" :to="'/tags/' + tag.slug"
+      <div class="tag-cloud-list">
+        <RouterLink
+          v-for="tag in singles"
+          :key="tag.slug"
+          :to="'/tags/' + tag.slug"
+          class="index-tag"
+          data-tier="0"
+          :aria-label="'查看标签「' + tag.name + '」的 1 篇文章'"
           >{{ tag.name }}<sup>1</sup></RouterLink
         >
       </div>
