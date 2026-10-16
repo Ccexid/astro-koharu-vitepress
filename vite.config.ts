@@ -4,7 +4,6 @@ import { fileURLToPath, URL } from 'node:url'
 import { loadEnv } from 'vite'
 import { fontAwesomeCatalog } from './build/fontawesome-catalog.ts'
 import { precompress } from './build/precompress.ts'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -13,14 +12,6 @@ export default defineConfig(({ mode }) => {
       fontAwesomeCatalog(),
       vue(),
       precompress(),
-      viteStaticCopy({
-        targets: [
-          {
-            src: 'public/_worker.js',
-            dest: '.', // 复制到 dist 根目录
-          },
-        ],
-      }),
     ],
     optimizeDeps: {
       entries: ['index.html'],
