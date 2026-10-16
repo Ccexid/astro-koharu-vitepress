@@ -13,12 +13,15 @@ bun run dev
 bun run typecheck
 bun run test
 bun run build
+bun run build:report
 bun run preview
 bun run format
 bun run format:check
 ```
 
 开发服务器的实际地址以终端输出为准。当前首页在 `/`，示例文章在 `/posts/a-note-for-spring`；文章内容由 `src/services/posts.ts` 从本地模拟数据读取。`/bangumi` 顶部选择数据源：哔哩哔哩通过 `/bili` 代理并读取 `VITE_API_BILIBILI_UID`，Bangumi.tv 通过 `api.bgm.tv/v0` 并读取 `VITE_BANGUMI_USER_ID`。两个来源均每批追加 24 条，不增加分页 URL。
+
+构建使用页面懒加载、Vue 依赖分包和 FA6 图标按批加载，并生成 manifest、许可证清单及 gzip/Brotli 资源。`build:report` 会重新构建并统计首页所需 JS（包含共享依赖）。预压缩资源需要托管服务器启用对应的内容协商才能生效；部署与缓存配置见 [构建优化说明](docs/build-optimization.md)。
 
 ## 目标与范围
 
