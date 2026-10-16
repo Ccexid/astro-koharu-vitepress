@@ -18,7 +18,7 @@ export function precompress(): Plugin {
         Object.values(bundle).map(async (file) => {
           if (!/\.(?:js|css|html|json|svg|ttf|otf|wasm)$/.test(file.fileName)) return
           const source = file.type === 'chunk' ? file.code : file.source
-          const input = typeof source === 'string' ? Buffer.from(source) : Buffer.from(source)
+          const input = typeof source === 'string' ? Buffer.from(source, 'utf8') : Buffer.from(source)
           if (input.length < 1024) return
           const encoded = await Promise.all([
             gzipAsync(input, { level: 9 }),

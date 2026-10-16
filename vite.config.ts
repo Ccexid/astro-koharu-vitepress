@@ -2,8 +2,8 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { loadEnv } from 'vite'
-import { fontAwesomeCatalog } from './build/fontawesome-catalog'
-import { precompress } from './build/precompress'
+import { fontAwesomeCatalog } from './build/fontawesome-catalog.ts'
+import { precompress } from './build/precompress.ts'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
