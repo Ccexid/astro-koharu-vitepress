@@ -10,6 +10,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import UniqueID from '@tiptap/extension-unique-id'
 import { articleLowlight } from '@/services/article-highlight'
 import { safeArticleUrl } from '@/services/article-content'
+import { createClientId } from '@/utils/id'
 
 const Callout = Node.create({
   name: 'callout',
@@ -72,7 +73,7 @@ export function articleExtensions() {
     UniqueID.configure({
       types: ['heading'],
       attributeName: 'id',
-      generateID: () => `heading-${crypto.randomUUID()}`,
+      generateID: () => createClientId('heading-'),
     }),
     Callout,
   ]

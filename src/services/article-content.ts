@@ -1,5 +1,6 @@
 import type { ArticleDocument, ArticleDraft, ArticleHeading, ArticleMark, ArticleNode } from '@/types/article'
 import type { Post, PostSection } from '@/types/post'
+import { createClientId } from '@/utils/id'
 
 const blocks = [
   'paragraph',
@@ -306,7 +307,7 @@ export function normalizeDraft(input: unknown, incomplete = false): ArticleDraft
 
 export function emptyDraft(): ArticleDraft {
   return {
-    id: crypto.randomUUID(),
+    id: createClientId(),
     slug: '',
     title: '',
     excerpt: '',
