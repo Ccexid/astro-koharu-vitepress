@@ -12,6 +12,6 @@ Bangumi.tv 读取 `VITE_BANGUMI_USER_ID`，请求 `https://api.bgm.tv/v0/users/:
 
 界面每批追加 24 条，服务层映射上游 `ps=30` 的 `pn` 窗口；全部状态按在看、想看、看过依次拼接。分页参数只用于请求，页面始终保持 `/bangumi`。接口失败必须显示错误与重试，不能转成空收藏。
 
-Vite 代理只在开发环境生效。静态部署需提供同源 `/bili` 转发；history fallback 不能代替 API 代理。番剧链接指向哔哩哔哩，不将“全24话”当成用户进度。
+Vite 代理只在开发环境生效。Cloudflare Workers 生产转发已在 `cloudflare/worker.ts` 实现，`wrangler.jsonc` 将 `/bili/*`、`/uapi/*` 交给 Worker，其余页面由静态资源绑定处理。需同时部署 Worker 与 `dist`，详见 `docs/cloudflare-workers.md`。history fallback 不能代替 API 转发。番剧链接指向哔哩哔哩，不将“全24话”当成用户进度。
 
 测试覆盖请求参数、公开响应规范化、评分回退、取消、失败恢复与批次追加。

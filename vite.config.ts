@@ -8,11 +8,7 @@ import { precompress } from './build/precompress.ts'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
-    plugins: [
-      fontAwesomeCatalog(),
-      vue(),
-      precompress(),
-    ],
+    plugins: [fontAwesomeCatalog(), vue(), precompress()],
     optimizeDeps: {
       entries: ['index.html'],
       include: ['@fortawesome/fontawesome-svg-core', '@fortawesome/vue-fontawesome'],

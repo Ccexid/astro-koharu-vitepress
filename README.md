@@ -23,6 +23,8 @@ bun run format:check
 
 构建使用页面懒加载、Vue 依赖分包和 FA6 图标按批加载，并生成 manifest、许可证清单及 gzip/Brotli 资源。`build:report` 会重新构建并统计首页所需 JS（包含共享依赖）。预压缩资源需要托管服务器启用对应的内容协商才能生效；部署与缓存配置见 [构建优化说明](docs/build-optimization.md)。
 
+Cloudflare Workers 已提供生产 API 转发入口 `cloudflare/worker.ts` 与 `wrangler.jsonc`。运行 `bun run cf:dev` 本地验证，`bun run cf:check` 只检查、不发布；配置与发布步骤见 [Cloudflare Workers 部署说明](docs/cloudflare-workers.md)。
+
 ## 目标与范围
 
 - 参考上游的布局、色彩、排版、卡片、导航和交互，用 Vue 单文件组件重新实现，不直接搬运 Astro/React 组件。

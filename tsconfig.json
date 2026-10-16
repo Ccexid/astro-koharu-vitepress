@@ -26,6 +26,7 @@
     "tests/**/*.ts",
     "build/**/*.ts",
     "scripts/**/*.ts",
+    "cloudflare/**/*.ts",
     "vite.config.ts"
   ]
 }

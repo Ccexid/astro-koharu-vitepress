@@ -9,6 +9,9 @@
     "build": "vue-tsc --noEmit && vite build",
     "build:report": "bun run build && bun scripts/build-report.ts",
     "preview": "vite preview",
+    "cf:dev": "bun run build && wrangler dev",
+    "cf:check": "wrangler deploy --dry-run --outdir .wrangler/check",
+    "cf:deploy": "bun run build && wrangler deploy --keep-vars",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "format": "prettier . --write",
@@ -34,6 +37,7 @@
     "typescript": "^5.9.0",
     "vite": "^8.3.4",
     "vitest": "^5.0.4",
-    "vue-tsc": "^3.3.13"
+    "vue-tsc": "^3.3.13",
+    "wrangler": "^4.151.0"
   }
 }
