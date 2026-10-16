@@ -5,8 +5,8 @@ interface WorkerEnv {
 }
 
 const upstreams = {
-  '/bili': { origin: 'http://8.148.179.96:5173/bili', referer: 'https://www.bilibili.com/' },
-  '/uapi': { origin: 'http://8.148.179.96:5173/uapi', referer: 'https://uapis.cn/' },
+  '/bili': { origin: 'https://api.bilibili.com', referer: 'https://www.bilibili.com/' },
+  '/uapi': { origin: 'https://uapis.cn', referer: 'https://uapis.cn/' },
 } as const
 
 function errorResponse(message: string, status: number, headers?: HeadersInit): Response {
