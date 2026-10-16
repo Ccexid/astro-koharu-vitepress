@@ -30,7 +30,8 @@ export async function handleRequest(request: Request, env: WorkerEnv): Promise<R
   // Resolve against a fixed host. Never accept a destination URL from a query parameter.
   const upstream = upstreams[prefix]
   const target = new URL(upstream.origin)
-  target.pathname = path
+  // Keep the relay's /bili or /uapi prefix; Nginx removes it before forwarding.
+  target.pathname += path
   target.search = url.search
 
   if (prefix === '/bili' && path !== '/x/space/bangumi/follow/list') {

@@ -41,7 +41,7 @@ export async function fetchRandomImage(
   const timeout = AbortSignal.timeout(timeoutMs)
   const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
   try {
-    const response = await fetch(`/uapi/${target.pathname}${target.search}`, {
+    const response = await fetch(`/uapi${target.pathname}${target.search}`, {
       method: 'GET',
       headers: { Accept: 'image/*' },
       credentials: 'omit',

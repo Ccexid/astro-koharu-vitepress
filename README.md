@@ -17,11 +17,18 @@ bun run build:report
 bun run preview
 bun run format
 bun run format:check
+bun run article:check
+bun run article:publish "导出的文章.json"
+bun run article:verify
 ```
 
 开发服务器的实际地址以终端输出为准。当前首页在 `/`，示例文章在 `/posts/a-note-for-spring`；文章内容由 `src/services/posts.ts` 从本地模拟数据读取。`/bangumi` 顶部选择数据源：哔哩哔哩通过 `/bili` 代理并读取 `VITE_API_BILIBILI_UID`，Bangumi.tv 通过 `api.bgm.tv/v0` 并读取 `VITE_BANGUMI_USER_ID`。两个来源均每批追加 24 条，不增加分页 URL。
 
 本地写作入口为 `/editor`，基础正文样式演示为 `/posts/article-style-guide`，可通过 `/editor?post=article-style-guide` 编辑演示文章。支持 Tiptap 可视化编辑、IndexedDB 自动保存与恢复、真实预览和 JSON 导入导出。保存只影响当前浏览器；使用说明、内容协议及验收记录见 [文章编辑说明](docs/article-editor.md)。
+
+导出的 JSON 通过 `bun run article:publish "文件.json"` 自动纳入 `src/data/articles/`，按稳定 ID 新增或更新并执行文章测试与生产构建。页面自动收录目录内容，不再逐篇修改 `posts.ts`。提交、推送生产分支后，可由 Cloudflare Workers Builds 自动部署；首次需要账号侧连接 Git，构建命令使用 `bun run cf:build`。完整流程见 [文章发布说明](docs/article-publishing.md)。
+
+发布链路本地验收：72 项文章相关测试、类型检查、生产构建与 Worker dry-run 通过；全量 166 项测试中仍有 4 项现有 API 地址断言失败。详细结果与线上待配置事项见发布说明末尾的验收记录。
 
 构建使用页面懒加载、Vue 依赖分包和 FA6 图标按批加载，并生成 manifest、许可证清单及 gzip/Brotli 资源。`build:report` 会重新构建并统计首页所需 JS（包含共享依赖）。预压缩资源需要托管服务器启用对应的内容协商才能生效；部署与缓存配置见 [构建优化说明](docs/build-optimization.md)。
 

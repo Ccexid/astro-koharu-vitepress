@@ -16,7 +16,11 @@ vi.mock('vue-router', () => ({
     hooks.leave = guard
   },
 }))
-vi.mock('../src/services/article-drafts', () => ({ loadArticleDraft: vi.fn(), saveArticleDraft: vi.fn() }))
+vi.mock('../src/services/article-drafts', async (original) => ({
+  ...(await original<typeof import('../src/services/article-drafts')>()),
+  loadArticleDraft: vi.fn(),
+  saveArticleDraft: vi.fn(),
+}))
 let scope: EffectScope
 
 beforeEach(() => {

@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       include: ['tests/**/*.test.ts'],
+      // A JSON file can be added/removed without changing the glob module's source text.
+      fsModuleCache: false,
     },
     server: {
       watch: {

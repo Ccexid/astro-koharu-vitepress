@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   getCategory,
   getPost,
@@ -13,6 +13,11 @@ import {
   listPostsByTag,
   listTags,
 } from '../src/services/posts'
+
+// Service behavior uses fixed fixtures; real JSON discovery is covered by article-catalog.test.ts.
+vi.mock('../src/data/posts', async () => ({
+  posts: (await import('../src/data/demo-posts')).demoPosts,
+}))
 
 describe('mock post service', () => {
   it('lists posts without exposing mutable fixture data', async () => {

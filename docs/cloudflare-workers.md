@@ -4,11 +4,14 @@
 
 ## 请求路径
 
-| 浏览器同源请求                          | Worker 转发地址                                            |
-| --------------------------------------- | ---------------------------------------------------------- |
-| `/bili/x/space/bangumi/follow/list?...` | `https://api.bilibili.com/x/space/bangumi/follow/list?...` |
-| `/uapi/api/v1/...?...`                  | `https://uapis.cn/api/v1/...?...`                          |
-| `/`、文章路由、`/assets/*` 等           | 静态资源；页面深链接使用 SPA fallback                      |
+| 浏览器同源请求                          | Worker 转发地址                                                  |
+| --------------------------------------- | ---------------------------------------------------------------- |
+| `/bili/x/space/bangumi/follow/list?...` | `http://8.148.179.96:5173/bili/x/space/bangumi/follow/list?...`  |
+| `/uapi/api/v1/...?...`（随机图片除外）  | `http://8.148.179.96:5173/uapi/api/v1/...?...`                   |
+| `/uapi/api/v1/random/image?...`         | `https://uapis.cn/api/v1/random/image?...`，由独立图片处理器转发 |
+| `/`、文章路由、`/assets/*` 等           | 静态资源；页面深链接使用 SPA fallback                            |
+
+普通 API 经过服务器上的 Nginx 中转，再由 Nginx 去掉 `/bili/` 或 `/uapi/` 前缀并请求第三方。Worker 拼接路径时必须保留中转地址自身的前缀；直接用 `/api/v1/saying` 覆盖 pathname 会请求到服务器的前端路由，返回 HTML 页面。
 
 `assets.run_worker_first` 只匹配 `/bili` 和 `/uapi` 路由。这些请求必须先运行 Worker，否则静态站的 SPA fallback 可能把 API 地址返回成 `index.html`。
 
@@ -23,6 +26,8 @@ bun run cf:dev
 
 该命令先生成 `dist`，再运行 Wrangler 本地环境。打开终端显示的本地地址（通常为端口 8787）；这样测试的是 Worker 与静态资源，而不只是 Vite 的开发代理。
 
+请求 `http://127.0.0.1:8787/uapi/api/v1/saying`，应返回 `Content-Type: application/json` 和可解析的 JSON。若返回 HTML，检查 Worker 中转目标是否保留 `/uapi`；该路径应先转发到 `http://8.148.179.96:5173/uapi/api/v1/saying`。
+
 仅检查 Worker 打包及静态资源绑定、不发布：
 
 ```sh
@@ -34,8 +39,12 @@ bun run cf:check
 
 在 Cloudflare 控制台打开 **Workers & Pages → wispy-sunset-016f → Settings → Builds**。如果关联了 Git，设置项目根目录为本仓库目录，并使用：
 
-- 构建命令：`bun run build`
+- 生产分支：`master`（或明确选择的生产分支，与推送目标保持一致）。
+- 构建命令：`bun run cf:build`
 - 部署命令：`bunx wrangler deploy --keep-vars`
+- 构建变量：`BUN_VERSION=1.3.14`、`SKIP_DEPENDENCY_INSTALL=true`。
+
+`cf:build` 用 `bun install --frozen-lockfile` 安装依赖，再运行文章相关测试、文章目录校验、类型检查和生产构建。关闭非生产分支自动部署 / Preview builds，待单独配置预览资源后再启用。仓库连接、权限授权与首次构建验收步骤见 [文章发布说明](article-publishing.md)。这里只提供配置与脚本，不表示当前 Worker 已完成 Git 连接。
 
 让 Wrangler 读取仓库的 `wrangler.jsonc`，同时上传 Worker 代码和 `dist`。只上传 `dist` 或只设置静态资源目录，不会部署这里的转发入口。`--keep-vars` 用于保留控制台已有的普通环境变量。
 

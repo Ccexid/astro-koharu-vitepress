@@ -22,7 +22,7 @@ describe('Cloudflare production API forwarding', () => {
       env,
     )
     expect(String(upstream.mock.calls[0]?.[0])).toBe(
-      'https://api.bilibili.com/x/space/bangumi/follow/list?vmid=19580033&type=1&ps=30',
+      'http://8.148.179.96:5173/bili/x/space/bangumi/follow/list?vmid=19580033&type=1&ps=30',
     )
     const init = upstream.mock.calls[0]?.[1] as RequestInit
     const headers = new Headers(init.headers)
@@ -35,20 +35,18 @@ describe('Cloudflare production API forwarding', () => {
     expect(env.ASSETS.fetch).not.toHaveBeenCalled()
   })
 
-  it('strips exactly the /uapi prefix and preserves upstream failures', async () => {
-    const upstream = vi.fn(
-      async (_input: RequestInfo | URL) => new Response('{"code":"ERROR"}', { status: 403 }),
-    )
-    vi.stubGlobal('fetch', upstream)
-    const response = await handleRequest(
-      new Request('https://blog.example/uapi/api/v1/social/bilibili/userinfo?uid=19580033'),
-      assets(),
-    )
-    expect(String(upstream.mock.calls[0]?.[0])).toBe(
-      'https://uapis.cn/api/v1/social/bilibili/userinfo?uid=19580033',
-    )
-    expect(response.status).toBe(403)
-  })
+  it.each(['/api/v1/saying', '/api/v1/social/bilibili/userinfo?uid=19580033'])(
+    'preserves the relay /uapi prefix and upstream failures for %s',
+    async (path) => {
+      const upstream = vi.fn(
+        async (_input: RequestInfo | URL) => new Response('{"code":"ERROR"}', { status: 403 }),
+      )
+      vi.stubGlobal('fetch', upstream)
+      const response = await handleRequest(new Request(`https://blog.example/uapi${path}`), assets())
+      expect(String(upstream.mock.calls[0]?.[0])).toBe(`http://8.148.179.96:5173/uapi${path}`)
+      expect(response.status).toBe(403)
+    },
+  )
 
   it('serves page and asset requests through the static binding', async () => {
     const env = assets()

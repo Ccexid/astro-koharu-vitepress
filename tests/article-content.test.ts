@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getSchema } from '@tiptap/core'
 import { articleExtensions } from '../src/components/editor/extensions'
 import { articleDemo } from '../src/data/article-demo'
@@ -14,6 +14,10 @@ import {
 } from '../src/services/article-content'
 import { exportArticleFile, parseArticleFile } from '../src/services/article-drafts'
 import { getPost } from '../src/services/posts'
+
+vi.mock('../src/data/posts', async () => ({
+  posts: (await import('../src/data/demo-posts')).demoPosts,
+}))
 
 describe('versioned article content', () => {
   it('converts legacy sections without losing existing heading anchors or text', async () => {

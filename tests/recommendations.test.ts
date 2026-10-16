@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getPostRecommendations, listPosts } from '../src/services/posts'
 
+vi.mock('../src/data/posts', async () => ({
+  posts: (await import('../src/data/demo-posts')).demoPosts,
+}))
+
 afterEach(() => vi.restoreAllMocks())
 
 describe('post recommendations', () => {

@@ -42,17 +42,13 @@
 
 ## 将导出文件纳入仓库
 
-1. 导出文章，检查文件中的元信息、正文和图片地址；将 JSON 放到 `src/data/articles/` 下。
-2. 在数据层导入 JSON，通过 `postFromDraft` 转换后加入 `src/data/posts.ts` 的 `posts` 数组，保证 id 和 slug 唯一，分类属于现有目录（新分类同时加入 `src/data/categories.ts`）。修改旧文章时替换对应条目。
+现在通过本地发布脚本自动纳入文章目录，不再手动修改 `posts.ts`：
 
-```ts
-import savedArticle from './articles/my-article.json'
-import { postFromDraft } from '@/services/article-content'
-
-// 在 posts 数组内加入：postFromDraft(savedArticle)
+```sh
+bun run article:publish "导出的文章.json"
 ```
 
-3. 运行类型检查、测试和构建，检查预览，再按现有 Cloudflare 流程重新部署。仅把文件下载到本机不会自动进入访客可读数据。
+脚本校验必填信息、正文与全站 ID/slug，按稳定 ID 新增或更新 JSON，然后执行文章测试、类型检查和生产构建；检查失败恢复原文件。通过后预览、提交并推送 Git，由已连接的 Cloudflare Workers Builds 自动构建部署。完整命令、更新规则、失败恢复与账号侧连接步骤见 [文章发布说明](article-publishing.md)。仅把文件下载到本机不会自动进入访客可读数据。
 
 后续线上发布应另设草稿和发布版本，服务端验证身份、必填项与正文结构，支持恢复旧版本。当前 Worker 继续承担原有 API 转发与静态资源职责。
 
