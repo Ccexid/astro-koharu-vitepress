@@ -1,33 +1,43 @@
-import { h, type Component, type FunctionalComponent, type StyleValue } from 'vue'
+import { defineAsyncComponent, h, type Component, type FunctionalComponent, type StyleValue } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import type { IconPack } from '@fortawesome/fontawesome-svg-core'
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { Link } from 'lucide-vue-next'
+import { fontAwesomeCatalog } from 'virtual:fontawesome-catalog'
 
 export type FontAwesomeLibrary = 'fa-solid' | 'fa-regular' | 'fa-brands'
 
-const packs = {
-  'fa-solid': () => import('@fortawesome/free-solid-svg-icons').then((module) => module.fas),
-  'fa-regular': () => import('@fortawesome/free-regular-svg-icons').then((module) => module.far),
-  'fa-brands': () => import('@fortawesome/free-brands-svg-icons').then((module) => module.fab),
-}
-
-function iconComponents(pack: IconPack): Record<string, Component> {
-  const components: Record<string, Component> = {}
-  for (const icon of Object.values(pack)) {
-    // Packs also export aliases; each canonical icon should appear only once.
-    if (Object.hasOwn(components, icon.iconName)) continue
-    const component: FunctionalComponent<{ size?: number }> = ({ size = 24 }, { attrs }) =>
-      h(FontAwesomeIcon, {
-        ...attrs,
-        icon,
-        style: [attrs.style as StyleValue, { width: `${size}px`, height: `${size}px` }],
-      })
-    component.props = ['size']
-    component.inheritAttrs = false
-    components[icon.iconName] = component
-  }
-  return components
+function iconComponent(icon: IconDefinition): Component {
+  const component: FunctionalComponent<{ size?: number }> = ({ size = 24 }, { attrs }) =>
+    h(FontAwesomeIcon, {
+      ...attrs,
+      icon,
+      style: [attrs.style as StyleValue, { width: `${size}px`, height: `${size}px` }],
+    })
+  component.props = ['size']
+  component.inheritAttrs = false
+  return component
 }
 
 export async function loadFontAwesomeIcons(library: FontAwesomeLibrary): Promise<Record<string, Component>> {
-  return iconComponents(await packs[library]())
+  const components: Record<string, Component> = {}
+  for (const group of fontAwesomeCatalog[library]) {
+    let pending: ReturnType<typeof group.load> | undefined
+    for (const name of group.names) {
+      components[name] = defineAsyncComponent({
+        async loader() {
+          pending ??= group.load().catch((error: unknown) => {
+            pending = undefined
+            throw error
+          })
+          const icon = (await pending).default[name]
+          if (!icon) throw new Error(`Missing Font Awesome icon: ${library}:${name}`)
+          return iconComponent(icon)
+        },
+        loadingComponent: Link,
+        errorComponent: Link,
+        delay: 0,
+      })
+    }
+  }
+  return components
 }

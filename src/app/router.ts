@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import ArchivesPage from '../pages/ArchivesPage.vue'
-import FriendsPage from '../pages/FriendsPage.vue'
-import NotFoundPage from '../pages/NotFoundPage.vue'
-import PostsPage from '../pages/PostsPage.vue'
-import HomePage from '../pages/HomePage.vue'
-import PostPage from '../pages/PostPage.vue'
-import TaxonomyDetailPage from '../pages/TaxonomyDetailPage.vue'
-import TaxonomyIndexPage from '../pages/TaxonomyIndexPage.vue'
-import AboutPage from '../pages/AboutPage.vue'
-import BangumiPage from '../pages/BangumiPage.vue'
 import { getCategory, getPost, getTag } from '@/services/posts'
 import { cancelPostTransition } from '@/composables/usePostTransition'
 import { cancelViewTransition, transitionKind } from '@/app/view-transitions'
+
+const HomePage = () => import('@/pages/HomePage.vue')
+const PostsPage = () => import('@/pages/PostsPage.vue')
+const PostPage = () => import('@/pages/PostPage.vue')
+const TaxonomyIndexPage = () => import('@/pages/TaxonomyIndexPage.vue')
+const TaxonomyDetailPage = () => import('@/pages/TaxonomyDetailPage.vue')
+const ArchivesPage = () => import('@/pages/ArchivesPage.vue')
+const BangumiPage = () => import('@/pages/BangumiPage.vue')
+const FriendsPage = () => import('@/pages/FriendsPage.vue')
+const AboutPage = () => import('@/pages/AboutPage.vue')
+const NotFoundPage = () => import('@/pages/NotFoundPage.vue')
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

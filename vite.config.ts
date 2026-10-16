@@ -2,11 +2,34 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { loadEnv } from 'vite'
+import { fontAwesomeCatalog } from './build/fontawesome-catalog'
+import { precompress } from './build/precompress'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
-    plugins: [vue()],
+    plugins: [fontAwesomeCatalog(), vue(), precompress()],
+    optimizeDeps: {
+      entries: ['index.html'],
+      include: ['@fortawesome/fontawesome-svg-core', '@fortawesome/vue-fontawesome'],
+    },
+    build: {
+      manifest: true,
+      license: { fileName: 'THIRD_PARTY_LICENSES.md' },
+      reportCompressedSize: false,
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'vue-vendor',
+                test: /node_modules[\\/](?:@vue[\\/]|vue(?:-router)?[\\/]|pinia[\\/])/,
+              },
+            ],
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

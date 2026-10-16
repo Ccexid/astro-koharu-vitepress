@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, ref, shallowRef, watch } from 'vue'
+import { computed, defineAsyncComponent, provide, ref, shallowRef, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import SiteHeader from '@/components/SiteHeader.vue'
 import SiteHero from '@/components/SiteHero.vue'
@@ -7,15 +7,20 @@ import SiteSidebar from '@/components/SiteSidebar.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import FloatingTools from '@/components/FloatingTools.vue'
 import MobileDrawer from '@/components/MobileDrawer.vue'
-import SettingsPanel from '@/components/SettingsPanel.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useReadingPosition } from '@/composables/useReadingPosition'
 import { defaultSiteCover, siteCoverKey, type SiteCover } from '@/app/site-cover'
 import { transitionKind } from '@/app/view-transitions'
+const SettingsPanel = defineAsyncComponent(() => import('@/components/SettingsPanel.vue'))
 const route = useRoute()
 const { theme, toggleTheme } = useTheme()
 const drawerOpen = ref(false)
 const settingsOpen = ref(false)
+const settingsMounted = ref(false)
+function openSettings() {
+  settingsMounted.value = true
+  settingsOpen.value = true
+}
 const siteCover = shallowRef<SiteCover>(defaultSiteCover(route.path))
 const { activeId, progress, scrolled, headerHidden } = useReadingPosition(siteCover)
 const showRecommendations = computed(
@@ -61,7 +66,7 @@ watch(
     <MobileDrawer :open="drawerOpen" @close="drawerOpen = false">
       <SiteSidebar variant="drawer" :cover="siteCover" :active-id="activeId" @navigate="drawerOpen = false" />
     </MobileDrawer>
-    <SettingsPanel :open="settingsOpen" @close="settingsOpen = false" />
+    <SettingsPanel v-if="settingsMounted" :open="settingsOpen" @close="settingsOpen = false" />
     <div class="content-shell">
       <SiteSidebar class="sidebar-column" :cover="siteCover" :active-id="activeId" />
       <div class="main-column">
@@ -90,7 +95,7 @@ watch(
     <FloatingTools
       :reading="siteCover.kind === 'article'"
       :progress="progress"
-      @open-settings="settingsOpen = true"
+      @open-settings="openSettings"
     />
   </div>
 </template>
