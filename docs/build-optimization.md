@@ -69,4 +69,28 @@ server {
 
 压缩响应应使用原始文件的 Content-Type，并返回匹配的 `Content-Encoding: gzip` 或 `br` 和 `Vary: Accept-Encoding`。CDN/其他静态托管可能自行压缩资源，应按平台能力配置；仅上传 `.gz`/`.br` 文件不能证明客户端正在使用压缩版本。
 
-上述示例只包含静态资源和 history fallback。追番需要的生产同源 API 转发仍需另行配置；开发服务器的代理不会打包进 `dist`。部署后需实测文章、分类和标签详情的深层链接刷新。
+上述示例只包含静态资源和 history fallback。追番和首页一言/随机图片需要生产同源 API 转发；开发服务器的代理不会打包进 `dist`。
+
+## 1Panel 静态网站配置
+
+1Panel 的静态网站可以直接使用 Nginx/OpenResty 站点配置；将 `dist/` 内的文件上传到站点根目录，再把 [astro-koharu-1panel.conf](../deploy/nginx/astro-koharu-1panel.conf) 中的配置粘贴到网站配置里。示例已经按当前部署路径 `/www/sites/astro-koharu/index`、端口 `5173` 和服务器 `8.148.179.96` 写好。
+
+配置同时完成三件事：
+
+- `try_files $uri $uri/ /index.html`：支持刷新 `/posts/...`、`/editor?...` 等 Vue Router 深层路由。
+- `/bili/`：转发到 `https://api.bilibili.com/`，并移除浏览器的 `Origin`，补上 Bilibili 所需的 `Host`、`Referer` 和 `User-Agent`。
+- `/uapi/`：转发到 `https://uapis.cn/`，覆盖一言和随机图片请求。
+
+如果只部署文章静态页面、不使用追番和随机图片，可以删除两个 API `location`；如果继续保留 `/bangumi`，必须保留 `/bili/`。配置保存后，在 1Panel 中先执行 Nginx 配置测试，再重载服务。Nginx 的 `proxy_pass` 会按照 `location` 与末尾 URI 的规则改写转发路径，`proxy_set_header` 用于重设上游请求头；这些行为以官方模块定义为准。
+
+部署后检查：
+
+```text
+http://8.148.179.96:5173/
+http://8.148.179.96:5173/posts/article-style-guide
+http://8.148.179.96:5173/editor?post=article-style-guide
+http://8.148.179.96:5173/bili/x/space/bangumi/follow/list?...
+http://8.148.179.96:5173/uapi/api/v1/saying
+```
+
+文章和编辑页刷新后应返回应用页面；API 路径应返回 JSON 或图片，而不是 `index.html`。1Panel 同时支持静态网站和反向代理网站类型，具体入口以当前面板版本显示为准。
