@@ -1,3 +1,5 @@
+import { handleRandomImage } from './random-image'
+
 interface WorkerEnv {
   ASSETS: { fetch: typeof fetch }
 }
@@ -13,6 +15,7 @@ function errorResponse(message: string, status: number, headers?: HeadersInit): 
 
 export async function handleRequest(request: Request, env: WorkerEnv): Promise<Response> {
   const url = new URL(request.url)
+  if (url.pathname === '/uapi/api/v1/random/image') return handleRandomImage(request)
   const prefix = Object.keys(upstreams).find(
     (path) => url.pathname === path || url.pathname.startsWith(`${path}/`),
   ) as keyof typeof upstreams | undefined

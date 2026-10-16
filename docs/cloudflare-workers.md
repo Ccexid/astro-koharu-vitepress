@@ -63,7 +63,7 @@ bun run cf:deploy
 - 仅允许 GET/HEAD。Bilibili 仅开放当前项目使用的追番列表接口，UAPI 仅开放 `/api/` 路径。目标主机固定，不接受 `?url=任意地址` 的通用代理请求。
 - Worker 使用新建请求头，不透传浏览器的 Cookie、Origin、Authorization。服务端设置 Referer 与 User-Agent；仅返回上游响应体和必要 Content-Type，不透传 Set-Cookie，不缓存接口响应。
 - 代理解决浏览器跨域和开发配置失效，不保证第三方放行 Cloudflare 出口 IP。上游限流、风控、账号权限与 UAPI 的鉴权要求仍然适用。
-- 当前 UAPI 转发没有添加密钥。以后若某接口需要私密 key，应在 Worker Secrets 中保存，并按照该接口文档在 Worker 中添加；不能放进 `VITE_*` 或前端包。
+- 随机图片 `/uapi/api/v1/random/image` 无需密钥，已单独实现图片重定向转发，全程不发送 Authorization。随机图片的 Blob 调用、错误处理与 Hero 的 12 小时浏览器缓存见 `src/api/README.md`。
 
 ## 本地验收（2026-10-16）
 

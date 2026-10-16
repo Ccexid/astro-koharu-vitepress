@@ -4,9 +4,14 @@ import { CalendarDays, Clock3, FileText, Link, Check } from 'lucide-vue-next'
 import type { SiteCover } from '@/app/site-cover'
 import { useHeroMotion } from '@/composables/useHeroMotion'
 import { transitioningPost } from '@/composables/usePostTransition'
+import HomeSaying from '@/components/HomeSaying.vue'
+import { useHeroBackground } from '@/composables/useHeroBackground'
 const props = defineProps<{ cover: SiteCover }>()
 const hero = ref<HTMLElement | null>(null)
 const image = ref<HTMLImageElement | null>(null)
+const { src: backgroundImage, handleError: handleBackgroundError } = useHeroBackground(
+  computed(() => props.cover.image),
+)
 const { paused, lowPower } = useHeroMotion(hero, image)
 const copied = ref(false)
 const copyMessage = ref('')
@@ -43,15 +48,13 @@ async function copyLink() {
   >
     <div class="hero-background">
       <img
-        :key="cover.image || 'default'"
+        :key="backgroundImage"
         ref="image"
         class="hero-image"
-        :src="
-          cover.image ||
-          'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=1920&q=85'
-        "
-        :alt="cover.imageAlt || ''"
+        :src="backgroundImage"
+        alt=""
         fetchpriority="high"
+        @error="handleBackgroundError"
       />
     </div>
     <div class="hero-shade" aria-hidden="true"></div>
@@ -70,7 +73,9 @@ async function copyLink() {
       <div class="hero-copy">
         <p v-if="cover.kind === 'home'" class="hero-alternate">Koharu</p>
         <h1 id="site-title">
+          <HomeSaying v-if="cover.kind === 'home'" :fallback="cover.title" />
           <span
+            v-else
             :style="{
               viewTransitionName: cover.kind === 'article' && transitioningPost ? 'article-title' : undefined,
             }"
@@ -218,8 +223,10 @@ async function copyLink() {
   letter-spacing: 0.02em;
 }
 .is-home .hero-copy h1 {
-  max-width: 100%;
+  width: min(100%, 960px);
   margin-top: 12px;
+  font-size: clamp(1.35rem, 3.2vw, 2.5rem);
+  line-height: 1.6;
   letter-spacing: 0.1em;
 }
 .is-home .hero-subtitle {
