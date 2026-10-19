@@ -9,11 +9,13 @@ import FloatingTools from '@/components/FloatingTools.vue'
 import MobileDrawer from '@/components/MobileDrawer.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useReadingPosition } from '@/composables/useReadingPosition'
+import { useSidebarData } from '@/composables/useSidebarData'
 import { defaultSiteCover, siteCoverKey, type SiteCover } from '@/app/site-cover'
 import { transitionKind } from '@/app/view-transitions'
 const SettingsPanel = defineAsyncComponent(() => import('@/components/SettingsPanel.vue'))
 const route = useRoute()
 const { theme, toggleTheme } = useTheme()
+const { stats, error: statsError, profileSocials, reloadStats } = useSidebarData()
 const drawerOpen = ref(false)
 const settingsOpen = ref(false)
 const settingsMounted = ref(false)
@@ -65,11 +67,28 @@ watch(
     />
     <SiteHero :cover="siteCover" />
     <MobileDrawer :open="drawerOpen" @close="drawerOpen = false">
-      <SiteSidebar variant="drawer" :cover="siteCover" :active-id="activeId" @navigate="drawerOpen = false" />
+      <SiteSidebar
+        variant="drawer"
+        :cover="siteCover"
+        :active-id="activeId"
+        :stats="stats"
+        :stats-error="statsError"
+        :profile-socials="profileSocials"
+        @retry="reloadStats"
+        @navigate="drawerOpen = false"
+      />
     </MobileDrawer>
     <SettingsPanel v-if="settingsMounted" :open="settingsOpen" @close="settingsOpen = false" />
     <div class="content-shell">
-      <SiteSidebar class="sidebar-column" :cover="siteCover" :active-id="activeId" />
+      <SiteSidebar
+        class="sidebar-column"
+        :cover="siteCover"
+        :active-id="activeId"
+        :stats="stats"
+        :stats-error="statsError"
+        :profile-socials="profileSocials"
+        @retry="reloadStats"
+      />
       <div class="main-column">
         <main id="main-content" class="site-main page-content" tabindex="-1">
           <div class="route-stage">

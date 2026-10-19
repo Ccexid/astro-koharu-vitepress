@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   Archive,
@@ -14,31 +14,29 @@ import {
   Flower2,
   Tv,
 } from 'lucide-vue-next'
-import { ensureSocialIcon, resolveSocialIcon } from '@/app/social-icons'
-import { isInternalProfileSocialHref, normalizeProfileSocialHref } from '@/app/profile-social'
 import ArticleToc from '@/components/post/ArticleToc.vue'
-import { listCategories, listPosts, listTags } from '@/services/posts'
-import { useSettingsStore } from '@/stores/settings'
 import type { SiteCover } from '@/app/site-cover'
 const props = withDefaults(
-  defineProps<{ variant?: 'sidebar' | 'drawer'; cover?: SiteCover; activeId?: string }>(),
+  defineProps<{
+    variant?: 'sidebar' | 'drawer'
+    cover?: SiteCover
+    activeId?: string
+    stats: { posts: number; categories: number; tags: number }
+    statsError: boolean
+    profileSocials: Array<{
+      id: string
+      label: string
+      href: string
+      component: Component
+      internal: boolean
+    }>
+  }>(),
   { variant: 'sidebar', activeId: '' },
 )
-defineEmits<{ navigate: [] }>()
+const emit = defineEmits<{ navigate: []; retry: [] }>()
 const route = useRoute()
-const settings = useSettingsStore()
 const panel = ref<'profile' | 'toc'>('profile')
-const stats = ref({ posts: 0, categories: 0, tags: 0 })
-const error = ref(false)
 const article = computed(() => props.cover?.kind === 'article')
-const profileSocials = computed(() =>
-  settings.socials
-    .filter((item) => item.href && normalizeProfileSocialHref(item.href) === item.href)
-    .map((item) => ({
-      ...item,
-      component: resolveSocialIcon(item.icon),
-    })),
-)
 const nav = [
   { label: '首页', to: '/', icon: Home },
   { label: '所有文章', to: '/posts', icon: BookOpen },
@@ -49,15 +47,6 @@ const nav = [
   { label: '关于', to: '/about', icon: Info },
   { label: '追番', to: '/bangumi', icon: Tv },
 ]
-async function load() {
-  error.value = false
-  try {
-    const [posts, categories, tags] = await Promise.all([listPosts(), listCategories(), listTags()])
-    stats.value = { posts: posts.length, categories: categories.length, tags: tags.length }
-  } catch {
-    error.value = true
-  }
-}
 watch(
   () => route.path,
   () => {
@@ -68,18 +57,6 @@ watch(
 watch(article, (value) => {
   panel.value = value ? 'toc' : 'profile'
 })
-watch(
-  () => settings.socials.map((item) => item.icon),
-  async (icons) => {
-    try {
-      await Promise.all(icons.map(ensureSocialIcon))
-    } catch {
-      // Keep the fallback link icon when the optional icon chunk cannot be loaded.
-    }
-  },
-  { immediate: true },
-)
-onMounted(load)
 </script>
 <template>
   <aside class="site-sidebar" :class="{ 'is-drawer': variant === 'drawer' }" aria-label="站点侧栏">
@@ -95,7 +72,7 @@ onMounted(load)
       v-if="article && panel === 'toc'"
       :sections="cover?.sections || []"
       :active-id="activeId"
-      @navigate="$emit('navigate')"
+      @navigate="emit('navigate')"
     />
     <template v-else>
       <div class="profile-panel">
@@ -106,15 +83,15 @@ onMounted(load)
           <div>
             <h2>春日来信</h2>
             <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
-            <div v-if="profileSocials.length" class="profile-social">
-              <template v-for="item in profileSocials" :key="item.id">
+            <div v-if="props.profileSocials.length" class="profile-social">
+              <template v-for="item in props.profileSocials" :key="item.id">
                 <RouterLink
-                  v-if="isInternalProfileSocialHref(item.href)"
+                  v-if="item.internal"
                   class="profile-social-link"
                   :to="item.href"
                   :aria-label="item.label || item.href"
                   :title="item.label || item.href"
-                  @click="$emit('navigate')"
+                  @click="emit('navigate')"
                 >
                   <component :is="item.component" :size="19" aria-hidden="true" />
                 </RouterLink>
@@ -133,21 +110,23 @@ onMounted(load)
             </div>
           </div>
         </div>
-        <div v-if="!error" class="profile-stats">
+        <div v-if="!props.statsError" class="profile-stats">
           <RouterLink to="/posts"
-            ><strong>{{ stats.posts }}</strong
+            ><strong>{{ props.stats.posts }}</strong
             ><small>文章</small></RouterLink
           >
           <RouterLink to="/categories"
-            ><strong>{{ stats.categories }}</strong
+            ><strong>{{ props.stats.categories }}</strong
             ><small>分类</small></RouterLink
           >
           <RouterLink to="/tags"
-            ><strong>{{ stats.tags }}</strong
+            ><strong>{{ props.stats.tags }}</strong
             ><small>标签</small></RouterLink
           >
         </div>
-        <p v-else class="sidebar-error">统计暂不可用 <button type="button" @click="load">重试</button></p>
+        <p v-else class="sidebar-error">
+          统计暂不可用 <button type="button" @click="emit('retry')">重试</button>
+        </p>
       </div>
       <nav class="sidebar-nav" aria-label="内容导航">
         <RouterLink
@@ -155,7 +134,7 @@ onMounted(load)
           :key="item.to"
           :to="item.to"
           :class="{ 'is-active': item.to === '/' ? route.path === '/' : route.path.startsWith(item.to) }"
-          @click="$emit('navigate')"
+          @click="emit('navigate')"
         >
           <component :is="item.icon" :size="18" aria-hidden="true" />{{ item.label }}
         </RouterLink>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import { normalizeProfileSocialHref } from '@/app/profile-social'
+import { normalizeProfileSocialHref } from '@/utils/profile-social'
 
 export interface ProfileSocialLink {
   id: string

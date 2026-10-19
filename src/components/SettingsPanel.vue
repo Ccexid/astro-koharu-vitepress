@@ -2,7 +2,7 @@
 import { nextTick, ref, watch } from 'vue'
 import { Plus, RotateCcw, Settings, Trash2, X } from 'lucide-vue-next'
 import { iconLibraryOf, iconLibraryLabels, iconNameOf, resolveSocialIcon } from '@/app/social-icons'
-import { normalizeProfileSocialHref } from '@/app/profile-social'
+import { normalizeProfileSocialHref } from '@/utils/profile-social'
 import { useSettingsStore } from '@/stores/settings'
 import SocialIconPicker from '@/components/settings/SocialIconPicker.vue'
 

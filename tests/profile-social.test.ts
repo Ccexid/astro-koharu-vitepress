@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isInternalProfileSocialHref, normalizeProfileSocialHref } from '../src/app/profile-social'
+import { isInternalProfileSocialHref, normalizeProfileSocialHref } from '../src/utils/profile-social'
 
 describe('profile social links', () => {
   it('accepts supported web, contact and internal links', () => {
