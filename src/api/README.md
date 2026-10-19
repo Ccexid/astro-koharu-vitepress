@@ -1,6 +1,6 @@
 # 双数据源追番 API 边界
 
-两个 provider adapter 共用 `fetch-json.ts`：统一处理 15 秒请求超时、外部 `AbortSignal`、HTTP 非成功状态及无效 JSON 响应。接口适配器继续负责 provider envelope 校验和领域字段映射。
+两个 provider adapter 共用 `http.ts` 中的 Axios 实例与 `request`、`get`、`post` 方法：统一处理 15 秒请求超时、外部 `AbortSignal`、HTTP 非成功状态及无效 JSON 响应。接口适配器继续负责 provider envelope 校验和领域字段映射。
 
 页面顶部提供哔哩哔哩 / Bangumi.tv 标签，同时保留两套适配器。仅加载当前选中的来源；切换时销毁旧列表面板、取消列表和统计请求，重置筛选及追加位置，不混合条目 ID 或平台计数。两个来源共用海报瀑布流，每批 24 条，URL 始终为 `/bangumi`。
 
@@ -18,9 +18,9 @@ Vite 代理只在开发环境生效。Cloudflare Workers 生产转发已在 `clo
 
 ## 一言
 
-`saying.ts` 导出 `fetchSaying(signal?: AbortSignal): Promise<SayingResponse>`，返回 `{ text: string }`。请求地址为 `VITE_API_UAPI_URL`（默认 `https://uapis.cn`）下的 `/api/v1/saying`。此接口支持浏览器 CORS 直连，不依赖 Vite 或 Worker 的 `/uapi` 转发。
+`saying.ts` 导出 `fetchSaying(signal?: AbortSignal): Promise<SayingResponse>`，返回 `{ text: string }`。请求地址为同源 `/uapi/api/v1/saying`，由 Vite 开发代理或 Cloudflare Worker 转发到 UAPI。
 
-复用 `fetchJson` 的 15 秒超时、取消、HTTP 和 JSON 错误处理，并校验 `text` 必须为非空字符串。随机内容禁用浏览器缓存，响应移除首尾空白；不在接口失败时静默替换为示例文本。
+复用 Axios 请求层的 15 秒超时、取消、HTTP 和 JSON 错误处理，并校验 `text` 必须为非空字符串。随机内容禁用浏览器缓存，响应移除首尾空白；不在接口失败时静默替换为示例文本。
 
 ```ts
 import { fetchSaying } from '@/api/saying'

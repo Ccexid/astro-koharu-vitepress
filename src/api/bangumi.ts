@@ -1,5 +1,5 @@
 import type { CollectionItem, CollectionPage, CollectionStatus, SubjectType } from '@/types/bangumi'
-import { fetchJson } from '@/api/fetch-json'
+import { get } from '@/api/http'
 
 export interface BangumiQuery {
   userId: string
@@ -64,7 +64,7 @@ export async function fetchBangumiPage(query: BangumiQuery, signal?: AbortSignal
   url.searchParams.set('limit', String(limit))
   if (status !== 'all') url.searchParams.set('type', String(apiStatus[status]))
   const payload = record(
-    await fetchJson<unknown>(url, {
+    await get<unknown>(url, {
       signal,
       serviceName: 'Bangumi',
     }),

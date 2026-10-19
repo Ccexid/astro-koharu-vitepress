@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createRandomImageUrl, type RandomImageQuery } from '../src/api/random-image-contract'
 import { fetchRandomImage, RandomImageError } from '../src/api/random-image'
+import { useFetchAxiosAdapter } from './helpers/fetch-axios-adapter'
 
+useFetchAxiosAdapter()
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.useRealTimers()

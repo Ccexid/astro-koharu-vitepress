@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { fetchBilibiliPage } from '../src/api/bilibili'
 import { getStatusCounts, getSubjectCounts, listBangumiCollection } from '../src/services/bangumi'
+import { useFetchAxiosAdapter } from './helpers/fetch-axios-adapter'
+
+useFetchAxiosAdapter()
 
 function rawItem(id: number) {
   return {

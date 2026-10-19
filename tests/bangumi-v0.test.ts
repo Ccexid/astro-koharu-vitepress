@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { listBangumiCollection, getSubjectCounts, getStatusCounts } from '../src/services/bangumi'
+import { useFetchAxiosAdapter } from './helpers/fetch-axios-adapter'
 
+useFetchAxiosAdapter()
 afterEach(() => vi.unstubAllGlobals())
 describe('Bangumi.tv alongside Bilibili', () => {
   it('reads the Bangumi account and maps watching/watched without Bilibili requests', async () => {

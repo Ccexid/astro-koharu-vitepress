@@ -1,4 +1,6 @@
+import { AxiosHeaders } from 'axios'
 import { createRandomImageUrl, type RandomImageQuery } from '@/api/random-image-contract'
+import { request } from '@/api/http'
 
 export type { RandomImageQuery, RandomImageCategory } from '@/api/random-image-contract'
 
@@ -22,7 +24,12 @@ export interface RandomImageOptions {
   timeoutMs?: number
 }
 
-function retryDelay(value: string | null): number | undefined {
+function responseHeader(headers: AxiosHeaders, name: string): string | undefined {
+  const value = headers.get(name)
+  return typeof value === 'string' ? value : undefined
+}
+
+function retryDelay(value: string | undefined): number | undefined {
   if (!value?.trim()) return undefined
   const seconds = Number(value)
   if (Number.isFinite(seconds)) return seconds >= 0 ? seconds * 1000 : undefined
@@ -30,7 +37,18 @@ function retryDelay(value: string | null): number | undefined {
   return Number.isFinite(date) ? Math.max(0, date - Date.now()) : undefined
 }
 
-/** Fetch image bytes from the public UAPI endpoint through the same-origin Worker. */
+async function errorPayload(data: unknown): Promise<Record<string, unknown>> {
+  try {
+    const text = data instanceof Blob ? await data.text() : typeof data === 'string' ? data : ''
+    const value =
+      data && typeof data === 'object' && !(data instanceof Blob) ? data : JSON.parse(text || 'null')
+    return value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
+}
+
+/** Read image bytes from the public UAPI endpoint through the same-origin Worker. */
 export async function fetchRandomImage(
   query: RandomImageQuery = {},
   options: RandomImageOptions = {},
@@ -38,19 +56,22 @@ export async function fetchRandomImage(
   const target = createRandomImageUrl(query)
   const { signal, timeoutMs = 30_000 } = options
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) throw new RangeError('请求超时必须是正整数毫秒。')
-  const timeout = AbortSignal.timeout(timeoutMs)
-  const requestSignal = signal ? AbortSignal.any([signal, timeout]) : timeout
   try {
-    const response = await fetch(`/uapi${target.pathname}${target.search}`, {
+    const response = await request<Blob>(`/uapi${target.pathname}${target.search}`, {
       method: 'GET',
       headers: { Accept: 'image/*' },
-      credentials: 'omit',
-      cache: 'no-store',
-      signal: requestSignal,
+      fetchOptions: { cache: 'no-store' },
+      responseType: 'blob',
+      validateStatus: () => true,
+      signal,
+      timeoutMs,
     })
-    if (!response.ok) {
-      const data: unknown = await response.json().catch(() => undefined)
-      const error = data && typeof data === 'object' ? (data as Record<string, unknown>) : {}
+    const headers = response.headers as AxiosHeaders
+    const contentType = responseHeader(headers, 'Content-Type') || ''
+    const requestId = responseHeader(headers, 'X-Request-ID')
+    const retryAfter = responseHeader(headers, 'Retry-After')
+    if (response.status < 200 || response.status >= 300) {
+      const error = await errorPayload(response.data)
       const fallback =
         response.status === 429
           ? '随机图片请求被限流，请稍后重试。'
@@ -59,24 +80,24 @@ export async function fetchRandomImage(
         typeof error.message === 'string' ? error.message : fallback,
         response.status,
         typeof error.code === 'string' ? error.code : undefined,
-        retryDelay(response.headers.get('Retry-After')),
-        response.headers.get('X-Request-ID') || undefined,
+        retryDelay(retryAfter),
+        requestId,
         error.details,
       )
     }
-    if (!response.headers.get('Content-Type')?.toLowerCase().startsWith('image/')) {
+    if (!contentType.toLowerCase().startsWith('image/')) {
       throw new RandomImageError(
         '随机图片接口未返回图片，请确认正在使用 Cloudflare Worker 环境。',
         response.status,
         'CLIENT_INVALID_IMAGE',
       )
     }
-    const image = await response.blob()
+    const image = response.data
     if (!image.size) throw new RandomImageError('随机图片内容为空。', response.status, 'CLIENT_EMPTY_IMAGE')
     return image
   } catch (error) {
     if (signal?.aborted) throw signal.reason
-    if (timeout.aborted)
+    if (error instanceof Error && error.name === 'TimeoutError')
       throw new RandomImageError(
         '随机图片请求超时，请稍后重试。',
         0,

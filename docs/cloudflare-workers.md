@@ -15,7 +15,7 @@
 
 `assets.run_worker_first` 只匹配 `/bili` 和 `/uapi` 路由。这些请求必须先运行 Worker，否则静态站的 SPA fallback 可能把 API 地址返回成 `index.html`。
 
-前端现有 `fetchJson('/bili/x/space/bangumi/follow/list?' + params)` 无需更改。请求经过自己的 Worker 域名，浏览器不会跨域请求哔哩哔哩；上游请求在 Worker 内发送。
+前端通过 `get('/bili/x/space/bangumi/follow/list?' + params)` 发起请求。请求经过自己的 Worker 域名，浏览器不会跨域请求哔哩哔哩；上游请求在 Worker 内发送。
 
 ## 本地验证
 

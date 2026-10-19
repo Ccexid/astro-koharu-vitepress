@@ -1,5 +1,5 @@
 import type { CollectionItem, CollectionStatus, SubjectType } from '@/types/bangumi'
-import { fetchJson } from '@/api/fetch-json'
+import { get } from '@/api/http'
 
 export interface BilibiliQuery {
   userId: string
@@ -75,7 +75,7 @@ export async function fetchBilibiliPage(
     ps: String(BILIBILI_PAGE_SIZE),
   })
   const payload = record(
-    await fetchJson<unknown>('/bili/x/space/bangumi/follow/list?' + params, {
+    await get<unknown>('/bili/x/space/bangumi/follow/list?' + params, {
       signal,
       serviceName: '哔哩哔哩',
     }),

@@ -1,17 +1,15 @@
-import { fetchJson } from '@/api/fetch-json'
+import { get } from '@/api/http'
 
 export interface SayingResponse {
   text: string
 }
 
-/** Read a random saying directly from UAPI. */
+/** Read a random saying through the same-origin UAPI route. */
 export async function fetchSaying(signal?: AbortSignal): Promise<SayingResponse> {
-  const payload = await fetchJson<unknown>(`/uapi/api/v1/saying`, {
-    method: 'GET',
+  const payload = await get<unknown>('/uapi/api/v1/saying', {
     signal,
     serviceName: '一言',
-    credentials: 'omit',
-    cache: 'no-store',
+    fetchOptions: { cache: 'no-store' },
   })
 
   if (

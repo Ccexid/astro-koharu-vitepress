@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { fetchSaying } from '../src/api/saying'
+import { useFetchAxiosAdapter } from './helpers/fetch-axios-adapter'
 
+useFetchAxiosAdapter()
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
 })
 
 describe('saying API', () => {
-  it('requests the public endpoint directly and returns a normalized saying', async () => {
-    vi.stubEnv('VITE_API_UAPI_URL', '')
+  it('requests the same-origin UAPI route and returns a normalized saying', async () => {
     const request = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
       Response.json({ text: '  无论多么微小的邂逅，都必定有着某种意义。  ' }),
     )
@@ -16,7 +17,7 @@ describe('saying API', () => {
 
     await expect(fetchSaying()).resolves.toEqual({ text: '无论多么微小的邂逅，都必定有着某种意义。' })
     expect(request).toHaveBeenCalledWith(
-      'https://uapis.cn/api/v1/saying',
+      '/uapi/api/v1/saying',
       expect.objectContaining({
         method: 'GET',
         credentials: 'omit',
@@ -26,12 +27,12 @@ describe('saying API', () => {
     )
   })
 
-  it('uses the existing UAPI base URL setting without duplicate slashes', async () => {
+  it('keeps the same-origin route when an upstream base URL is configured', async () => {
     vi.stubEnv('VITE_API_UAPI_URL', ' https://api.example.test/// ')
     const request = vi.fn(async () => Response.json({ text: '一句话。' }))
     vi.stubGlobal('fetch', request)
     await fetchSaying()
-    expect(request).toHaveBeenCalledWith('https://api.example.test/api/v1/saying', expect.any(Object))
+    expect(request).toHaveBeenCalledWith('/uapi/api/v1/saying', expect.any(Object))
   })
 
   it.each([null, {}, [], { text: 42 }, { text: '' }, { text: '   ' }])(
