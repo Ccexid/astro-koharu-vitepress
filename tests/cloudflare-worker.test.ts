@@ -22,7 +22,7 @@ describe('Cloudflare production API forwarding', () => {
       env,
     )
     expect(String(upstream.mock.calls[0]?.[0])).toBe(
-      'http://8.148.179.96:5173/bili/x/space/bangumi/follow/list?vmid=19580033&type=1&ps=30',
+      'https://api.bilibili.com/x/space/bangumi/follow/list?vmid=19580033&type=1&ps=30',
     )
     const init = upstream.mock.calls[0]?.[1] as RequestInit
     const headers = new Headers(init.headers)
@@ -36,14 +36,14 @@ describe('Cloudflare production API forwarding', () => {
   })
 
   it.each(['/api/v1/saying', '/api/v1/social/bilibili/userinfo?uid=19580033'])(
-    'preserves the relay /uapi prefix and upstream failures for %s',
+    'forwards the UAPI path and preserves upstream failures for %s',
     async (path) => {
       const upstream = vi.fn(
         async (_input: RequestInfo | URL) => new Response('{"code":"ERROR"}', { status: 403 }),
       )
       vi.stubGlobal('fetch', upstream)
       const response = await handleRequest(new Request(`https://blog.example/uapi${path}`), assets())
-      expect(String(upstream.mock.calls[0]?.[0])).toBe(`http://8.148.179.96:5173/uapi${path}`)
+      expect(String(upstream.mock.calls[0]?.[0])).toBe(`https://uapis.cn${path}`)
       expect(response.status).toBe(403)
     },
   )

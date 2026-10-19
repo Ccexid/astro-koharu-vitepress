@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getCategory, getPost, getTag } from '@/services/posts'
 import { cancelPostTransition } from '@/composables/usePostTransition'
 import { cancelViewTransition, transitionKind } from '@/app/view-transitions'
+import { siteConfig } from '@/config/site'
 
 const HomePage = () => import('@/pages/HomePage.vue')
 const PostsPage = () => import('@/pages/PostsPage.vue')
@@ -51,20 +52,9 @@ router.beforeEach((to) => {
   cancelPostTransition(to.path)
 })
 
-const pageTitles: Record<string, string> = {
-  '/': '一封春日来信',
-  '/posts': '所有文章',
-  '/editor': '本地文章编辑',
-  '/categories': '文章分类',
-  '/tags': '文章标签',
-  '/archives': '时光归档',
-  '/bangumi': '追番记录',
-  '/friends': '友人来信',
-  '/about': '关于',
-}
-
 router.afterEach(async (to) => {
-  let title = pageTitles[to.path]
+  let title: string | undefined =
+    siteConfig.pageTitles[to.path as keyof typeof siteConfig.pageTitles]?.documentTitle
   if (!title && to.path.startsWith('/posts/')) {
     title =
       (await getPost(Array.isArray(to.params.slug) ? to.params.slug.join('/') : String(to.params.slug)))
@@ -80,5 +70,5 @@ router.afterEach(async (to) => {
       (await getTag(Array.isArray(to.params.slug) ? to.params.slug.join('/') : String(to.params.slug)))
         ?.name || '标签不存在'
   }
-  document.title = `${title ?? '页面不存在'} · Koharu`
+  document.title = `${title ?? siteConfig.notFound.documentTitle} · ${siteConfig.name}`
 })

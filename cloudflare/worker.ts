@@ -1,12 +1,19 @@
 import { handleRandomImage } from './random-image'
+import { API_DEFAULTS } from '../src/config/api-defaults.ts'
 
 interface WorkerEnv {
   ASSETS: { fetch: typeof fetch }
 }
 
 const upstreams = {
-  '/bili': { origin: 'https://api.bilibili.com', referer: 'https://www.bilibili.com/' },
-  '/uapi': { origin: 'https://uapis.cn', referer: 'https://uapis.cn/' },
+  [API_DEFAULTS.paths.bilibiliPrefix]: {
+    origin: API_DEFAULTS.upstreams.bilibili,
+    referer: API_DEFAULTS.referers.bilibili,
+  },
+  [API_DEFAULTS.paths.uapiPrefix]: {
+    origin: API_DEFAULTS.upstreams.uapi,
+    referer: API_DEFAULTS.referers.uapi,
+  },
 } as const
 
 function errorResponse(message: string, status: number, headers?: HeadersInit): Response {
@@ -15,7 +22,8 @@ function errorResponse(message: string, status: number, headers?: HeadersInit): 
 
 export async function handleRequest(request: Request, env: WorkerEnv): Promise<Response> {
   const url = new URL(request.url)
-  if (url.pathname === '/uapi/api/v1/random/image') return handleRandomImage(request)
+  if (url.pathname === API_DEFAULTS.paths.uapiPrefix + API_DEFAULTS.paths.uapiRandomImage)
+    return handleRandomImage(request)
   const prefix = Object.keys(upstreams).find(
     (path) => url.pathname === path || url.pathname.startsWith(`${path}/`),
   ) as keyof typeof upstreams | undefined
@@ -30,14 +38,13 @@ export async function handleRequest(request: Request, env: WorkerEnv): Promise<R
   // Resolve against a fixed host. Never accept a destination URL from a query parameter.
   const upstream = upstreams[prefix]
   const target = new URL(upstream.origin)
-  // Keep the relay's /bili or /uapi prefix; Nginx removes it before forwarding.
-  target.pathname += path
+  target.pathname = path
   target.search = url.search
 
-  if (prefix === '/bili' && path !== '/x/space/bangumi/follow/list') {
+  if (prefix === API_DEFAULTS.paths.bilibiliPrefix && path !== API_DEFAULTS.paths.bilibiliFollow) {
     return errorResponse('此哔哩哔哩接口未开放转发。', 404)
   }
-  if (prefix === '/uapi' && !path.startsWith('/api/')) {
+  if (prefix === API_DEFAULTS.paths.uapiPrefix && !path.startsWith('/api/')) {
     return errorResponse('此 UAPI 路径未开放转发。', 404)
   }
 

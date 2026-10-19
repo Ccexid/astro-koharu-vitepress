@@ -1,4 +1,6 @@
-export const RANDOM_IMAGE_API_URL = 'https://uapis.cn/api/v1/random/image'
+import { API_DEFAULTS } from '../config/api-defaults.ts'
+
+export const RANDOM_IMAGE_API_URL = API_DEFAULTS.upstreams.uapi + API_DEFAULTS.paths.uapiRandomImage
 
 export const randomImageCategories = [
   'acg',

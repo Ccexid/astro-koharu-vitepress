@@ -1,10 +1,9 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios'
-
-const DEFAULT_TIMEOUT = 15_000
+import { apiConfig } from '@/config/api'
 
 export const axiosInstance = axios.create({
   adapter: 'fetch',
-  timeout: DEFAULT_TIMEOUT,
+  timeout: apiConfig.timeoutMs,
   withCredentials: false,
   withXSRFToken: false,
   headers: { Accept: 'application/json' },
@@ -47,7 +46,7 @@ export async function request<T = unknown, D = unknown>(
   url: string | URL,
   options: ApiRequestOptions<D> = {},
 ): Promise<AxiosResponse<T>> {
-  const { serviceName = '接口', timeoutMs = DEFAULT_TIMEOUT, signal, ...config } = options
+  const { serviceName = '接口', timeoutMs = apiConfig.timeoutMs, signal, ...config } = options
   const callerSignal = signal as AbortSignal | undefined
   const timeout = AbortSignal.timeout(timeoutMs)
   const requestSignal = callerSignal ? AbortSignal.any([callerSignal, timeout]) : timeout

@@ -1,4 +1,5 @@
 import type { InjectionKey } from 'vue'
+import { siteConfig } from '@/config/site'
 export type SiteCoverKind = 'home' | 'page' | 'article' | 'not-found'
 export interface SiteCover {
   kind: SiteCoverKind
@@ -16,19 +17,16 @@ export interface SiteCoverController {
 }
 export const siteCoverKey: InjectionKey<SiteCoverController> = Symbol('site-cover')
 export function defaultSiteCover(path: string): SiteCover {
-  if (path === '/') return { kind: 'home', title: '一封春日来信', description: '把日常，写成轻轻落下的花瓣' }
-  if (path === '/about') return { kind: 'page', title: '关于我', compact: false }
-  const titles: Record<string, string> = {
-    '/posts': '所有文章',
-    '/categories': '所有分类',
-    '/tags': '所有标签',
-    '/archives': '归档',
-    '/friends': '友情链接',
-    '/bangumi': '追番',
-  }
-  if (titles[path]) return { kind: 'page', title: titles[path] }
+  const page = siteConfig.pageTitles[path as keyof typeof siteConfig.pageTitles]
+  if (path === '/') return { kind: 'home', title: page.coverTitle, description: siteConfig.tagline }
+  if (page)
+    return {
+      kind: 'page',
+      title: page.coverTitle,
+      compact: 'compact' in page ? page.compact : undefined,
+    }
   if (path.startsWith('/posts/')) return { kind: 'article', title: '正在打开文章…' }
   if (path.startsWith('/categories/') || path.startsWith('/tags/'))
     return { kind: 'page', title: '正在打开…' }
-  return { kind: 'not-found', title: '404' }
+  return { kind: 'not-found', title: siteConfig.notFound.coverTitle }
 }

@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { loadEnv } from 'vite'
 import { fontAwesomeCatalog } from './build/fontawesome-catalog.ts'
 import { precompress } from './build/precompress.ts'
+import { API_DEFAULTS } from './src/config/api-defaults.ts'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -47,14 +48,14 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         // Keep browser requests same-origin and avoid forwarding browser Origin to Bilibili.
-        '/bili': {
-          target: env.VITE_API_BILIBILI_URL || 'https://api.bilibili.com',
+        [API_DEFAULTS.paths.bilibiliPrefix]: {
+          target: env.VITE_API_BILIBILI_URL || API_DEFAULTS.upstreams.bilibili,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/bili/, ''),
+          rewrite: (path) => path.replace(API_DEFAULTS.paths.bilibiliPrefix, ''),
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyRequest) => {
               proxyRequest.removeHeader('origin')
-              proxyRequest.setHeader('referer', 'https://www.bilibili.com/')
+              proxyRequest.setHeader('referer', API_DEFAULTS.referers.bilibili)
               proxyRequest.setHeader(
                 'user-agent',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -62,14 +63,14 @@ export default defineConfig(({ mode }) => {
             })
           },
         },
-        '/uapi': {
-          target: env.VITE_API_UAPI_URL || 'https://uapis.cn',
+        [API_DEFAULTS.paths.uapiPrefix]: {
+          target: env.VITE_API_UAPI_URL || API_DEFAULTS.upstreams.uapi,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/uapi/, ''),
+          rewrite: (path) => path.replace(API_DEFAULTS.paths.uapiPrefix, ''),
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyRequest) => {
               proxyRequest.removeHeader('origin')
-              proxyRequest.setHeader('referer', 'https://uapis.cn')
+              proxyRequest.setHeader('referer', API_DEFAULTS.referers.uapi)
               proxyRequest.setHeader(
                 'user-agent',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

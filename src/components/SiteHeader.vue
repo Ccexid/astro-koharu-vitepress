@@ -1,21 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import {
-  Archive,
-  ChevronDown,
-  Flower2,
-  FolderOpen,
-  Hash,
-  Home,
-  Link,
-  Info,
-  Tv,
-  BookOpen,
-} from 'lucide-vue-next'
+import { ChevronDown, Flower2 } from 'lucide-vue-next'
 import type { Theme } from '@/composables/useTheme'
 import type { SiteCover } from '@/app/site-cover'
 import ArticleToc from '@/components/post/ArticleToc.vue'
+import { isNavigationActive, siteConfig } from '@/config/site'
 const props = defineProps<{
   theme: Theme
   cover: SiteCover
@@ -27,6 +17,7 @@ const props = defineProps<{
 const drawerOpen = defineModel<boolean>('drawerOpen', { default: false })
 const emit = defineEmits<{ toggleTheme: [origin: HTMLElement] }>()
 const route = useRoute()
+const navigation = siteConfig.navigation
 const mobileToc = ref<HTMLDetailsElement | null>(null)
 const article = computed(() => props.cover.kind === 'article')
 const activeTitle = computed(
@@ -55,8 +46,11 @@ function closeMenu(event: MouseEvent) {
       >
         <span class="menu-lines" :class="{ open: drawerOpen }" aria-hidden="true"></span>
       </button>
-      <RouterLink class="wordmark" to="/" aria-label="Koharu 首页"
-        ><Flower2 :size="25" aria-hidden="true" /><span>Koharu</span></RouterLink
+      <RouterLink
+        class="wordmark"
+        :to="navigation.home.to"
+        :aria-label="`${siteConfig.name} ${navigation.home.label}`"
+        ><Flower2 :size="25" aria-hidden="true" /><span>{{ siteConfig.name }}</span></RouterLink
       >
       <details v-if="article" ref="mobileToc" class="mobile-reading-nav">
         <summary>
@@ -72,24 +66,32 @@ function closeMenu(event: MouseEvent) {
           />
         </div>
       </details>
-      <nav class="primary-nav" aria-label="主导航">
-        <RouterLink to="/" :aria-current="route.path === '/' ? 'page' : undefined"
-          ><Home :size="15" aria-hidden="true" />首页</RouterLink
+      <nav class="primary-nav" :aria-label="navigation.ariaLabel">
+        <RouterLink
+          :to="navigation.home.to"
+          :aria-current="isNavigationActive(route.path, navigation.home.to) ? 'page' : undefined"
         >
+          <component :is="navigation.home.icon" :size="15" aria-hidden="true" />{{ navigation.home.label }}
+        </RouterLink>
         <details class="header-dropdown">
           <summary>
-            <BookOpen :size="15" aria-hidden="true" />文章<ChevronDown :size="13" aria-hidden="true" />
+            <component :is="navigation.articles.icon" :size="15" aria-hidden="true" />
+            {{ navigation.articles.label }}<ChevronDown :size="13" aria-hidden="true" />
           </summary>
           <div class="header-dropdown-menu" @click="closeMenu">
-            <RouterLink to="/posts"><BookOpen :size="15" />所有文章</RouterLink
-            ><RouterLink to="/categories"><FolderOpen :size="15" />分类</RouterLink
-            ><RouterLink to="/tags"><Hash :size="15" />标签</RouterLink
-            ><RouterLink to="/archives"><Archive :size="15" />归档</RouterLink>
+            <RouterLink v-for="item in navigation.articles.items" :key="item.to" :to="item.to">
+              <component :is="item.icon" :size="15" />{{ item.label }}
+            </RouterLink>
           </div>
         </details>
-        <RouterLink to="/friends"><Link :size="15" aria-hidden="true" />友链</RouterLink>
-        <RouterLink to="/about"><Info :size="15" aria-hidden="true" />关于</RouterLink>
-        <RouterLink to="/bangumi"><Tv :size="15" aria-hidden="true" />追番</RouterLink>
+        <RouterLink
+          v-for="item in navigation.primary"
+          :key="item.to"
+          :to="item.to"
+          :aria-current="isNavigationActive(route.path, item.to) ? 'page' : undefined"
+        >
+          <component :is="item.icon" :size="15" aria-hidden="true" />{{ item.label }}
+        </RouterLink>
       </nav>
       <button
         class="icon-button theme-toggle"

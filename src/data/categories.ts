@@ -8,4 +8,5 @@ export const categoryCatalog: TaxonomyRef[] = [
   { name: '摄影', slug: 'craft/photography' },
   { name: '前端', slug: 'frontend' },
   { name: 'Vue', slug: 'frontend/vue' },
+  { name: '后端', slug: 'background' },
 ]

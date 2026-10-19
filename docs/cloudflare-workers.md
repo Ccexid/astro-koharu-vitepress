@@ -4,14 +4,14 @@
 
 ## 请求路径
 
-| 浏览器同源请求                          | Worker 转发地址                                                  |
-| --------------------------------------- | ---------------------------------------------------------------- |
-| `/bili/x/space/bangumi/follow/list?...` | `http://8.148.179.96:5173/bili/x/space/bangumi/follow/list?...`  |
-| `/uapi/api/v1/...?...`（随机图片除外）  | `http://8.148.179.96:5173/uapi/api/v1/...?...`                   |
-| `/uapi/api/v1/random/image?...`         | `https://uapis.cn/api/v1/random/image?...`，由独立图片处理器转发 |
-| `/`、文章路由、`/assets/*` 等           | 静态资源；页面深链接使用 SPA fallback                            |
+| 浏览器同源请求                          | Worker 转发地址                                                    |
+| --------------------------------------- | ------------------------------------------------------------------ |
+| `/bili/x/space/bangumi/follow/list?...` | `https://api.bilibili.com/x/space/bangumi/follow/list?...`         |
+| `/uapi/api/v1/...?...`（随机图片除外）  | `https://uapis.cn/api/v1/...?...`                                  |
+| `/uapi/api/v1/random/image?...`         | Worker 图片处理器转发到 `https://uapis.cn/api/v1/random/image?...` |
+| `/`、文章路由、`/assets/*` 等           | 静态资源；页面深链接使用 SPA fallback                              |
 
-普通 API 经过服务器上的 Nginx 中转，再由 Nginx 去掉 `/bili/` 或 `/uapi/` 前缀并请求第三方。Worker 拼接路径时必须保留中转地址自身的前缀；直接用 `/api/v1/saying` 覆盖 pathname 会请求到服务器的前端路由，返回 HTML 页面。
+API 上游默认值与代理路径集中在 `src/config/api-defaults.ts`，开发 Vite 代理和 Cloudflare Worker 共用。Worker 使用同源路径前缀路由请求上游，并在转发时移除前缀；Nginx 静态站仍使用 `deploy/nginx/astro-koharu-1panel.conf` 中的独立转发配置。
 
 `assets.run_worker_first` 只匹配 `/bili` 和 `/uapi` 路由。这些请求必须先运行 Worker，否则静态站的 SPA fallback 可能把 API 地址返回成 `index.html`。
 
@@ -26,7 +26,7 @@ bun run cf:dev
 
 该命令先生成 `dist`，再运行 Wrangler 本地环境。打开终端显示的本地地址（通常为端口 8787）；这样测试的是 Worker 与静态资源，而不只是 Vite 的开发代理。
 
-请求 `http://127.0.0.1:8787/uapi/api/v1/saying`，应返回 `Content-Type: application/json` 和可解析的 JSON。若返回 HTML，检查 Worker 中转目标是否保留 `/uapi`；该路径应先转发到 `http://8.148.179.96:5173/uapi/api/v1/saying`。
+请求 `http://127.0.0.1:8787/uapi/api/v1/saying`，应返回 `Content-Type: application/json` 和可解析的 JSON。若返回 HTML，检查 `run_worker_first` 是否覆盖 `/uapi/*`，并确认 Worker 与 `src/config/api-defaults.ts` 中的路径配置一致。
 
 仅检查 Worker 打包及静态资源绑定、不发布：
 

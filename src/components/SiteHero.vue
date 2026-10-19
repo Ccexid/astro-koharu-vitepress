@@ -6,6 +6,7 @@ import { useHeroMotion } from '@/composables/useHeroMotion'
 import { transitioningPost } from '@/composables/usePostTransition'
 import HomeSaying from '@/components/HomeSaying.vue'
 import { useHeroBackground } from '@/composables/useHeroBackground'
+import { siteConfig } from '@/config/site'
 const props = defineProps<{ cover: SiteCover }>()
 const hero = ref<HTMLElement | null>(null)
 const image = ref<HTMLImageElement | null>(null)
@@ -71,7 +72,7 @@ async function copyLink() {
     </div>
     <div class="hero-copy-motion">
       <div class="hero-copy">
-        <p v-if="cover.kind === 'home'" class="hero-alternate">Koharu</p>
+        <p v-if="cover.kind === 'home'" class="hero-alternate">{{ siteConfig.name }}</p>
         <h1 id="site-title">
           <HomeSaying v-if="cover.kind === 'home'" :fallback="cover.title" />
           <span

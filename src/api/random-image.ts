@@ -1,6 +1,7 @@
 import { AxiosHeaders } from 'axios'
 import { createRandomImageUrl, type RandomImageQuery } from '@/api/random-image-contract'
 import { request } from '@/api/http'
+import { apiConfig } from '@/config/api'
 
 export type { RandomImageQuery, RandomImageCategory } from '@/api/random-image-contract'
 
@@ -54,10 +55,10 @@ export async function fetchRandomImage(
   options: RandomImageOptions = {},
 ): Promise<Blob> {
   const target = createRandomImageUrl(query)
-  const { signal, timeoutMs = 30_000 } = options
+  const { signal, timeoutMs = apiConfig.randomImageTimeoutMs } = options
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) throw new RangeError('请求超时必须是正整数毫秒。')
   try {
-    const response = await request<Blob>(`/uapi${target.pathname}${target.search}`, {
+    const response = await request<Blob>(`${apiConfig.routes.randomImage}${target.search}`, {
       method: 'GET',
       headers: { Accept: 'image/*' },
       fetchOptions: { cache: 'no-store' },

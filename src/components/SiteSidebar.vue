@@ -1,21 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch, type Component } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import {
-  Archive,
-  BookOpen,
-  FolderOpen,
-  Hash,
-  Home,
-  Info,
-  Link,
-  List,
-  UserRound,
-  Flower2,
-  Tv,
-} from 'lucide-vue-next'
+import { List, UserRound, Flower2 } from 'lucide-vue-next'
 import ArticleToc from '@/components/post/ArticleToc.vue'
 import type { SiteCover } from '@/app/site-cover'
+import { isNavigationActive, siteConfig } from '@/config/site'
 const props = withDefaults(
   defineProps<{
     variant?: 'sidebar' | 'drawer'
@@ -35,18 +24,9 @@ const props = withDefaults(
 )
 const emit = defineEmits<{ navigate: []; retry: [] }>()
 const route = useRoute()
+const nav = siteConfig.navigation.sidebar
 const panel = ref<'profile' | 'toc'>('profile')
 const article = computed(() => props.cover?.kind === 'article')
-const nav = [
-  { label: '首页', to: '/', icon: Home },
-  { label: '所有文章', to: '/posts', icon: BookOpen },
-  { label: '分类', to: '/categories', icon: FolderOpen },
-  { label: '标签', to: '/tags', icon: Hash },
-  { label: '归档', to: '/archives', icon: Archive },
-  { label: '友链', to: '/friends', icon: Link },
-  { label: '关于', to: '/about', icon: Info },
-  { label: '追番', to: '/bangumi', icon: Tv },
-]
 watch(
   () => route.path,
   () => {
@@ -59,7 +39,11 @@ watch(article, (value) => {
 })
 </script>
 <template>
-  <aside class="site-sidebar" :class="{ 'is-drawer': variant === 'drawer' }" aria-label="站点侧栏">
+  <aside
+    class="site-sidebar"
+    :class="{ 'is-drawer': variant === 'drawer' }"
+    :aria-label="siteConfig.navigation.ariaLabel"
+  >
     <div v-if="article" class="sidebar-tabs" role="group" aria-label="侧栏内容">
       <button type="button" :aria-pressed="panel === 'profile'" @click="panel = 'profile'">
         <UserRound :size="16" aria-hidden="true" />站点概览
@@ -81,8 +65,8 @@ watch(article, (value) => {
             <Flower2 :size="56" :stroke-width="1" aria-hidden="true" />
           </div>
           <div>
-            <h2>春日来信</h2>
-            <p class="profile-bio">写下生活里细小而明亮的片刻。</p>
+            <h2>{{ siteConfig.author }}</h2>
+            <p class="profile-bio">{{ siteConfig.profileDescription }}</p>
             <div v-if="props.profileSocials.length" class="profile-social">
               <template v-for="item in props.profileSocials" :key="item.id">
                 <RouterLink
@@ -111,15 +95,15 @@ watch(article, (value) => {
           </div>
         </div>
         <div v-if="!props.statsError" class="profile-stats">
-          <RouterLink to="/posts"
+          <RouterLink :to="siteConfig.navigation.articles.items[0].to"
             ><strong>{{ props.stats.posts }}</strong
             ><small>文章</small></RouterLink
           >
-          <RouterLink to="/categories"
+          <RouterLink :to="siteConfig.navigation.articles.items[1].to"
             ><strong>{{ props.stats.categories }}</strong
             ><small>分类</small></RouterLink
           >
-          <RouterLink to="/tags"
+          <RouterLink :to="siteConfig.navigation.articles.items[2].to"
             ><strong>{{ props.stats.tags }}</strong
             ><small>标签</small></RouterLink
           >
@@ -128,12 +112,12 @@ watch(article, (value) => {
           统计暂不可用 <button type="button" @click="emit('retry')">重试</button>
         </p>
       </div>
-      <nav class="sidebar-nav" aria-label="内容导航">
+      <nav class="sidebar-nav" :aria-label="siteConfig.navigation.ariaLabel">
         <RouterLink
           v-for="item in nav"
           :key="item.to"
           :to="item.to"
-          :class="{ 'is-active': item.to === '/' ? route.path === '/' : route.path.startsWith(item.to) }"
+          :class="{ 'is-active': isNavigationActive(route.path, item.to) }"
           @click="emit('navigate')"
         >
           <component :is="item.icon" :size="18" aria-hidden="true" />{{ item.label }}

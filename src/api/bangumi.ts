@@ -1,5 +1,6 @@
 import type { CollectionItem, CollectionPage, CollectionStatus, SubjectType } from '@/types/bangumi'
 import { get } from '@/api/http'
+import { apiConfig } from '@/config/api'
 
 export interface BangumiQuery {
   userId: string
@@ -58,7 +59,10 @@ export async function fetchBangumiPage(query: BangumiQuery, signal?: AbortSignal
     limit > 50
   )
     throw new RangeError('无效的 Bangumi 读取参数。')
-  const url = new URL('https://api.bgm.tv/v0/users/' + encodeURIComponent(userId.trim()) + '/collections')
+  const url = new URL(
+    `users/${encodeURIComponent(userId.trim())}/collections`,
+    apiConfig.bangumiBaseUrl + '/',
+  )
   url.searchParams.set('subject_type', String(subjectType))
   url.searchParams.set('offset', String(offset))
   url.searchParams.set('limit', String(limit))

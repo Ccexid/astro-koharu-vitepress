@@ -1,5 +1,9 @@
 # 双数据源追番 API 边界
 
+## 配置
+
+上游地址和路径默认值集中在 `src/config/api-defaults.ts`，前端请求配置集中在 `src/config/api.ts`。`.env` 中的 `VITE_API_BILIBILI_URL`、`VITE_API_UAPI_URL` 覆盖 Vite 开发代理；`VITE_API_BANGUMI_URL` 和两个超时变量覆盖前端运行时配置。`VITE_*` 值会写入前端构建，不要放密钥。浏览器仍请求同源 `/bili`、`/uapi` 路由；开发代理和生产 Worker/Nginx 的路由需要保持一致。
+
 两个 provider adapter 共用 `http.ts` 中的 Axios 实例与 `request`、`get`、`post` 方法：统一处理 15 秒请求超时、外部 `AbortSignal`、HTTP 非成功状态及无效 JSON 响应。接口适配器继续负责 provider envelope 校验和领域字段映射。
 
 页面顶部提供哔哩哔哩 / Bangumi.tv 标签，同时保留两套适配器。仅加载当前选中的来源；切换时销毁旧列表面板、取消列表和统计请求，重置筛选及追加位置，不混合条目 ID 或平台计数。两个来源共用海报瀑布流，每批 24 条，URL 始终为 `/bangumi`。

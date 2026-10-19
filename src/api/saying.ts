@@ -1,4 +1,5 @@
 import { get } from '@/api/http'
+import { apiConfig } from '@/config/api'
 
 export interface SayingResponse {
   text: string
@@ -6,7 +7,7 @@ export interface SayingResponse {
 
 /** Read a random saying through the same-origin UAPI route. */
 export async function fetchSaying(signal?: AbortSignal): Promise<SayingResponse> {
-  const payload = await get<unknown>('/uapi/api/v1/saying', {
+  const payload = await get<unknown>(apiConfig.routes.saying, {
     signal,
     serviceName: '一言',
     fetchOptions: { cache: 'no-store' },
