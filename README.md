@@ -1,102 +1,109 @@
-# Koharu Vue 静态页面模板
+# Koharu
 
-本项目参考 [astro-koharu](https://github.com/cosZone/astro-koharu) 的公开博客界面和视觉风格，使用 **Vue 3 + Vite + TypeScript** 制作前端静态页面模板。当前阶段以本地模拟数据呈现页面，未来接入独立后端。目录名中的 `vitepress` 是历史名称，项目不使用 VitePress。
+Vue 3、Vite 和 TypeScript 构建的静态博客前端，参考 [astro-koharu](https://github.com/cosZone/astro-koharu) 的视觉与交互。目录名中的 `vitepress` 是历史名称；项目不使用 VitePress。
 
-> 当前已实现站点外壳、首页、文章列表/详情、分类/标签、归档、友链、关于与追番。文章列表保留原有卡片风格和滚动追加；追番顶部可切换哔哩哔哩与 Bangumi.tv，均保留响应式瀑布流。首页动效补齐计划见 `plans/README.md`。
+当前文章、分类、标签和友链由本地数据提供；追番与一言使用公开 API。Cloudflare Worker 提供静态资源和 API 转发。**D1 数据库、用户登录和在线写入尚未实现。**
 
-## 本地运行
+## 功能
 
-需要 Bun 1.3.14。执行 `bun install` 后，可使用：
+- 首页、文章列表与详情、分类、标签、归档、友链、关于及追番页面，适配桌面和移动端。
+- 明暗主题、文章目录、阅读进度、推荐文章和加载/错误/空状态。
+- 本地文章编辑器：Tiptap 富文本编辑、IndexedDB 草稿保存、预览以及 JSON 导入/导出。草稿保存在当前浏览器，不会直接发布到线上。
+- 本地发布流程：将编辑器导出的 JSON 校验后写入 `src/data/articles/`，随 Git 提交和站点构建发布。
+- 追番支持哔哩哔哩和 Bangumi.tv；API 请求通过 Axios 通用客户端处理。
+
+## 页面路由
+
+| 路由                               | 页面           |
+| ---------------------------------- | -------------- |
+| `/`                                | 首页           |
+| `/posts`                           | 文章列表       |
+| `/posts/:slug`                     | 文章详情       |
+| `/categories`、`/categories/:slug` | 分类列表与详情 |
+| `/tags`、`/tags/:slug`             | 标签列表与详情 |
+| `/archives`                        | 归档           |
+| `/friends`                         | 友链           |
+| `/about`                           | 关于           |
+| `/bangumi`                         | 追番记录       |
+| `/editor`、`/editor?post=:slug`    | 本地文章编辑   |
+
+## 快速开始
+
+需要 Bun `1.3.14`。
 
 ```sh
+bun install
 bun run dev
-bun run typecheck
-bun run test
-bun run build
-bun run build:report
-bun run preview
-bun run format
-bun run format:check
-bun run article:check
-bun run article:publish "导出的文章.json"
-bun run article:verify
 ```
 
-开发服务器的实际地址以终端输出为准。当前首页在 `/`，示例文章在 `/posts/a-note-for-spring`；文章内容由 `src/services/posts.ts` 从本地模拟数据读取。`/bangumi` 顶部选择数据源：哔哩哔哩通过 `/bili` 代理并读取 `VITE_API_BILIBILI_UID`，Bangumi.tv 通过 `api.bgm.tv/v0` 并读取 `VITE_BANGUMI_USER_ID`。两个来源均每批追加 24 条，不增加分页 URL。
+开发服务器地址以终端输出为准。示例路由：`/`、`/posts/a-note-for-spring`、`/bangumi` 和 `/editor`。如需修改公开 API 参数，可复制 `.env.example` 为 `.env` 并调整相应值。
 
-本地写作入口为 `/editor`，基础正文样式演示为 `/posts/article-style-guide`，可通过 `/editor?post=article-style-guide` 编辑演示文章。支持 Tiptap 可视化编辑、IndexedDB 自动保存与恢复、真实预览和 JSON 导入导出。保存只影响当前浏览器；使用说明、内容协议及验收记录见 [文章编辑说明](docs/article-editor.md)。
+## 环境变量
 
-导出的 JSON 通过 `bun run article:publish "文件.json"` 自动纳入 `src/data/articles/`，按稳定 ID 新增或更新并执行文章测试与生产构建。页面自动收录目录内容，不再逐篇修改 `posts.ts`。提交、推送生产分支后，可由 Cloudflare Workers Builds 自动部署；首次需要账号侧连接 Git，构建命令使用 `bun run cf:build`。完整流程见 [文章发布说明](docs/article-publishing.md)。
+| 变量                               | 用途                            |
+| ---------------------------------- | ------------------------------- |
+| `VITE_API_BILIBILI_UID`            | 默认哔哩哔哩用户 UID            |
+| `VITE_BANGUMI_USER_ID`             | 默认 Bangumi 用户名             |
+| `VITE_API_BILIBILI_URL`            | Vite 开发代理的哔哩哔哩上游地址 |
+| `VITE_API_UAPI_URL`                | Vite 开发代理的 UAPI 上游地址   |
+| `VITE_API_BANGUMI_URL`             | 前端构建使用的 Bangumi API 地址 |
+| `VITE_API_TIMEOUT_MS`              | JSON API 超时，毫秒             |
+| `VITE_API_RANDOM_IMAGE_TIMEOUT_MS` | 随机图片 API 超时，毫秒         |
 
-发布链路本地验收：72 项文章相关测试、类型检查、生产构建与 Worker dry-run 通过；全量 166 项测试中仍有 4 项现有 API 地址断言失败。详细结果与线上待配置事项见发布说明末尾的验收记录。
+API 默认值见 [`src/config/api-defaults.ts`](src/config/api-defaults.ts)，运行时配置见 [`src/config/api.ts`](src/config/api.ts)。`VITE_API_BILIBILI_URL` 和 `VITE_API_UAPI_URL` 配置 Vite 开发代理；其他 `VITE_*` 配置会进入浏览器构建，不能放密钥。生产 Worker 使用共享默认上游配置。
 
-构建使用页面懒加载、Vue 依赖分包和 FA6 图标按批加载，并生成 manifest、许可证清单及 gzip/Brotli 资源。`build:report` 会重新构建并统计首页所需 JS（包含共享依赖）。预压缩资源需要托管服务器启用对应的内容协商才能生效；部署与缓存配置见 [构建优化说明](docs/build-optimization.md)。
+## 数据与发布
 
-Cloudflare Workers 已提供生产 API 转发入口 `cloudflare/worker.ts` 与 `wrangler.jsonc`。运行 `bun run cf:dev` 本地验证，`bun run cf:check` 只检查、不发布；配置与发布步骤见 [Cloudflare Workers 部署说明](docs/cloudflare-workers.md)。
+页面通过 `src/services/` 读取数据，不直接导入 `src/data/`。`src/data/posts.ts` 将示例文章与 `src/data/articles/*.json` 合并；正文使用结构化 JSON，不使用 Markdown/MDX。
 
-## 目标与范围
+文章发布步骤：在 `/editor` 编辑并导出 JSON，然后运行：
 
-- 参考上游的布局、色彩、排版、卡片、导航和交互，用 Vue 单文件组件重新实现，不直接搬运 Astro/React 组件。
-- 覆盖桌面和移动端，支持明暗主题与常见页面状态。
-- 页面通过数据读取接口获取本地模拟数据，为以后替换成 HTTP API 留出明确边界。
-- 文章内容使用结构化模拟数据或 Vue 模板展示，**不以 Markdown/MDX 为内容源**。追番页同时保留 `src/api/bilibili.ts` 与 `src/api/bangumi.ts`，通过顶部标签选择数据来源。
+```sh
+bun run article:publish "path/to/article.json"
+```
 
-本轮按已确认的阶段 1＋2 增加浏览器内文章编辑；当前不做 VitePress、Astro 构建、Markdown 解析、线上 CMS/发布服务、后端、数据库、认证、评论服务、搜索服务、RSS、站点地图或文章预渲染。Vite 的普通客户端构建可以静态部署，但并不为每篇文章生成独立 HTML。未来若需服务端可读正文和 SEO，再单独选择预渲染或 SSR 方案。
+命令校验文章并更新本地 JSON 文件。检查通过后提交并推送 Git；若 Cloudflare Workers Builds 已连接仓库，构建成功后会部署更新。完整流程见[文章发布说明](docs/article-publishing.md)和[编辑器说明](docs/article-editor.md)。
 
-## 页面清单
+## 部署
 
-| 页面       | 建议路由                           | 初期展示内容                             |
-| ---------- | ---------------------------------- | ---------------------------------------- |
-| 首页       | `/`                                | 站点导航、视觉区域、文章列表与响应式布局 |
-| 文章列表   | `/posts`                           | 摘要卡片及筛选与滚动追加演示             |
-| 文章详情   | `/posts/:slug`                     | 标题、元信息、示例正文、目录与阅读布局   |
-| 本地编辑   | `/editor`、`/editor?post=:slug`    | 文章信息、富文本正文、本地草稿与导入导出 |
-| 分类       | `/categories`、`/categories/:slug` | 分类入口及关联文章                       |
-| 标签       | `/tags`、`/tags/:slug`             | 标签入口及关联文章                       |
-| 归档       | `/archives`                        | 时间分组的文章列表                       |
-| 追番记录   | `/bangumi`                         | 哔哩哔哩番剧/影视、追番状态与瀑布流追加  |
-| 友链与关于 | `/friends`、`/about`               | 静态资料与链接                           |
+Cloudflare Worker 同时托管 `dist/` 并转发 `/bili`、`/uapi` 请求。开发与发布相关命令：
 
-搜索、系列、音乐、多语言和第三方评论暂列后续可选功能。具体外观与交互在实施前根据选定的上游版本及截图确定，不以“完整复刻”作为本阶段承诺。
+```sh
+bun run cf:dev       # 构建后启动 Wrangler 本地 Worker
+bun run cf:check     # Worker dry-run，不发布
+bun run cf:deploy    # 构建并部署到已登录的 Cloudflare 账户
+```
 
-## 技术约定
+配置和验收步骤见 [Cloudflare Worker 部署说明](docs/cloudflare-workers.md)。使用 1Panel 静态托管时，将 `bun run build` 生成的 `dist/` 上传到站点目录，并按 [`deploy/nginx/astro-koharu-1panel.conf`](deploy/nginx/astro-koharu-1panel.conf) 配置同源 API 代理和 history 路由回退。
 
-- Vue 3 SFC 使用 `<script setup lang="ts">`；Vite 负责开发和构建；使用 Vue Router 导航。
-- Bun 作为包管理器与脚本运行器。初始化时核对本机 Bun 版本并设置 `packageManager`，只提交 `bun.lock`，避免混用其他锁文件。
-- 用 TypeScript 描述文章、分类、标签、导航和加载状态。全局状态库只在实际存在共享状态时引入。
-- 样式使用 CSS 变量管理主题令牌，组件和页面遵循一致的响应式断点。
-- 上游代码许可及图片、字体等第三方素材授权须在复制前核查；本项目保留参考来源及所用资源的归属记录。仅作视觉参考时优先自行实现。
+Vue Router 使用 history 模式，托管环境需将未匹配的页面路由回退至 `index.html`。这只保证客户端路由可刷新，不会生成独立的文章 HTML。
 
-工程采用以下目录分层；未创建的目录在对应阶段加入：
+## 常用命令
+
+| 命令                    | 说明                             |
+| ----------------------- | -------------------------------- |
+| `bun run dev`           | 启动 Vite 开发服务器             |
+| `bun run typecheck`     | TypeScript / Vue 类型检查        |
+| `bun run test`          | 运行全部测试                     |
+| `bun run test:articles` | 运行文章相关测试                 |
+| `bun run build`         | 校验文章、类型检查并构建生产文件 |
+| `bun run preview`       | 本地预览 `dist/`                 |
+| `bun run format:check`  | 检查 Prettier 格式               |
+| `bun run article:check` | 校验文章 JSON 目录               |
+
+## 项目结构
 
 ```text
 src/
-  app/              # 入口、路由及全局配置
-  assets/           # 有明确授权的图片和字体
-  components/       # 站点布局与通用 UI
-  pages/            # 路由页面
-  data/             # 本地模拟数据
-  services/         # 数据读取边界，后续改为 HTTP 实现
-  types/            # 领域类型
-  styles/           # 全局样式与主题变量
-public/             # 不经打包处理的静态资源
-tests/              # 组件和页面测试
+  api/          Axios 客户端与第三方 API 适配器
+  app/          路由、站点封面与应用级逻辑
+  components/   布局和可复用 UI
+  config/       API 与站点配置
+  data/         本地模拟数据和文章 JSON
+  pages/        路由页面
+  services/     页面使用的类型化数据接口
+  types/        内容与 API 类型
+cloudflare/     Worker 入口和 API 转发
+deploy/nginx/   1Panel 静态网站 Nginx 示例
+tests/          单元与集成测试
 ```
-
-页面只依赖 `services/` 的读取接口，不直接导入 `data/`。模拟数据应有稳定 ID、slug、时间及字段含义；列表加载、空数据、读取错误和文章不存在等状态都需要页面表现。追番读取由 `src/services/bangumi.ts` 包装，哔哩哔哩请求由 `src/api/bilibili.ts` 处理。开发使用用户配置的 `/bili` 代理，静态部署需要提供对应的同源转发。
-
-## 实施顺序与验收
-
-1. 初始化 Vue + Vite + TS、Bun、路由、类型检查、格式化与基础测试；保证开发与生产构建通过。
-2. 选定上游参考版本，记录关键页面截图和可用素材；建立主题令牌、导航、站点外壳与移动布局。
-3. 实现首页、文章列表和详情，接入模拟数据与加载、空、错误状态。
-4. 实现分类、标签、归档、友链和关于页面；核对桌面与移动端交互。
-5. 检查构建、类型、测试、深链接、资源授权和基本无障碍；记录未覆盖的上游能力与未来 API 对接点。
-
-若使用 Vue Router history 模式，部署服务器必须将未知路径回退到 `index.html`，否则直接刷新 `/posts/:slug` 会得到 404。回退只能解决客户端路由，不会让文章生成独立 HTML。
-
-本轮文章功能通过类型检查、32 项正文/草稿测试、格式检查和生产构建；全量 137 项测试中有 3 项现有 UAPI 地址断言失败，详情见 [文章编辑验收记录](docs/article-editor.md)。追番此前已验证哔哩哔哩列表与 Bangumi.tv 用户 `ccexid` 的收藏读取，Bangumi 24→51 条追加无重复，URL 不变。首页动效计划见 `plans/README.md`。部署需要配置 history fallback、同源 `/bili` API 代理并确认 `api.bgm.tv` 可访问。
-
-## 下一步
-
-参考版本固定为 `.reference/v7.7.4`。本轮结构对齐与验证结果见 `docs/alignment-v7.7.4.md`；后续部署需验证 history fallback、Bangumi 网络可用性并替换演示作者资料。
